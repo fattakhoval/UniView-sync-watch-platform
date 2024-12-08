@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "overwatch"
+version = "0.1.0"
+description = ""
+authors = ["fattakhoval <fattahoval66@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+django = "^5.1.4"
+channels = "^4.2.0"
+uvicorn = "^0.32.1"
+websockets = "^14.1"
+whitenoise = "^6.8.2"
+celery = {extras = ["redis"], version = "^5.4.0"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
