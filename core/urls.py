@@ -20,5 +20,9 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('room/', include('room.urls'))
+    path('room/', include('room.urls')),
+    path('chat/', include('chat.urls')),
+    path('video/', include('video.urls')),
+    path("accounts/", include("django_registration.backends.one_step.urls")),
+    path("accounts/", include("django.contrib.auth.urls")),
 ]

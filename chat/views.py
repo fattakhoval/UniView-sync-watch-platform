@@ -1,6 +1,9 @@
-from django.shortcuts import render
+from django.http import JsonResponse
+from chat.models import Message
 
-def chat_room(request, room_name):
-    return render(request, 'chat/chat_room.html', {
-        'room_name': room_name
-    })
+def get_message_by_chat_id(request):
+    chat_id = request.GET.get('chat_id')
+
+    messages = Message.objects.filter(chat_id=chat_id)
+
+    return JsonResponse({'messages': list(messages)})

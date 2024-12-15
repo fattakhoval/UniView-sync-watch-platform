@@ -10,4 +10,3 @@ class Video(models.Model):
     home_url = models.CharField(max_length=200)
     is_our = models.BooleanField()
     created_at = models.DateTimeField(auto_now_add=True)
-

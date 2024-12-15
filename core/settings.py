@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-6d=1ye&i1w5-ld@(&^s4krvnu8li3!#f$#wd=y=!wl)r3ya*0d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -37,12 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'celery',
     'room',
     'chat',
     'video',
-    'custom_user',
     'channels',
+    'corsheaders',
+    'django_registration',
 ]
 
 MIDDLEWARE = [
@@ -54,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -124,6 +127,8 @@ USE_I18N = True
 
 USE_TZ = True
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -134,8 +139,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-AUTH_USER_MODEL = 'custom_user.CustomUser'
 
 ASGI_APPLICATION = 'core.asgi.application'
 
@@ -148,7 +151,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # settings.py
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'  # URL вашего Redis
+CELERY_BROKER_URL = 'redis://0.0.0.0:6379/0'  # URL вашего Redis
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+
+
+SITE_ID = 1
+
+LOGIN_REDIRECT_URL = '/'
 

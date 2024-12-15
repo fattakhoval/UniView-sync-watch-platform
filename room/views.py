@@ -1,30 +1,55 @@
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.views.generic import TemplateView
+
 from room.models import Room
-from chat.models import Chat
+from chat.models import Chat, Message
 
 
-def index(request):
-    if request.user.is_authenticated:
-        user_id = request.user
-    else:
-        user_id = AnonymousUser()
-    if request.method == 'GET':
-        return render(request, template_name='room/room_index.html', context={'user_id': user_id})
-    elif request.method == 'POST':
-        return create_room(user_id)
+class MainPage(LoginRequiredMixin, TemplateView):
+
+    template_name = 'room/room_index.html'
+
+    login_url = '/accounts/login'
+    redirect_field_name = 'next'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user_id'] = self.request.user.id
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        new_chat = Chat.objects.create()
+        new_room = Room.objects.create(
+            user_id=request.user,
+            chat_id=new_chat
+        )
+        return HttpResponseRedirect(reverse('custom_room', kwargs={'room_id': new_room.id}))
 
 
-def custom_room(request, room_id):
-    return render(request, template_name='room/custom_room.html', context={'room_id': room_id, 'room_name': 'hehe'})
+class CreatedRoom(LoginRequiredMixin, TemplateView):
 
-def create_room(user_id):
+    template_name = 'room/custom_room.html'
 
-    new_chat = Chat.objects.create()
-    new_room = Room.objects.create(
-        user_id=user_id,
-        chat_id=new_chat
-    )
-    return redirect(reverse('custom_room', kwargs={'room_id': new_room.id}))
+    login_url = '/accounts/login'
+    redirect_field_name = 'next'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        room_id = kwargs.get('room_id')
+        room = Room.objects.get(id=room_id)
+
+        context['chat_id'] = room.chat_id.id
+        context['user_id'] = self.request.user.id
+
+        user = User.objects.get(id=self.request.user.id)
+
+        context['username'] = user.username
+
+        context['messages'] = Message.objects.filter(chat_id=room.chat_id.id).select_related('user_id').values('id', 'message', 'user_id__username', 'created_at')
+
+        return context

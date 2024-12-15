@@ -1,7 +1,7 @@
 import uuid
 
 from django.db import models
-from django.conf import settings
+from django.contrib.auth.models import User
 
 
 class Chat(models.Model):
@@ -9,12 +9,11 @@ class Chat(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-
 class Message(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     message = models.CharField(max_length=256)
-    chat_id = models.OneToOneField(Chat, on_delete=models.CASCADE)
-    user_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    chat_id = models.ForeignKey(Chat, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -13,6 +13,12 @@ uvicorn = "^0.32.1"
 websockets = "^14.1"
 whitenoise = "^6.8.2"
 celery = {extras = ["redis"], version = "^5.4.0"}
+django-cors-headers = "^4.6.0"
+requests = "^2.32.3"
+moviepy = "^2.1.1"
+pytube = "^15.0.0"
+yt-dlp = "^2024.12.13"
+django-registration = "^5.1.0"
 
 
 [build-system]
