@@ -7,7 +7,8 @@ let sourceBuffer;
 let chunkQueue = []; // Очередь для хранения входящих чанков
 
 mediaSource.addEventListener('sourceopen', () => {
-    sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp9, opus"');
+//    sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp9, opus"');
+    sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8, vorbis"');
     console.log('MediaSource opened and SourceBuffer created.');
     videoElement.play();
     processQueue(); // Начинаем обработку очереди, когда SourceBuffer готов

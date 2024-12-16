@@ -19,6 +19,9 @@ moviepy = "^2.1.1"
 pytube = "^15.0.0"
 yt-dlp = "^2024.12.13"
 django-registration = "^5.1.0"
+selenium = "^4.27.1"
+m3u8 = "^6.0.0"
+ffmpeg-python = "^0.2.0"
 
 
 [build-system]

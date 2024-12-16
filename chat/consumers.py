@@ -1,6 +1,8 @@
 import asyncio
 import json
+from urllib.parse import urljoin
 
+import requests
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 from chat.tasks import save_message
@@ -135,23 +137,17 @@ class VideoConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
         print('Ready to send')
-        await asyncio.sleep(6)
-        chunk_size = 2048 * 1024
-        video_file = '/home/letquare/Downloads/1718888139_sample_960x400_ocean_with_audio.webm'
+        await asyncio.sleep(5)
 
-        # Open the video file
-        with open(video_file, 'rb') as video_file:
-            while True:
-                chunk = video_file.read(chunk_size)
-                if not chunk:
-                    break  # End of file reached
-
-                print(f'send: {len(chunk)}')
-                await self.send(chunk)  # Send the chunk to the WebSocket
-                await asyncio.sleep(1)  # Уменьшенная задержка
-
-        # После завершения отправки всех чанков
-        await self.send('END_OF_STREAM')
+        # Fetch and send video segments
+        #for segment_content in get_video():
+        for segment_content in jjk_video():
+            if segment_content == 'END_OF_STREAM':
+                await self.send('END_OF_STREAM')  # Notify the client that the stream has ended
+                break
+            else:
+                convert = transcode_segment(segment_content)
+                await self.send(convert)
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
@@ -161,3 +157,70 @@ class VideoConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, bytes_data):
         await self.send(bytes_data)
+
+
+def get_video():
+    import m3u8
+    import requests
+
+    url = 'https://river-3-335.rutube.ru/hls-vod/9UVEimcMVXKcA8aj3UYrVA/1734975692/2317/rutube-ds-origin-vs322-1/21ca585aa2b04478aeaafdda793d8036.mp4.m3u8?i=1280x692_889'
+
+        # Fetch the M3U8 playlist
+    response =  requests.get(url)
+    response.raise_for_status()  # Raise an error if the request fails
+    playlist = m3u8.loads(response.text)
+
+    # Get the base URL for resolving relative segment URLs
+    base_url = url.rsplit('/', 1)[0] + '/'
+
+    # Iterate over the segments in the playlist
+    for segment in playlist.segments:
+        segment_url = urljoin(base_url, segment.uri)  # Resolve the full URL of the segment
+        print(f"Fetching segment: {segment_url}")
+
+        # Fetch the segment content
+        try:
+            segment_response = requests.get(segment_url)
+            segment_response.raise_for_status()
+            yield segment_response.content  # Yield the segment content
+        except Exception as e:
+            print(f"Failed to fetch segment: {segment_url}, error: {e}")
+
+    # Notify that the stream has ended
+    yield 'END_OF_STREAM'
+
+
+def transcode_segment(segment):
+    import ffmpeg
+
+    # Create a process to transcode the input segment
+    process = (
+        ffmpeg
+        .input('pipe:0', format='mp4')  # Input format is MPEG-TS (mpegts)
+        .output('pipe:1', format='webm', vcodec='libvpx', acodec='libvorbis')  # Output format is WebM
+        .run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True)
+    )
+
+    # Run the process and send the segment data to stdin
+    output, error = process.communicate(input=segment)
+
+    if process.returncode != 0:
+        raise RuntimeError(f"FFmpeg error: {error.decode()}")
+
+    return output
+
+def jjk_video():
+
+    chunk_size = 1024 * 1024
+    video_file = '/home/letquare/Downloads/Jujutsu Kaisen Season 2「AMV」After Dark x Sweater Weather.mp4'
+
+    with open(video_file, 'rb') as video_file:
+        while True:
+            chunk = video_file.read(chunk_size)
+            if not chunk:
+                break  # End of file reached
+
+            print(f'send: {len(chunk)}')
+            yield chunk
+
+        yield 'END_OF_STREAM'
