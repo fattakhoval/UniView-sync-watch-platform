@@ -1,3 +1,4 @@
+import asyncio
 import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -86,8 +87,6 @@ class RoomActionConsumer(AsyncWebsocketConsumer):
             case 'new_link':
                 await self.send_link(text_data_json)
 
-
-
     async def send_link(self, action_data):
 
         url = action_data['url']
@@ -122,3 +121,43 @@ class RoomActionConsumer(AsyncWebsocketConsumer):
     def vkvideo_link(url: str):
         oid, id_ = url.split('/')[-1].split('-')[-1].split('_')
         return vkvideo_url.format(oid=oid, id_=id_)
+
+
+class VideoConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.room_group_name = 'action_video'
+
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+
+        await self.accept()
+
+        print('Ready to send')
+        await asyncio.sleep(6)
+        chunk_size = 2048 * 1024
+        video_file = '/home/letquare/Downloads/1718888139_sample_960x400_ocean_with_audio.webm'
+
+        # Open the video file
+        with open(video_file, 'rb') as video_file:
+            while True:
+                chunk = video_file.read(chunk_size)
+                if not chunk:
+                    break  # End of file reached
+
+                print(f'send: {len(chunk)}')
+                await self.send(chunk)  # Send the chunk to the WebSocket
+                await asyncio.sleep(1)  # Уменьшенная задержка
+
+        # После завершения отправки всех чанков
+        await self.send('END_OF_STREAM')
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
+    async def receive(self, bytes_data):
+        await self.send(bytes_data)

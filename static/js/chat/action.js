@@ -23,8 +23,6 @@ document.getElementById('sendVideoButton').addEventListener('click', function() 
     }
 });
 
-
-
 actionRoomSocket.onmessage = function(e) {
     const data = JSON.parse(e.data);
 
