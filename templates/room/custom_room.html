@@ -4,24 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <title>Welcome</title>
-    <style>
-        #drop-area {
-            width: 640px;
-            height: 480px;
-            border: 2px dashed #ccc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 20px auto;
-        }
-    </style>
 </head>
 <body data-room-id="{{ room_id }}">
-    <form id="videoForm">
-        <label for="videoUrl">Сюда ссылку на видео давай</label>
-        <input type="url" id="videoUrl" name="videoUrl" required placeholder="https://example.com/video">
-        <button type="button" id="sendVideoButton" >найти</button>
-    </form>
+    <div class="container">
+        <form id="videoForm">
+            <label for="videoUrl">Сюда ссылку на видео давай</label>
+            <input type="url" id="videoUrl" name="videoUrl" placeholder="https://example.com/video">
+
+            <label for="videoFile">Или загрузите свое видео</label>
+            <input type="file" name="videoFile" id="videoFile" accept="video/*">
+
+            <button type="button" id="sendVideoButton">Podelitca</button>
+        </form>
+
+        <div id="videoPlayerContainer">
+            <video id="videoPlayer" controls muted width="560" height="315" ></video>
+        </div>
+
+        <div id="iframePlayerContainer" style="display: none;">
+            <iframe id="iframePlayer" width="560" height="315" ></iframe>
+        </div>
+
+    </div>
 
     <p class="chat" id="{{ chat_id }}">
         <h2>Chat Room {{ chat_id }}</h2>
@@ -33,9 +37,7 @@
         <input id="chat-message-submit" type="button" value="Send">
     </p>
 
-    <iframe src="" id="videoPlayer" width="640" height="480"></iframe>
-
-    <script src="{% static 'js/chat/chat.js' %}"></script>
-    <script src="{% static 'js/chat/action.js' %}"></script>
+    <script type="module" src="{% static 'js/chat/chat.js' %}"></script>
+    <script type="module" src="{% static 'js/chat/action.js' %}"></script>
 </body>
 </html>
