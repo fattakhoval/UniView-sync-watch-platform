@@ -1,5 +1,6 @@
 const bodyElement = document.querySelector('body');
 const roomId = bodyElement.getAttribute('data-room-id');
+const playButton = document.getElementById('playButton');
 
 export const actionRoomSocket = new WebSocket(
     'ws://' + window.location.host + '/ws/room_action/' + roomId + '/'
@@ -9,11 +10,9 @@ let sourceBuffer;
 let chunkQueue = [];
 
 
-let currentVideoState = 'paused';
-
 const mediaSource = new MediaSource();
 const videoPlayer = document.getElementById('videoPlayer');
-videoPlayer.src = URL.createObjectURL(mediaSource);
+
 
 
 mediaSource.addEventListener('sourceopen', () => {
@@ -55,11 +54,11 @@ actionRoomSocket.onmessage = function(e) {
             player.src = data.url;
         } else if (data.type == 'action') {
             console.log(data.do_action)
-            if (data.action === 'play' && currentVideoState !== 'playing') {
-                currentVideoState = 'playing';
+            if (data.action === 'play') {
+
                 videoPlayer.play();
-            } else if (data.action === 'pause' && currentVideoState !== 'paused') {
-                currentVideoState = 'paused';
+            } else if (data.action === 'pause') {
+
                 videoPlayer.pause();
             }
         } else if (data.file === 'END_OF_STREAM') {
@@ -132,14 +131,27 @@ document.getElementById('sendVideoButton').addEventListener('click', function() 
     const videoShareUrl = document.getElementById('videoUrl').value;
     const videoFile = document.getElementById('videoFile').files[0];
     const videoPlayerContainer = document.getElementById('videoPlayerContainer');
-
+    const iframePlayerContainer = document.getElementById('iframePlayerContainer');
+    const iframePlayer = document.getElementById('iframePlayer');
     if (videoShareUrl) {
+
+
+        iframePlayerContainer.style.display = "block";
+        videoPlayerContainer.style.display = "none";
+         // Очистить содержимое video
+        videoPlayer.src = ""; // Удаляем источник видео
 
         actionRoomSocket.send(JSON.stringify({
             'action': 'new_link',
             'url': videoShareUrl,
         }));
     } else if (videoFile) {
+
+        playButton.textContent = 'Play';
+        videoPlayer.src = URL.createObjectURL(mediaSource);
+        iframePlayer.src = "";
+        videoPlayerContainer.style.display = "block";
+        iframePlayerContainer.style.display = "none";
 
         sendVideoInChunks(videoFile);
 
@@ -150,14 +162,3 @@ document.getElementById('sendVideoButton').addEventListener('click', function() 
     document.getElementById('videoForm').reset();
 });
 
-
-
-videoPlayer.addEventListener('play', () => {
-    currentVideoState = 'playing';
-    actionRoomSocket.send(JSON.stringify({ 'action': 'play' }));
-});
-
-videoPlayer.addEventListener('pause', () => {
-    currentVideoState = 'paused';
-    actionRoomSocket.send(JSON.stringify({ 'action': 'pause' }));
-});

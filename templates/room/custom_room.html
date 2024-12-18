@@ -3,9 +3,55 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'room/styles/style.css' %}">
     <title>Welcome</title>
+
+    <style>
+
+        .video-container {
+            position: relative;
+            width: 640px; /* Ширина видео */
+        }
+
+        video {
+            width: 100%; /* Адаптивная ширина */
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+        }
+
+        button {
+            color: white;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+    </style>
+
 </head>
-<body data-room-id="{{ room_id }}">
+<body data-room-id="{{ room_id }}" class="body2">
+
+    <div class="header">
+        <div class="logo">
+            <img src="{% static 'images/photo_2024-12-11_08-32-33.jpg' %}" alt="">
+
+        </div>
+
+        <div class="nav">
+
+        </div>
+    </div>
+
     <div class="container">
         <form id="videoForm">
             <label for="videoUrl">Сюда ссылку на видео давай</label>
@@ -16,28 +62,64 @@
 
             <button type="button" id="sendVideoButton">Podelitca</button>
         </form>
+    </div>
 
-        <div id="videoPlayerContainer">
-            <video id="videoPlayer" controls muted width="560" height="315" ></video>
+
+
+    <div class="pleyer">
+        <div class="video">
+            <div id="videoPlayerContainer" style="display: none;">
+                <video id="videoPlayer" muted width="960" height="540" ></video>
+
+                   <div class="controls">
+                        <button id="playButton">Play</button>
+                        <input type="range" id="seekBar" value="0" max="100">
+                        <button id="muteButton">Mute</button>
+                        <button id="fullScreenButton">Full Screen</button>
+                   </div>
+            </div>
+
+            <div id="iframePlayerContainer" style="display: none;">
+                <iframe id="iframePlayer" width="960" height="540"></iframe>
+            </div>
+
         </div>
 
-        <div id="iframePlayerContainer" style="display: none;">
-            <iframe id="iframePlayer" width="560" height="315" ></iframe>
+        <div class="chat_box">
+             <p class="chat" id="{{ chat_id }}">
+                <h2>ЧАТ</h2>
+                <textarea id="chat-log" class="chat_text" cols="50" rows="30" readonly>{% for message in messages  %}
+        {{ message.user_id__username }}: {{message.message}}{% endfor %}
+        </textarea>
+                <input type="hidden" id="username" value="{{ username }}@{{ user_id }}">
+                <div class="inputs">
+                    <input class="pole" id="chat-message-input" type="text" ><br>
+                    <input class="sub" id="chat-message-submit" type="button" value=">">
+
+                </div>
+             </p>
         </div>
 
     </div>
 
-    <p class="chat" id="{{ chat_id }}">
-        <h2>Chat Room {{ chat_id }}</h2>
-        <textarea id="chat-log" cols="100" rows="20" readonly>{% for message in messages  %}
-{{ message.user_id__username }}: {{message.message}}{% endfor %}
-</textarea>
-        <input type="hidden" id="username" value="{{ username }}@{{ user_id }}">
-        <input id="chat-message-input" type="text" size="100"><br>
-        <input id="chat-message-submit" type="button" value="Send">
-    </p>
+
+
+<!--    <p class="chat" id="{{ chat_id }}">-->
+<!--        <h2>Chat Room {{ chat_id }}</h2>-->
+<!--        <textarea id="chat-log" cols="100" rows="20" readonly>{% for message in messages  %}-->
+<!--{{ message.user_id__username }}: {{message.message}}{% endfor %}-->
+<!--</textarea>-->
+<!--        <input type="hidden" id="username" value="{{ username }}@{{ user_id }}">-->
+<!--        <input id="chat-message-input" type="text" size="100"><br>-->
+<!--        <input id="chat-message-submit" type="button" value="Send">-->
+<!--    </p>-->
+
+
+
 
     <script type="module" src="{% static 'js/chat/chat.js' %}"></script>
     <script type="module" src="{% static 'js/chat/action.js' %}"></script>
+    <script type="module" src="{% static 'js/video/videoController.js' %}"></script>
+
 </body>
 </html>
