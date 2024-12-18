@@ -2,13 +2,33 @@ services:
   redis:
     image: redis:5.0
     restart: unless-stopped
+    networks:
+      - internal_net
 
-#  celery:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    restart: unless-stopped
-#    env_file: .env
-#    depends_on:
-#      - redis
-#    command: poetry run celery -A core worker --loglevel=info
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: web_commission_image:latest
+    restart: unless-stopped
+    env_file: .env
+    command: uvicorn core.asgi:application --host 127.0.0.1 --port 8000 --reload
+    networks:
+      - internal_net
+
+  celery:
+    image: web_commission_image:latest
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - web
+      - redis
+    command: poetry run celery -A core worker --loglevel=info
+    networks:
+      - internal_net
+
+
+networks:
+  internal_net:
+    driver: bridge
