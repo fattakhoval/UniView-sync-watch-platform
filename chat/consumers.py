@@ -94,8 +94,26 @@ class RoomActionConsumer(AsyncWebsocketConsumer):
                     await self.do_action('play')
 
                 case 'pause':
-                    await self.do_action('play')
+                    await self.do_action('pause')
 
+                case 'scroll':
+                    await self.do_scroll(text_data_json['seek_time'])
+
+    async def do_scroll(self, seek_time):
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'send_scroll',
+                'seek_time': seek_time,
+            }
+        )
+
+    async def send_scroll(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'action',
+            'do_action': 'scroll',
+            'seek_time': event['seek_time']
+        }))
 
     async def send_file(self, bytes_data):
         await self.channel_layer.group_send(
@@ -147,7 +165,6 @@ class RoomActionConsumer(AsyncWebsocketConsumer):
 
 
     async def do_action(self, action):
-        print('hiiii')
         await self.channel_layer.group_send(
             self.room_group_name,
             {

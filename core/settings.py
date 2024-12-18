@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'chat',
     'video',
     'channels',
-    'corsheaders',
     'django_registration',
 ]
 
@@ -56,7 +55,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -91,10 +89,14 @@ DATABASES = {
 }
 
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
     },
 }
+
 
 
 # Password validation
@@ -151,7 +153,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # settings.py
 
-CELERY_BROKER_URL = 'redis://0.0.0.0:6379/0'  # URL вашего Redis
+CELERY_BROKER_URL = 'redis://redis:6379/0'  # URL вашего Redis
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
@@ -159,4 +161,5 @@ CELERY_TASK_SERIALIZER = 'json'
 SITE_ID = 1
 
 LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 

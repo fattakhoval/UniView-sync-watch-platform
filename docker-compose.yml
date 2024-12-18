@@ -5,7 +5,6 @@ services:
     networks:
       - internal_net
 
-
   web:
     build:
       context: .
@@ -13,7 +12,9 @@ services:
     image: web_commission_image:latest
     restart: unless-stopped
     env_file: .env
-    command: uvicorn core.asgi:application --host 127.0.0.1 --port 8000 --reload
+    ports:
+      - "${DOCKER_EXPOSE_PORT:-8000}:${DJANGO_PORT:-8000}"
+    command: poetry run gunicorn core.asgi:application --bind :${DJANGO_PORT:-8000} --workers 8 --worker-class uvicorn.workers.UvicornWorker --timeout 120
     networks:
       - internal_net
 
@@ -22,7 +23,6 @@ services:
     restart: unless-stopped
     env_file: .env
     depends_on:
-      - web
       - redis
     command: poetry run celery -A core worker --loglevel=info
     networks:

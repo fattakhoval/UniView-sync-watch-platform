@@ -9,19 +9,13 @@ readme = "README.md"
 python = "^3.12"
 django = "^5.1.4"
 channels = "^4.2.0"
-uvicorn = "^0.32.1"
 websockets = "^14.1"
 whitenoise = "^6.8.2"
 celery = {extras = ["redis"], version = "^5.4.0"}
-django-cors-headers = "^4.6.0"
 requests = "^2.32.3"
-moviepy = "^2.1.1"
-pytube = "^15.0.0"
-yt-dlp = "^2024.12.13"
 django-registration = "^5.1.0"
-selenium = "^4.27.1"
-m3u8 = "^6.0.0"
-ffmpeg-python = "^0.2.0"
+gunicorn = "^23.0.0"
+uvicorn = "^0.34.0"
 
 
 [build-system]

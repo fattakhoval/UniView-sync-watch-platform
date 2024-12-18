@@ -20,4 +20,3 @@ COPY poetry.lock pyproject.toml /app/
 
 COPY . /app
 RUN poetry install --no-interaction --no-ansi
-

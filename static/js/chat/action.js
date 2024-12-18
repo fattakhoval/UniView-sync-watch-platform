@@ -32,6 +32,11 @@ mediaSource.addEventListener('sourceopen', () => {
 
 actionRoomSocket.onmessage = function(e) {
     if (e.data instanceof Blob) {
+        if (videoPlayer.src === '') {
+            videoPlayer.src = URL.createObjectURL(mediaSource);
+            videoPlayerContainer.style.display = "block";
+        }
+
         const reader = new FileReader();
         reader.onload = function(event) {
             const arrayBuffer = event.target.result;
@@ -48,18 +53,21 @@ actionRoomSocket.onmessage = function(e) {
     } else {
         // Если данные не являются Blob, обрабатываем как JSON
         const data = JSON.parse(e.data);
-        console.log(data.type)
         if (data.type == 'add_link') {
             const player = document.getElementById('iframePlayer');
             player.src = data.url;
         } else if (data.type == 'action') {
             console.log(data.do_action)
-            if (data.action === 'play') {
-
+            if (data.do_action == 'play') {
+                playButton.textContent = 'Pause';
                 videoPlayer.play();
-            } else if (data.action === 'pause') {
 
+            } else if (data.do_action == 'pause') {
+                playButton.textContent = 'Play';
                 videoPlayer.pause();
+            } else if (data.do_action == 'scroll') {
+                console.log(data.seek_time)
+                videoPlayer.currentTime = data.seek_time
             }
         } else if (data.file === 'END_OF_STREAM') {
             // Если получено сообщение о завершении потока
@@ -148,9 +156,7 @@ document.getElementById('sendVideoButton').addEventListener('click', function() 
     } else if (videoFile) {
 
         playButton.textContent = 'Play';
-        videoPlayer.src = URL.createObjectURL(mediaSource);
         iframePlayer.src = "";
-        videoPlayerContainer.style.display = "block";
         iframePlayerContainer.style.display = "none";
 
         sendVideoInChunks(videoFile);

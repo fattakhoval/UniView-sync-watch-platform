@@ -31,6 +31,7 @@ video.addEventListener('timeupdate', function() {
 seekBar.addEventListener('input', function() {
     const seekTime = (seekBar.value / 100) * video.duration;
     video.currentTime = seekTime;
+    actionRoomSocket.send(JSON.stringify({ 'action': 'scroll', 'seek_time': seekTime }));
 });
 
 // Включение/выключение звука

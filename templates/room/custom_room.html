@@ -48,7 +48,10 @@
         </div>
 
         <div class="nav">
-
+          <form action="{% url 'logout' %}" method="post">
+              {% csrf_token %}
+              <button type="submit">Выйти</button>
+          </form>
         </div>
     </div>
 
@@ -74,7 +77,7 @@
                    <div class="controls">
                         <button id="playButton">Play</button>
                         <input type="range" id="seekBar" value="0" max="100">
-                        <button id="muteButton">Mute</button>
+                        <button id="muteButton">Unmute</button>
                         <button id="fullScreenButton">Full Screen</button>
                    </div>
             </div>
@@ -101,21 +104,6 @@
         </div>
 
     </div>
-
-
-
-<!--    <p class="chat" id="{{ chat_id }}">-->
-<!--        <h2>Chat Room {{ chat_id }}</h2>-->
-<!--        <textarea id="chat-log" cols="100" rows="20" readonly>{% for message in messages  %}-->
-<!--{{ message.user_id__username }}: {{message.message}}{% endfor %}-->
-<!--</textarea>-->
-<!--        <input type="hidden" id="username" value="{{ username }}@{{ user_id }}">-->
-<!--        <input id="chat-message-input" type="text" size="100"><br>-->
-<!--        <input id="chat-message-submit" type="button" value="Send">-->
-<!--    </p>-->
-
-
-
 
     <script type="module" src="{% static 'js/chat/chat.js' %}"></script>
     <script type="module" src="{% static 'js/chat/action.js' %}"></script>
