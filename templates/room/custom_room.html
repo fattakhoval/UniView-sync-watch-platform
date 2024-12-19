@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/3d7dc37153.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{% static 'room/styles/style.css' %}">
     <title>Welcome</title>
 
@@ -16,6 +17,10 @@
 
         video {
             width: 100%; /* Адаптивная ширина */
+        }
+
+        .fas{
+            font-size: 24px;
         }
 
         .controls {
@@ -35,6 +40,12 @@
           position: relative;
           top: 45%;
         }
+
+        #playButton {
+            width: 50px;
+            background: none;
+            border: none;
+        }
     </style>
 
 </head>
@@ -46,9 +57,8 @@
 
         </div>
 
+
         <div class="nav">
-
-
             <input type="hidden" id="copy-text" value="http://127.0.0.1:8000/custom_room/{{ room_id }}">
             <button id="copy-btn">Пригласить друга</button>
 
@@ -69,7 +79,7 @@
             <label for="videoFile">Или загрузите</label>
             <input type="file" name="videoFile" id="videoFile" accept="video/*" class="form-control">
 
-            <button type="button" id="sendVideoButton">Podelitca</button>
+            <button type="button" id="sendVideoButton">Поделиться</button>
         </form>
     </div>
 
@@ -83,7 +93,7 @@
                 <video id="videoPlayer" muted width="960" height="540" ></video>
 
                    <div class="controls">
-                        <button id="playButton">Play</button>
+                        <button id="playButton"></button>
                         <input type="range" id="seekBar" value="0" max="100">
                         <button id="muteButton">Unmute</button>
                         <button id="fullScreenButton">Full Screen</button>

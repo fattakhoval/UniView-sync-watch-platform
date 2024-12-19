@@ -5,7 +5,7 @@ from .forms import CustomRegistrationForm
 
 def register(request):
     form = CustomRegistrationForm()
-    return render(request, 'django_regist/regist.html', context={"form": form})
+    return render(request, 'django_registration/registration_form.html', context={"form": form})
 
 
 def video_page(request):

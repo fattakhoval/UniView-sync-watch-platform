@@ -5,6 +5,10 @@ const playButton = document.getElementById('playButton');
 const seekBar = document.getElementById('seekBar');
 const muteButton = document.getElementById('muteButton');
 const fullScreenButton = document.getElementById('fullScreenButton');
+const buttonIcon = document.getElementById('buttonIcon');
+const playIcon = '<i class="fas fa-play"></i>';
+const pauseIcon = '<i class="fas fa-pause"></i>';
+
 
 let copyText = document.querySelector('#copy-text')
 document.querySelector('#copy-btn').addEventListener('click', () => {
@@ -22,12 +26,12 @@ document.querySelector('#copy-btn').addEventListener('click', () => {
 playButton.addEventListener('click', function() {
     if (video.paused) {
         video.play();
-        playButton.textContent = 'Pause';
+        playButton.innerHTML = pauseIcon;
         actionRoomSocket.send(JSON.stringify({ 'action': 'play' }));
 
     } else {
         video.pause();
-        playButton.textContent = 'Play';
+        playButton.innerHTML = playIcon;
 
         actionRoomSocket.send(JSON.stringify({ 'action': 'pause' }));
     }
