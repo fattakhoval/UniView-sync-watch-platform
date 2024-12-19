@@ -48,7 +48,6 @@
 
         <div class="nav">
 
-
             <input type="hidden" id="copy-text" value="http://127.0.0.1:8000/custom_room/{{ room_id }}">
             <button id="copy-btn">Пригласить друга</button>
 
@@ -100,8 +99,8 @@
              <p class="chat" id="{{ chat_id }}">
                 <h2>ЧАТ</h2>
                 <textarea id="chat-log" class="chat_text" cols="50" rows="29" readonly>{% for message in messages  %}
-        {{ message.user_id__username }}: {{message.message}}{% endfor %}
-        </textarea>
+{{ message.user_id__username }}: {{message.message}}{% endfor %}
+</textarea>
                 <input type="hidden" id="username" value="{{ username }}@{{ user_id }}">
                 <div class="inputs">
                     <input class="pole" id="chat-message-input" type="text" placeholder="Сообщение..."><br>

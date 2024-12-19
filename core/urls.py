@@ -17,12 +17,14 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from room.views import CustomRegistrationView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('room.urls')),
     path('chat/', include('chat.urls')),
     path('video/', include('video.urls')),
+    path('accounts/register/', CustomRegistrationView.as_view(), name='django_registration_register'),
     path("accounts/", include("django_registration.backends.one_step.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
 ]

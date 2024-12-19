@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import TemplateView
+from django_registration.backends.one_step.views import RegistrationView
 
 from room.models import Room
 from chat.models import Chat, Message
@@ -53,3 +54,8 @@ class CreatedRoom(LoginRequiredMixin, TemplateView):
         context['messages'] = Message.objects.filter(chat_id=room.chat_id.id).select_related('user_id').values('id', 'message', 'user_id__username', 'created_at')
 
         return context
+
+
+class CustomRegistrationView(RegistrationView):
+    def get_success_url(self, user):
+        return '/'
