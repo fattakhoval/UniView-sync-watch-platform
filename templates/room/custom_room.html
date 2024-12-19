@@ -49,8 +49,8 @@
         <div class="nav">
 
 
-            <input type="text" id="copy-text" value="http://127.0.0.1:8000/custom_room/{{ room_id }}">
-            <button id="copy-btn"><img src="{% static 'images/add.png' %}" alt=""></button>
+            <input type="hidden" id="copy-text" value="http://127.0.0.1:8000/custom_room/{{ room_id }}">
+            <button id="copy-btn">Пригласить друга</button>
 
             <form action="{% url 'logout' %}" method="post">
               {% csrf_token %}

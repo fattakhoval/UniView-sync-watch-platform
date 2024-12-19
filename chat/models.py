@@ -18,3 +18,14 @@ class Message(models.Model):
 
     def __str__(self):
         return f'{self.user_id.username} - {self.message}'
+
+
+
+def save_message(msg, chat_id, user_id):
+    print('hiiii im task')
+
+    Message.objects.create(
+        message=msg,
+        chat_id=Chat.objects.get(id=chat_id),
+        user_id=User.objects.get(id=user_id)
+    )

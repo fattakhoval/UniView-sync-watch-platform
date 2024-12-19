@@ -6,10 +6,11 @@ const seekBar = document.getElementById('seekBar');
 const muteButton = document.getElementById('muteButton');
 const fullScreenButton = document.getElementById('fullScreenButton');
 
- let copyText = document.querySelector('#copy-text')
-    document.querySelector('#copy-btn').addEventListener('click', () => {
+let copyText = document.querySelector('#copy-text')
+document.querySelector('#copy-btn').addEventListener('click', () => {
     navigator.clipboard.writeText(copyText.value)
       .then(() => {
+        alert('Ссылка для приглашения скопирована')
         console.log('Скопировано')
       })
       .catch(error => {
