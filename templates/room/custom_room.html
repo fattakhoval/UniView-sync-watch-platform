@@ -36,6 +36,12 @@
         input[type="range"] {
             width: 100%;
         }
+        #animation {
+          display: flex;
+          justify-self: center;
+          position: relative;
+          top: 45%;
+        }
     </style>
 
 </head>
@@ -71,6 +77,8 @@
 
     <div class="pleyer">
         <div class="video">
+            <img id="animation" src="{% static 'images/where.avif' %}" alt="Анимация" />
+
             <div id="videoPlayerContainer" style="display: none;">
                 <video id="videoPlayer" muted width="960" height="540" ></video>
 
@@ -108,6 +116,7 @@
     <script type="module" src="{% static 'js/chat/chat.js' %}"></script>
     <script type="module" src="{% static 'js/chat/action.js' %}"></script>
     <script type="module" src="{% static 'js/video/videoController.js' %}"></script>
+    <script type="module" src="{% static 'js/video/observerDisplayState.js' %}"></script>
 
 </body>
 </html>
