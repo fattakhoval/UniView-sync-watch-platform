@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    'celery',
     'room',
     'chat',
     'video',
@@ -147,13 +146,6 @@ STATICFILES_DIRS = [
 
 # Для продакшена, если вы собираете статические файлы
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-# settings.py
-
-CELERY_BROKER_URL = 'redis://localhost:6379/0'  # URL вашего Redis
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-
 
 SITE_ID = 1
 

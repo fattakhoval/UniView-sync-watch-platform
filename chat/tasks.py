@@ -1,9 +1,7 @@
-from celery import shared_task
 from django.apps import apps
 from django.contrib.auth import get_user_model
 
 
-@shared_task
 def save_message(msg, chat_id, user_id):
     print('hiiii im task')
     Message = apps.get_model('chat', 'Message')

@@ -1,7 +1,4 @@
 services:
-  redis:
-    image: redis:5.0
-    restart: unless-stopped
 
   web:
     build:
@@ -13,12 +10,3 @@ services:
     ports:
       - "${DOCKER_EXPOSE_PORT:-8000}:${DJANGO_PORT:-8000}"
     command: poetry run gunicorn core.asgi:application --bind :${DJANGO_PORT:-8000} --workers 8 --worker-class uvicorn.workers.UvicornWorker --timeout 120
-
-  celery:
-    image: web_commission_image:latest
-    restart: unless-stopped
-    env_file: .env
-    depends_on:
-      - redis
-      - web
-    command: poetry run celery -A core worker --loglevel=info

@@ -1,8 +1,10 @@
 import json
 import asyncio
+import threading
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 
+from chat.tasks import save_message
 
 rutube_url = 'https://rutube.ru/play/embed/{uuid}'
 vkvideo_url = 'https://vkvideo.ru/video_ext.php?oid=-{oid}&id={id_}'
@@ -28,16 +30,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     # Получение сообщения от WebSocket
     async def receive(self, text_data):
-        from chat.models import save_message
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         username, user_id = text_data_json['user'].split('@')
 
-        save_message(
-            msg=message,
-            chat_id=self.chat_id,
-            user_id=user_id
-        )
+
+        # save_message(
+        #     msg=message,
+        #     chat_id=self.chat_id,
+        #     user_id=user_id
+        # )
+        thread = threading.Thread(target=save_message, args=(message, self.chat_id, user_id))
+        thread.start()
 
         # Отправка сообщения в группу комнаты
         await self.channel_layer.group_send(
