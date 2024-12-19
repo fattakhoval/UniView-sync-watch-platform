@@ -1,6 +1,9 @@
 const bodyElement = document.querySelector('body');
 const roomId = bodyElement.getAttribute('data-room-id');
 const playButton = document.getElementById('playButton');
+const buttonIcon = document.getElementById('buttonIcon');
+const playIcon = '<i class="fa-solid fa-play" style="color: #ffffff;"></i>';
+const pauseIcon = '<i class="fa-solid fa-pause" style="color: #ffffff;"></i>';
 
 export const actionRoomSocket = new WebSocket(
     'ws://' + window.location.host + '/ws/room_action/' + roomId + '/'
@@ -59,11 +62,11 @@ actionRoomSocket.onmessage = function(e) {
         } else if (data.type == 'action') {
             console.log(data.do_action)
             if (data.do_action == 'play') {
-                playButton.textContent = 'Pause';
+                playButton.innerHTML = pauseIcon;
                 videoPlayer.play();
 
             } else if (data.do_action == 'pause') {
-                playButton.textContent = 'Play';
+                playButton.innerHTML = playIcon;
                 videoPlayer.pause();
             } else if (data.do_action == 'scroll') {
                 console.log(data.seek_time)
@@ -155,7 +158,7 @@ document.getElementById('sendVideoButton').addEventListener('click', function() 
         }));
     } else if (videoFile) {
 
-        playButton.textContent = 'Play';
+        playButton.innerHTML = playIcon;
         iframePlayer.src = "";
         iframePlayerContainer.style.display = "none";
 

@@ -43,7 +43,7 @@ header {
     align-items: center;
 
     justify-content: center;
-    gap: 40%;
+    gap: 60%;
     height: 100px;
 }
 
@@ -58,11 +58,11 @@ header .logo img {
 }
 
 .nav {
-    width: 500px;
+    width: 200px;
     height: 50px;
     border-radius: 10px;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     gap: 20px;
     align-items: center;
 
@@ -80,8 +80,8 @@ header .logo img {
     width: 20px;
 }
 
-.nav #copy-text {
-    width: 90%;
+.nav #copy-btn {
+    width: 60%;
     height: 100%;
     background: linear-gradient(139deg, rgba(26,0,85,1) 0%, rgba(89,0,125,1) 50%, rgba(121,0,91,1) 100%);
     border: none;
@@ -90,7 +90,7 @@ header .logo img {
     color: rgb(206, 206, 206);
     text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
     border: 1px solid rgba(0,0,0,0.3);
-    padding-left: 10px;
+
 }
 
 .nav #copy-btn img {

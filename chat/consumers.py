@@ -34,12 +34,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = text_data_json['message']
         username, user_id = text_data_json['user'].split('@')
 
-
-        # save_message(
-        #     msg=message,
-        #     chat_id=self.chat_id,
-        #     user_id=user_id
-        # )
         thread = threading.Thread(target=save_message, args=(message, self.chat_id, user_id))
         thread.start()
 
