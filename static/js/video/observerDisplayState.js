@@ -6,7 +6,7 @@ function checkVisibility() {
     if (videoContainer.style.display !== 'none' || iframeContainer.style.display !== 'none') {
         animation.style.display = 'none';
     } else {
-        animation.style.display = 'block';
+        animation.style.display = 'flex';
     }
 }
 

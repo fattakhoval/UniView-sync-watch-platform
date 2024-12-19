@@ -1,9 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
-from django_registration.backends.one_step.views import RegistrationView
+from core.form import UserRegistrationForm
 
 from room.models import Room
 from chat.models import Chat, Message
@@ -56,6 +57,17 @@ class CreatedRoom(LoginRequiredMixin, TemplateView):
         return context
 
 
-class CustomRegistrationView(RegistrationView):
-    def get_success_url(self, user):
-        return '/'
+def register(request):
+    if request.method == 'POST':
+        user_form = UserRegistrationForm(request.POST)
+        if user_form.is_valid():
+            # Create a new user object but avoid saving it yet
+            new_user = user_form.save(commit=False)
+            # Set the chosen password
+            new_user.set_password(user_form.cleaned_data['password1'])
+            # Save the User object
+            new_user.save()
+            return redirect('/')
+    else:
+        user_form = UserRegistrationForm()
+    return render(request, 'django_registration/registration_form.html', {'form': user_form})

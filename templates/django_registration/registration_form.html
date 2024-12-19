@@ -2,14 +2,22 @@
 
 {% block content %}
 
-<form method="post" action="{% url 'django_registration_register' %}" class="login">
+<form method="post" action="{% url 'register' %}" class="login">
     <h1>Register</h1>
     {% csrf_token %}
     {{ form.email.label_tag }} {{ form.email }}<br>
     {{ form.username.label_tag }} {{ form.username }}<br>
     {{ form.password1.label_tag }} {{ form.password1 }}<br>
     {{ form.password2.label_tag }} {{ form.password2 }}<br>
-
+    {% if form.errors %}
+        <ul>
+        {% for field in form %}
+            {% for error in field.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
+    {% endif %}
     <button type="submit" class="btn btn-primary btn-block btn-large">Register</button>
 
     <p class="login_redirect">Есть аккаунт? <a href="{% url 'login' %}">Войдите</a></p>
