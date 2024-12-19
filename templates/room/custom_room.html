@@ -26,13 +26,6 @@
             padding: 10px;
         }
 
-        button {
-            color: white;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-
         input[type="range"] {
             width: 100%;
         }
@@ -54,20 +47,27 @@
         </div>
 
         <div class="nav">
-          <form action="{% url 'logout' %}" method="post">
+
+
+            <input type="text" id="copy-text" value="http://127.0.0.1:8000/custom_room/{{ room_id }}">
+            <button id="copy-btn"><img src="{% static 'images/add.png' %}" alt=""></button>
+
+            <form action="{% url 'logout' %}" method="post">
               {% csrf_token %}
-              <button type="submit">Выйти</button>
-          </form>
+
+              <button type="submit"><img src="{% static 'images/exit.png' %}" alt=""></button>
+
+            </form>
         </div>
     </div>
 
     <div class="container">
         <form id="videoForm">
-            <label for="videoUrl">Сюда ссылку на видео давай</label>
-            <input type="url" id="videoUrl" name="videoUrl" placeholder="https://example.com/video">
+            <label for="videoUrl"></label>
+            <input type="url" id="videoUrl" name="videoUrl" placeholder="Вставьте ссылку на видео">
 
-            <label for="videoFile">Или загрузите свое видео</label>
-            <input type="file" name="videoFile" id="videoFile" accept="video/*">
+            <label for="videoFile">Или загрузите</label>
+            <input type="file" name="videoFile" id="videoFile" accept="video/*" class="form-control">
 
             <button type="button" id="sendVideoButton">Podelitca</button>
         </form>
@@ -99,12 +99,12 @@
         <div class="chat_box">
              <p class="chat" id="{{ chat_id }}">
                 <h2>ЧАТ</h2>
-                <textarea id="chat-log" class="chat_text" cols="50" rows="30" readonly>{% for message in messages  %}
+                <textarea id="chat-log" class="chat_text" cols="50" rows="29" readonly>{% for message in messages  %}
         {{ message.user_id__username }}: {{message.message}}{% endfor %}
         </textarea>
                 <input type="hidden" id="username" value="{{ username }}@{{ user_id }}">
                 <div class="inputs">
-                    <input class="pole" id="chat-message-input" type="text" ><br>
+                    <input class="pole" id="chat-message-input" type="text" placeholder="Сообщение..."><br>
                     <input class="sub" id="chat-message-submit" type="button" value=">">
 
                 </div>

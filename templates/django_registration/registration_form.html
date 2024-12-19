@@ -1,12 +1,18 @@
+{% extends "base.html" %}
 
 {% block content %}
-<h2>Register</h2>
-<form method="post" action="{% url 'django_registration_register' %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <p>
 
-    </p>
-    <button type="submit">Register</button>
+<form method="post" action="{% url 'django_registration_register' %}" class="login">
+    <h1>Register</h1>
+    {% csrf_token %}
+    {{ form.email.label_tag }} {{ form.email }}<br>
+    {{ form.username.label_tag }} {{ form.username }}<br>
+    {{ form.password1.label_tag }} {{ form.password1 }}<br>
+
+    <button type="submit" class="btn btn-primary btn-block btn-large">Register</button>
+
+    <p class="login_redirect">Есть аккаунт? <a href="{% url 'login' %}">Войдите</a></p>
 </form>
+
+
 {% endblock %}

@@ -6,6 +6,17 @@ const seekBar = document.getElementById('seekBar');
 const muteButton = document.getElementById('muteButton');
 const fullScreenButton = document.getElementById('fullScreenButton');
 
+ let copyText = document.querySelector('#copy-text')
+    document.querySelector('#copy-btn').addEventListener('click', () => {
+    navigator.clipboard.writeText(copyText.value)
+      .then(() => {
+        console.log('Скопировано')
+      })
+      .catch(error => {
+        console.error(`Текст не скопирован ${error}`)
+      })
+    });
+
 // Воспроизведение и пауза видео
 playButton.addEventListener('click', function() {
     if (video.paused) {
