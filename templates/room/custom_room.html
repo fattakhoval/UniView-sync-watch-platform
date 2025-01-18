@@ -37,7 +37,7 @@
           top: 45%;
         }
 
-        #playButton {
+        #playButton, #muteButton, #fullScreenButton {
             width: 50px;
             background: none;
             border: none;
@@ -54,6 +54,8 @@
         </div>
 
         <div class="nav">
+            <a href="/"><i class="fa-solid fa-house" style="color: #ffffff;"></i></a>
+
 
             <input type="hidden" id="copy-text" value="http://127.0.0.1:8000/custom_room/{{ room_id }}">
             <button id="copy-btn">Пригласить друга</button>
@@ -61,7 +63,7 @@
             <form action="{% url 'logout' %}" method="post">
               {% csrf_token %}
 
-              <button type="submit"><img src="{% static 'images/exit.png' %}" alt=""></button>
+              <button type="submit"><i class="fa-solid fa-arrow-right-from-bracket" style="color: #ffffff;"></i></button>
 
             </form>
         </div>
@@ -91,8 +93,8 @@
                    <div class="controls">
                         <button id="playButton"></button>
                         <input type="range" id="seekBar" value="0" max="100">
-                        <button id="muteButton">Unmute</button>
-                        <button id="fullScreenButton">Full Screen</button>
+                        <button id="muteButton"><i class="fa-solid fa-volume-xmark" style="color: #ffffff;"></i></button>
+                        <button id="fullScreenButton"><i class="fa-solid fa-expand" style="color: #ffffff;"></i></button>
                    </div>
             </div>
 
@@ -105,7 +107,7 @@
         <div class="chat_box">
              <p class="chat" id="{{ chat_id }}">
                 <h2>ЧАТ</h2>
-                <textarea id="chat-log" class="chat_text" cols="50" rows="29" readonly>{% for message in messages  %}
+                <textarea id="chat-log" class="chat_text" readonly>{% for message in messages  %}
 {{ message.user_id__username }}: {{message.message}}{% endfor %}
 </textarea>
                 <input type="hidden" id="username" value="{{ username }}@{{ user_id }}">

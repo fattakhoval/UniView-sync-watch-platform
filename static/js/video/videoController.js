@@ -8,6 +8,9 @@ const fullScreenButton = document.getElementById('fullScreenButton');
 const buttonIcon = document.getElementById('buttonIcon');
 const playIcon = '<i class="fas fa-play"></i>';
 const pauseIcon = '<i class="fas fa-pause"></i>';
+const muteIcon = '<i class="fa-solid fa-volume-high" style="color: #ffffff;"></i>';
+const unmuteIcon = '<i class="fa-solid fa-volume-xmark" style="color: #ffffff;"></i>';
+
 
 
 let copyText = document.querySelector('#copy-text')
@@ -53,7 +56,7 @@ seekBar.addEventListener('input', function() {
 // Включение/выключение звука
 muteButton.addEventListener('click', function() {
     video.muted = !video.muted;
-    muteButton.textContent = video.muted ? 'Unmute' : 'Mute';
+    muteButton.innerHTML = video.muted ? unmuteIcon : muteIcon;
 });
 
 // Полноэкранный режим

@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/3d7dc37153.js" crossorigin="anonymous"></script>
 
     <link rel="stylesheet" href="{% static 'room/styles/style.css' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,7 +22,9 @@
                 <img src="{% static 'images/photo_2024-12-11_08-32-33.jpg' %}" alt="">
             </div>
 
-            <div class="nav">
+            <div class="join_room">
+                    <input class="for_link" id="join_link" type="url" placeholder="Место для ссылки на комнату"><br>
+                    <button id="redirectButton"><i class="fa-solid fa-arrow-right-to-bracket" style="color: #dedede;"></i></button>
 
             </div>
         </header>
@@ -45,6 +48,10 @@
         </div>
 
     </div>
+
+
+
+<script src="{% static 'js/rooms/room.js' %}"></script>
 
 
 

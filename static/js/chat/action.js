@@ -4,7 +4,7 @@ const playButton = document.getElementById('playButton');
 const buttonIcon = document.getElementById('buttonIcon');
 const playIcon = '<i class="fa-solid fa-play" style="color: #ffffff;"></i>';
 const pauseIcon = '<i class="fa-solid fa-pause" style="color: #ffffff;"></i>';
-
+const iframePlayerContainer = document.getElementById('iframePlayerContainer');
 export const actionRoomSocket = new WebSocket(
     'ws://' + window.location.host + '/ws/room_action/' + roomId + '/'
 );
@@ -38,6 +38,7 @@ actionRoomSocket.onmessage = function(e) {
         if (videoPlayer.src === '') {
             videoPlayer.src = URL.createObjectURL(mediaSource);
             videoPlayerContainer.style.display = "block";
+            playButton.innerHTML = playIcon;
         }
 
         const reader = new FileReader();
@@ -57,6 +58,11 @@ actionRoomSocket.onmessage = function(e) {
         // Если данные не являются Blob, обрабатываем как JSON
         const data = JSON.parse(e.data);
         if (data.type == 'add_link') {
+
+            iframePlayerContainer.style.display = "block";
+            videoPlayerContainer.style.display = "none";
+             // Очистить содержимое video
+            videoPlayer.src = ""; // Удаляем источник видео
             const player = document.getElementById('iframePlayer');
             player.src = data.url;
         } else if (data.type == 'action') {
@@ -142,7 +148,6 @@ document.getElementById('sendVideoButton').addEventListener('click', function() 
     const videoShareUrl = document.getElementById('videoUrl').value;
     const videoFile = document.getElementById('videoFile').files[0];
     const videoPlayerContainer = document.getElementById('videoPlayerContainer');
-    const iframePlayerContainer = document.getElementById('iframePlayerContainer');
     const iframePlayer = document.getElementById('iframePlayer');
     if (videoShareUrl) {
 

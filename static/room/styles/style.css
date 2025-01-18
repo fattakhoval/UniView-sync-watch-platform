@@ -23,7 +23,7 @@
 }
 
 .main {
-    background: rgb(19, 0, 65);
+    background: none;
     width: 1300px;
     height: 750px;
     border-radius: 10px;
@@ -57,8 +57,48 @@ header .logo img {
     border-radius: 10px;
 }
 
+.join_room {
+    width: 300px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    self-align: center;
+    background: linear-gradient(139deg, #830F8D 0%, #0003B2 50%, #98008E 100%);
+    color: #fff;
+    height: 50px;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+
+}
+
+.join_room .for_link {
+    width: 90%;
+    height: 90%;
+    background: none;
+    color: #fff;
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+
+.join_room .for_link:focus {
+    background: none;
+
+}
+
+.join_room #redirectButton  {
+    border: none;
+    background: none;
+
+}
+
+.join_room #redirectButton i {
+    font-size: 20px;
+}
+
 .nav {
-    width: 200px;
+    width: 250px;
     height: 50px;
     border-radius: 10px;
     display: flex;
@@ -75,9 +115,8 @@ header .logo img {
 
 }
 
-.nav button img{
-
-    width: 20px;
+.nav i {
+    font-size: 22px;
 }
 
 .nav #copy-btn {
@@ -93,9 +132,6 @@ header .logo img {
 
 }
 
-.nav #copy-btn img {
-    width: 40px;
-}
 
 .main-action {
     width: 100%;
@@ -179,7 +215,7 @@ header .logo img {
 
 .container form button{
     background: rgba(0,0,0,0.3);
-    width: 80px;
+
   border: none;
   outline: none;
   padding: 13px;
@@ -225,6 +261,9 @@ header .logo img {
     color: #fff;
     border: none;
     resize: none;
+    padding:10px;
+    width: 380px;
+    height:450px;
 }
 
 .inputs {
@@ -239,10 +278,6 @@ header .logo img {
     height: 35px;
     border: 1px solid #fff;
     border-radius: 10px;
-
-}
-
-.chat {
 
 }
 
