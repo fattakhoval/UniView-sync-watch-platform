@@ -1,0 +1,21 @@
+[project]
+name = "backend-individual-project"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Liro"}
+]
+readme = "README.md"
+requires-python = "^3.12"
+dependencies = [
+    "sqlalchemy (==2.0.38)",
+    "python-dotenv (>=1.0.1,<2.0.0)",
+    "alembic (==1.14.1)",
+    "asyncpg (==0.30.0)",
+    "fastapi (==0.115.10)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
