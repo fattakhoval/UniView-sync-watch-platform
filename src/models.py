@@ -1,64 +1,82 @@
-import uuid
+import datetime
+from uuid import UUID, uuid4
+from typing import List
 
-from sqlalchemy import Column, String, Boolean, DateTime, Enum, Text
-from sqlalchemy.dialects.postgresql import UUID
-from datetime import datetime, UTC, timedelta
+from sqlalchemy import Column, String, Boolean, DateTime, Enum, Text, ForeignKey, Integer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from src.db import Base
 
 from enum import Enum as PyEnum
 
 
 class RoomType(PyEnum):
-    XS = 4
-    S = 8
-    M = 12
-    L = 16
-    XL = 20
-    XXL = 24
+    Public = 'public'
+    Private = 'private'
 
 
 class User(Base):
     __tablename__ = 'users'
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    username = Column(String(50), unique=True, nullable=True)
-    email = Column(String(100), unique=True, nullable=True)
-    password = Column(String(256), nullable=True)
-    is_registered = Column(Boolean, default=False)
-    is_admin = Column(Boolean, default=False)
-    is_host = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.now(UTC), nullable=False)
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    username: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    email: Mapped[str] = mapped_column(String(256), nullable=False, unique=True)
+    password: Mapped[str] = mapped_column(String(256), nullable=True)
+    is_registered: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
+    updated_at: Mapped[datetime] = Column(DateTime(timezone=True), onupdate=datetime.datetime.now(datetime.UTC), nullable=False)
+    created_at: Mapped[datetime] = Column(DateTime(timezone=True), default=datetime.datetime.now(datetime.UTC), nullable=False)
 
+    messages: Mapped[List['Message']] = relationship()
+    rooms: Mapped[List['Room']] = relationship()
 
     def __str__(self):
-        return f"<User(id={self.id}, username={self.name}, is_registered={self.is_registered}, is_admin={self.is_admin}, is_host={self.is_host})>"
+        return f'<User({self.username=}, {self.is_registered=}, {self.is_admin=})>'
 
     @property
     def display_name(self):
-        return self.username if self.is_registered else f"Guest-{self.id}"
+        return self.username if self.is_registered else f'Guest-{uuid4()}'
 
 
 class Room(Base):
     __tablename__ = 'rooms'
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    name = Column(String(256), nullable=False)
-    slag = Column(String(256), unique=True, nullable=False)
-    room_type = Column(Enum(RoomType), nullable=False, default=RoomType.XS)
-    live_time_room = Column(DateTime, nullable=False, default=datetime.now(UTC) + timedelta(days=1))
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    id_host: Mapped[UUID] = mapped_column(ForeignKey('users.id'), index=True)
+    name: Mapped[str] = mapped_column(String(256), nullable=False, unique=True)
+    room_type: Mapped[PyEnum] = mapped_column(Enum(RoomType), nullable=False, default=RoomType.Public)
+    room_password: Mapped[str] = mapped_column(String(256), nullable=True)
+    live_time_room: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=1)
+    )
+
+    message: Mapped['Message'] = relationship(back_populates="room")
 
     def __str__(self):
-        return f"<Room(id={self.id}, name={self.name}, slag={self.slag}, room_type={self.room_type})>"
+        return f'<Room({self.id=}, {self.name=}, {self.room_type=})>'
 
     def is_expired(self):
-        return self.live_time_room < datetime.now(UTC)
+        return self.live_time_room < datetime.datetime.now(datetime.UTC)
+
 
 class Video(Base):
-    __tablename__ = "videos"
+    __tablename__ = 'videos'
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    title = Column(String(256), nullable=False)
-    url = Column(Text, nullable=False)
-    home_url = Column(String(200), nullable=False)
-    is_our = Column(Boolean, nullable=False)
-    created_at = Column(DateTime, default=datetime.now(UTC), nullable=False)
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    title: Mapped[str] = mapped_column(String(256), nullable=False)
+    url: Mapped[str] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
+
+
+class Message(Base):
+    __tablename__ = 'messages'
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    id_room: Mapped[UUID] = mapped_column(ForeignKey('rooms.id'), index=True)
+    id_user: Mapped[UUID] = mapped_column(ForeignKey('users.id'))
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False, index=True)
+
+    room: Mapped['Room'] = relationship(back_populates='chat')
