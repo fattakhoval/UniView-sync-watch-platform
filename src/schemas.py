@@ -18,14 +18,18 @@ class UserLogin(BaseModel):
 
 class RoomCreate(BaseModel):
 
-    title: str
+    name: str
     id_user: UUID
-    room_type: str
-    room_password: str
+    type: str
+    password: Optional[str] = ''
     live_time_room: Optional[datetime] = None
 
 
-class RoomJoin(BaseModel):
+class RoomJoin1(BaseModel):
 
     id_room: UUID
     room_password: str
+
+class RoomJoin(BaseModel):
+    room_id: UUID
+    password: str | None = None  # Пароль передается, если комната приватная

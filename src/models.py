@@ -2,7 +2,7 @@ import datetime
 from uuid import UUID, uuid4
 from typing import List
 
-from sqlalchemy import Column, String, Boolean, DateTime, Enum, Text, ForeignKey, Integer
+from sqlalchemy import Column, String, Boolean, DateTime, Enum, Text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db import Base
@@ -24,7 +24,7 @@ class User(Base):
     password: Mapped[str] = mapped_column(String(256), nullable=True)
     is_registered: Mapped[bool] = mapped_column(Boolean, default=False)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
-    updated_at: Mapped[datetime] = Column(DateTime(timezone=True), onupdate=datetime.datetime.now(datetime.UTC), nullable=False)
+    updated_at: Mapped[datetime] = Column(DateTime(timezone=True), default=datetime.datetime.now(datetime.UTC), onupdate=datetime.datetime.now(datetime.UTC), nullable=False)
     created_at: Mapped[datetime] = Column(DateTime(timezone=True), default=datetime.datetime.now(datetime.UTC), nullable=False)
 
     messages: Mapped[List['Message']] = relationship()
@@ -79,4 +79,4 @@ class Message(Base):
     message: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False, index=True)
 
-    room: Mapped['Room'] = relationship(back_populates='chat')
+    room: Mapped['Room'] = relationship(back_populates='message')
