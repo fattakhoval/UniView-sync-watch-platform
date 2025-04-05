@@ -17,23 +17,25 @@
       <transition name="fade">
         <div v-if="showFileInput" class="input-wrapper">
             <UploadVideo @change="handleFileUpload" />
-          <!-- <input 
-            type="file" 
-            
-            class="input-field"
-          /> -->
+            <button @click="sendFile" class="send-button">Отправить файл</button>
         </div>
       </transition>
     </div>
   </template>
   
   <script setup>
-  import { ref } from 'vue';
-import UploadVideo from './UploadVideo.vue';
+  import { ref, onMounted } from 'vue';
+  import UploadVideo from './UploadVideo.vue';
+  import { useRoute } from 'vue-router';
   
+  
+  const route = useRoute();
+  const roomId = route.params.id;
   const showUrlInput = ref(false);
   const showFileInput = ref(false);
   const videoUrl = ref('');
+  const videoSocket = ref(null);
+  
   
   const toggleInput = (type) => {
     if (type === 'url') {
@@ -44,12 +46,47 @@ import UploadVideo from './UploadVideo.vue';
       showUrlInput.value = false;
     }
   };
+
+  onMounted(() => {
+  videoSocket.value = new WebSocket(`ws://localhost:8000/ws/video/${roomId}`);
+});
   
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      console.log('Файл загружен:', file.name);
+  const handleFileUpload = (FileOrEvent) => {
+
+    const file = FileOrEvent?.target?.files?.[0] || FileOrEvent;
+
+    if (!(file instanceof File)) {
+      console.warn("Не является объектом типа File", FileOrEvent);
+      return;
     }
+
+    const chunkSize = 1024 * 1024;
+    const END_MARKER = new TextEncoder().encode("__END_OF_STREAM__");
+
+    const sendChunks = () => {
+      const chunkPromises = [];
+      for (let offset = 0; offset < file.size; offset += chunkSize) {
+        const chunk = file.slice(offset, offset + chunkSize);
+        const reader = new FileReader();
+
+        const promise = new Promise((resolve) => {
+      reader.onload = () => {
+        console.log(chunk.size);
+        videoSocket.value.send(reader.result);
+        resolve();
+      };
+      reader.readAsArrayBuffer(chunk);
+    });
+
+    chunkPromises.push(promise);
+  }
+
+  // После того как все чанки отправлены, отправляем маркер конца потока
+  Promise.all(chunkPromises).then(() => {
+    videoSocket.value.send(END_MARKER);
+  });
+};
+sendChunks();
   };
   </script>
   

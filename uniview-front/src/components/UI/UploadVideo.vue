@@ -34,11 +34,14 @@
   
   const videoFile = ref(null);
   const isDragging = ref(false);
+
+  const emit = defineEmits();
   
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
     if (file) {
       videoFile.value = file;
+      emit('change', file);
     }
   };
   
@@ -47,6 +50,7 @@
     const file = event.dataTransfer.files[0];
     if (file && file.type.startsWith('video/')) {
       videoFile.value = file;
+      emit('change', file);
     }
   };
   

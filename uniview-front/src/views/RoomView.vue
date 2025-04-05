@@ -9,7 +9,7 @@ import { onMounted } from 'vue';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import router from '@/router';
-import parseJwt from '@/utils';
+import VideoComponent from '@/components/UI/VideoComponent.vue';
 
 const route = useRoute();
 const roomId = route.params.id;
@@ -117,19 +117,15 @@ onMounted(() => {
 
 
         </div>
+
         <AddVideo />
+
         <div class="cine-container">
             <div class="cine-box">
-                <div class="video-player">
-                    <video src="" class="video"></video>
-                </div>
+                    <VideoComponent />
 
                 <div class="chat-box">
-                    <MyChat>
-
-                        <input type="text" class="input" placeholder="Введите соощение...">
-
-                    </MyChat>
+                    <MyChat />
                 </div>
             </div>
         </div>
