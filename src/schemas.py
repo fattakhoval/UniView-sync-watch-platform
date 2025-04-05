@@ -4,6 +4,8 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
+from src.models import RoomType
+
 
 class UserRegister(BaseModel):
     username: str
@@ -12,24 +14,18 @@ class UserRegister(BaseModel):
 
 
 class UserLogin(BaseModel):
-    username: str
-    password: str
+    username: str # 43612ba5-7c67-4474-95f0-71865fc6d823
+    password: str # qwe
 
 
 class RoomCreate(BaseModel):
-
     name: str
     id_user: UUID
-    type: str
+    type: RoomType
     password: Optional[str] = ''
     live_time_room: Optional[datetime] = None
 
 
-class RoomJoin1(BaseModel):
-
-    id_room: UUID
-    room_password: str
-
 class RoomJoin(BaseModel):
-    room_id: UUID
-    password: str | None = None  # Пароль передается, если комната приватная
+    room_id: UUID # 16576bdf-ce23-44c0-8239-74f9d68c7c3e
+    password: str | None = None

@@ -49,7 +49,7 @@ class Room(Base):
     live_time_room: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        default=datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=1)
+        default=datetime.datetime.now() + datetime.timedelta(days=1)
     )
 
     message: Mapped['Message'] = relationship(back_populates="room")
@@ -67,7 +67,7 @@ class Video(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     title: Mapped[str] = mapped_column(String(256), nullable=False)
     url: Mapped[str] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.datetime.now(), nullable=False)
 
 
 class Message(Base):
@@ -77,6 +77,6 @@ class Message(Base):
     id_room: Mapped[UUID] = mapped_column(ForeignKey('rooms.id'), index=True)
     id_user: Mapped[UUID] = mapped_column(ForeignKey('users.id'))
     message: Mapped[str] = mapped_column(Text, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.datetime.now(), nullable=False, index=True)
 
     room: Mapped['Room'] = relationship(back_populates='message')

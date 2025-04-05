@@ -1,15 +1,14 @@
-import os
+from src.views.auth_view import auth
+from src.ws.ws_chat import ws_chat_route
+from src.views.view_room import room_router
+from src.ws.ws_action import ws_action_route
+from src.ws.ws_share_video import ws_video_route
 
-from fastapi import APIRouter
-from fastapi.responses import FileResponse
 
-router = APIRouter()
-
-@router.get("/video/{video_id}")
-async def get_video_by_id(video_id):
-    video_path = f"/home/letquare/Downloads/{video_id}.mp4"
-    if os.path.exists(video_path):
-        return FileResponse(video_path, media_type="video/mp4")
-    else:
-        print('Нет файла')
-        return {"error": "Video not found"}
+routers = [
+    auth,
+    room_router,
+    ws_chat_route,
+    ws_video_route,
+    ws_action_route
+]

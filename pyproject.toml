@@ -19,6 +19,13 @@ dependencies = [
     "passlib[bcrypt] (>=1.7.4,<2.0.0)",
     "bcrypt (==4.0.1)",
     "asyncmy (>=0.2.10,<0.3.0)",
+    "yt-dlp (>=2025.3.31,<2026.0.0)",
+    "selenium (>=4.30.0,<5.0.0)",
+    "webdriver-manager (>=4.0.2,<5.0.0)",
+    "selenium-wire (>=5.1.0,<6.0.0)",
+    "blinker (==1.7.0)",
+    "setuptools (>=78.1.0,<79.0.0)",
+    "pytube (>=15.0.0,<16.0.0)",
 ]
 
 

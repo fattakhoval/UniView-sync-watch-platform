@@ -1,0 +1,88 @@
+import json
+import datetime
+
+from uuid import UUID
+from typing import List, Dict, Optional, Any, Set
+
+from sqlalchemy import select
+from fastapi import WebSocket
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.models import Room
+
+
+class RoomRegistry:
+    def __init__(self):
+        self.active_rooms: Set[UUID] = set()
+
+    async def load_rooms_from_db(self, session: AsyncSession):
+        result = await session.execute(
+            select(Room.id).where(Room.live_time_room > datetime.datetime.now())
+        )
+        active_rooms = result.scalars().all()
+
+        self.load_rooms(list(active_rooms))
+
+    def load_rooms(self, rooms: list[UUID]):
+        self.active_rooms.update(rooms)
+
+    def is_room_active(self, room_id: UUID) -> bool:
+        return room_id in self.active_rooms
+
+    def add_room(self, room_id: UUID):
+        self.active_rooms.add(room_id)
+
+    def remove_room(self, room_id: UUID):
+        self.active_rooms.discard(room_id)
+
+
+class BaseManager:
+
+    class RoomNotExists(Exception):
+
+        @property
+        def msg(self):
+            return 'Room not exists; Check id room and retry again'
+
+    def __init__(self, room_registry: RoomRegistry):
+        self.room_registry = room_registry
+        self.rooms: Dict[str, List[Optional[WebSocket]]] = {}
+
+    async def connect(self, room_id: str, websocket: WebSocket):
+        if UUID(room_id) not in self.room_registry.active_rooms:
+            raise self.RoomNotExists()
+
+        if room_id not in self.rooms:
+            self.rooms[room_id] = []
+        self.rooms[room_id].append(websocket)
+
+    def disconnect(self, room_id: str, websocket: WebSocket):
+        if room_id in self.rooms:
+            self.rooms[room_id].remove(websocket)
+
+    def get_active_connections_count(self, room_id: str):
+        return len(self.rooms.get(room_id, []))
+
+    def add_room(self, room_id):
+        if room_id not in self.rooms:
+            self.rooms[room_id] = []
+
+    async def broadcast(self, room_id: str, message: str):
+        for connection in self.rooms.get(room_id, []):
+            await connection.send_text(message)
+
+class VideoManager(BaseManager):
+    def __init__(self, room_registry: RoomRegistry):
+        super().__init__(room_registry)
+        self.video_state: Dict[str, Dict[str, Any]] = {}  # Храним текущее состояние видео
+
+    async def update_video_state(self, room_id: str, state: Dict[str, Any]):
+        self.video_state[room_id] = state
+        await self.broadcast(room_id, json.dumps(state))
+
+
+room_registry = RoomRegistry()
+
+chat_manager = BaseManager(room_registry)
+video_manager = VideoManager(room_registry)
+control_manager = VideoManager(room_registry)
