@@ -32,12 +32,12 @@ async def create_room(room_data: RoomCreate, session: AsyncSession = Depends(get
         live_time_room=room_data.live_time_room
     )
 
+    session.add(new_room)
     await session.commit()
 
-    print(new_room)
     room_registry.add_room(room_id=new_room.id)
 
-
+    print(room_registry.active_rooms)
     return JSONResponse(status_code=200, content={'message': 'Room created', 'Room': {
         'id': str(new_room.id),
         'name': new_room.name,
