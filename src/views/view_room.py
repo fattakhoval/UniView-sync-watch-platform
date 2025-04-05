@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from starlette.responses import JSONResponse
 
+from fastapi import Request
+
 from src.db import get_db
 from src.jwt_utils import hash_password, verify_password
 from src.models import Room, RoomType
@@ -28,12 +30,16 @@ async def create_room(room_data: RoomCreate, session: AsyncSession = Depends(get
 
     manager.add_room(new_room.id)
 
+
     return JSONResponse(status_code=200, content={'message': 'Room created', 'Room': {
         'id': str(new_room.id),
         'name': new_room.name,
         'type': new_room.room_type,
         'password': new_room.room_password,
+        'id_host': str(new_room.id_host),
     }})
+
+
 
 
 @room_router.post('/join_room1')
@@ -49,7 +55,13 @@ async def join_room(room_data: RoomJoin, session: AsyncSession = Depends(get_db)
 
 
 @room_router.post('/join_room')
-async def join_room(room_data: RoomJoin, session: AsyncSession = Depends(get_db)):
+async def join_room(
+        room_data: RoomJoin,
+        session: AsyncSession = Depends(get_db)
+
+
+):
+    print("Полученные данные:", room_data.dict())  # Лог запроса
     # Ищем комнату в базе по ID
     stmt = select(Room).where(Room.id == room_data.room_id)
     result = await session.execute(stmt)
@@ -58,10 +70,16 @@ async def join_room(room_data: RoomJoin, session: AsyncSession = Depends(get_db)
     # Если комната не найдена
     if not room:
         return JSONResponse(status_code=404, content={'detail': 'Комната не найдена'})
-    print(room_data)
+
+    # Получаем пароль из тела запроса или cookies
+    password = room_data.password
+
     # Если комната приватная и пароль не совпадает
-    if room.room_type == RoomType.Private and not verify_password(room_data.password, room.room_password):
+    if room.room_type == RoomType.Private and not verify_password(password, room.room_password):
         return JSONResponse(status_code=401, content={'access': False, 'detail': 'Неверный пароль'})
 
-    # Если вход успешный
-    return JSONResponse(status_code=200, content={'access': True})
+    return JSONResponse(status_code=200, content={'access': True, 'room': {'id': str(room.id),
+        'name': room.name,
+        'type': room.room_type,
+        'password': room.room_password,
+        'id_host': str(room.id_host)}})

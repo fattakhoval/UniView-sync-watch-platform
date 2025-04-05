@@ -33,3 +33,8 @@ class RoomJoin1(BaseModel):
 class RoomJoin(BaseModel):
     room_id: UUID
     password: str | None = None  # Пароль передается, если комната приватная
+
+
+class RoomPasswordCheck(BaseModel):
+    room_id: int
+    password: str
