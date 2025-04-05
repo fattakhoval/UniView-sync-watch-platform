@@ -36,12 +36,16 @@ async def create_room(room_data: RoomCreate, session: AsyncSession = Depends(get
 
     init_room_settings(str(new_room.id))
 
+
     return JSONResponse(status_code=200, content={'message': 'Room created', 'Room': {
         'id': str(new_room.id),
         'name': new_room.name,
         'type': new_room.room_type.value,
         'password': new_room.room_password,
+        'id_host': str(new_room.id_host),
     }})
+
+
 
 
 @room_router.post('/join_room')
@@ -53,7 +57,15 @@ async def join_room(room_data: RoomJoin, session: AsyncSession = Depends(get_db)
     if not room:
         return JSONResponse(status_code=404, content={'detail': 'Комната не найдена'})
 
-    if room.room_type == RoomType.Private and not verify_password(room_data.password, room.room_password):
+    # Получаем пароль из тела запроса или cookies
+    password = room_data.password
+
+    # Если комната приватная и пароль не совпадает
+    if room.room_type == RoomType.Private and not verify_password(password, room.room_password):
         return JSONResponse(status_code=401, content={'access': False, 'detail': 'Неверный пароль'})
 
-    return JSONResponse(status_code=200, content={'access': True})
+    return JSONResponse(status_code=200, content={'access': True, 'room': {'id': str(room.id),
+        'name': room.name,
+        'type': room.room_type,
+        'password': room.room_password,
+        'id_host': str(room.id_host)}})

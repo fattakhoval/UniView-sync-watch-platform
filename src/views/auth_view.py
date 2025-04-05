@@ -3,6 +3,7 @@ from fastapi.responses import Response, JSONResponse, HTMLResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+
 from src.db import get_db
 from src.jwt_utils import verify_password, hash_password, create_access_token
 from src.models import User
@@ -21,17 +22,17 @@ async def login(user_data: UserLogin, response: Response, session: AsyncSession 
     if not user or not verify_password(user_data.password, user.password):
         return JSONResponse(status_code=401, content="Incorrect username or password")
 
-    access_token = create_access_token(data={"username": user.username})
-
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,
-        secure=False,  # Только HTTPS
-        samesite="lax",
-        domain="localhost",
-        path='/'
-    )
+    access_token = create_access_token(data={"username": user.username, "id_user": str(user.id)})
+    #
+    # response.set_cookie(
+    #     key="access_token",
+    #     value=access_token,
+    #     httponly=True,
+    #     secure=False,  # Только HTTPS
+    #     samesite="lax",
+    #     domain="localhost",
+    #     path='/'
+    # )
 
     return JSONResponse(content={"access_token": access_token, "token_type": "bearer"}, status_code=200)
 
@@ -55,3 +56,4 @@ async def register(user_data: UserRegister, session: AsyncSession = Depends(get_
     session.add(new_user)
     await session.commit()
     return {"message": "User created", "User": new_user}
+

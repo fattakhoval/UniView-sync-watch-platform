@@ -14,11 +14,12 @@ class UserRegister(BaseModel):
 
 
 class UserLogin(BaseModel):
-    username: str # 43612ba5-7c67-4474-95f0-71865fc6d823
-    password: str # qwe
+    username: str
+    password: str
 
 
 class RoomCreate(BaseModel):
+
     name: str
     id_user: UUID
     type: RoomType
@@ -27,5 +28,10 @@ class RoomCreate(BaseModel):
 
 
 class RoomJoin(BaseModel):
-    room_id: UUID # 16576bdf-ce23-44c0-8239-74f9d68c7c3e
-    password: str | None = None
+    room_id: UUID
+    password: str | None = None  # Пароль передается, если комната приватная
+
+
+class RoomPasswordCheck(BaseModel):
+    room_id: UUID
+    password: str
