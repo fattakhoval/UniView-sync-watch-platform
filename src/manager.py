@@ -23,6 +23,8 @@ class RoomRegistry:
 
         self.load_rooms(list(active_rooms))
 
+        print(self.active_rooms)
+
     def load_rooms(self, rooms: list[UUID]):
         self.active_rooms.update(rooms)
 
@@ -46,37 +48,39 @@ class BaseManager:
 
     def __init__(self, room_registry: RoomRegistry):
         self.room_registry = room_registry
-        self.rooms: Dict[str, List[Optional[WebSocket]]] = {}
+        self.rooms: Dict[UUID, List[Optional[WebSocket]]] = {}
 
-    async def connect(self, room_id: str, websocket: WebSocket):
-        if UUID(room_id) not in self.room_registry.active_rooms:
+    async def connect(self, room_id: UUID, websocket: WebSocket):
+        if room_id not in self.room_registry.active_rooms:
             raise self.RoomNotExists()
 
         if room_id not in self.rooms:
             self.rooms[room_id] = []
+
+        await websocket.accept()
         self.rooms[room_id].append(websocket)
 
-    def disconnect(self, room_id: str, websocket: WebSocket):
+    def disconnect(self, room_id: UUID, websocket: WebSocket):
         if room_id in self.rooms:
             self.rooms[room_id].remove(websocket)
 
-    def get_active_connections_count(self, room_id: str):
+    def get_active_connections_count(self, room_id: UUID):
         return len(self.rooms.get(room_id, []))
 
     def add_room(self, room_id):
         if room_id not in self.rooms:
             self.rooms[room_id] = []
 
-    async def broadcast(self, room_id: str, message: str):
+    async def broadcast(self, room_id: UUID, message: str):
         for connection in self.rooms.get(room_id, []):
             await connection.send_text(message)
 
 class VideoManager(BaseManager):
     def __init__(self, room_registry: RoomRegistry):
         super().__init__(room_registry)
-        self.video_state: Dict[str, Dict[str, Any]] = {}  # Храним текущее состояние видео
+        self.video_state: Dict[UUID, Dict[str, Any]] = {}  # Храним текущее состояние видео
 
-    async def update_video_state(self, room_id: str, state: Dict[str, Any]):
+    async def update_video_state(self, room_id: UUID, state: Dict[str, Any]):
         self.video_state[room_id] = state
         await self.broadcast(room_id, json.dumps(state))
 

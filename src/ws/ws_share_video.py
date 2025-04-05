@@ -1,5 +1,9 @@
+import asyncio
+from uuid import UUID
+
 from fastapi.routing import APIRouter
 from fastapi import WebSocket, WebSocketDisconnect
+
 
 from src.manager import video_manager
 
@@ -7,7 +11,7 @@ ws_video_route = APIRouter()
 
 
 @ws_video_route.websocket("/ws/video/{room_id}")
-async def ws_video(room_id: str, websocket: WebSocket):
+async def ws_video(room_id: UUID, websocket: WebSocket):
     await video_manager.connect(room_id, websocket)
 
     try:

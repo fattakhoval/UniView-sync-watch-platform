@@ -4,6 +4,7 @@ from starlette.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import get_db
+from src.manager import room_registry
 from src.models import Room, RoomType
 from src.schemas import RoomCreate, RoomJoin
 from src.ws.ws_chat import chat_manager
@@ -31,10 +32,10 @@ async def create_room(room_data: RoomCreate, session: AsyncSession = Depends(get
         live_time_room=room_data.live_time_room
     )
 
-    session.add(new_room)
     await session.commit()
 
-    init_room_settings(str(new_room.id))
+    print(new_room)
+    room_registry.add_room(room_id=new_room.id)
 
 
     return JSONResponse(status_code=200, content={'message': 'Room created', 'Room': {

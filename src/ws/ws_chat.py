@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi.routing import APIRouter
 from fastapi import WebSocket, WebSocketDisconnect
 
@@ -7,7 +9,7 @@ ws_chat_route = APIRouter()
 
 
 @ws_chat_route.websocket("/ws/chat/{room_id}")
-async def ws_chat(room_id: str, websocket: WebSocket):
+async def ws_chat(room_id: UUID, websocket: WebSocket):
     await chat_manager.connect(room_id, websocket)
     try:
         while True:

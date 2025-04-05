@@ -1,4 +1,5 @@
 import json
+from uuid import UUID
 
 from fastapi.routing import APIRouter
 from fastapi import WebSocket, WebSocketDisconnect
@@ -10,7 +11,7 @@ ws_action_route= APIRouter()
 
 
 @ws_action_route.websocket('/ws/control/{room_id}')
-async def ws_control(room_id: str, websocket: WebSocket):
+async def ws_control(room_id: UUID, websocket: WebSocket):
     await control_manager.connect(room_id, websocket)
 
     try:
