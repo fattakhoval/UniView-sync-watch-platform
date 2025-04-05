@@ -49,14 +49,6 @@ mediaSource.addEventListener('sourceopen', () => {
         const chunk = new Uint8Array(event.data);
         console.log(chunk)
 
-        // Проверка конца потока
-        if (chunk.length === END_MARKER.length && chunk.every((b, i) => b === END_MARKER[i])) {
-            console.log("Конец видео потока получен");
-            if (mediaSource.readyState === "open") {
-                mediaSource.endOfStream();
-            }
-            return;
-        }
 
         // Если буфер не занят — сразу добавляем, иначе в очередь
         if (mediaSource.readyState === "open" && sourceBuffer && !sourceBuffer.updating) {

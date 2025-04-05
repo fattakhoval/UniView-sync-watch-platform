@@ -82,9 +82,9 @@
   }
 
   // После того как все чанки отправлены, отправляем маркер конца потока
-  Promise.all(chunkPromises).then(() => {
-    videoSocket.value.send(END_MARKER);
-  });
+  //Promise.all(chunkPromises).then(() => {
+  //  videoSocket.value.send(END_MARKER);
+  //});
 };
 sendChunks();
   };
