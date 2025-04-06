@@ -40,6 +40,7 @@
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
     if (file) {
+      console.log('Триггер handleFileSelect');
       videoFile.value = file;
       emit('change', file);
     }
@@ -50,6 +51,9 @@
     const file = event.dataTransfer.files[0];
     if (file && file.type.startsWith('video/')) {
       videoFile.value = file;
+
+      console.log('Триггер handleDrop');
+
       emit('change', file);
     }
   };
