@@ -43,7 +43,7 @@ export const useUserStore = defineStore('user', {
       this.user = null;
 
       // Перенаправление на страницу входа
-      // router.push('/login');  // Можно перенаправить на страницу входа
+      router.push('/login');  // Можно перенаправить на страницу входа
     },
   },
 });

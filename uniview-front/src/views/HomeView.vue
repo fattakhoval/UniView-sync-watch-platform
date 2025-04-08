@@ -31,6 +31,14 @@ const isLoading = ref(false);
 
 
 const createRoom = async () => {
+
+  const token = cookies.get('access_token');
+
+  if (!token) {
+    errorMessage.value = "Вы должны быть авторизованы, чтобы создать комнату.";
+    return;
+  }
+
   const data = {
     name: roomName.value,
     type: roomType.value,
@@ -69,37 +77,35 @@ const resetModal = () => {
 
     <MyModal :isOpen="isModalOpen" @close="resetModal">
       <div class="modal-content">
-          <p class="modal-title">Создание комнаты</p>
-          
-          <label class="input-label">Название комнаты</label>
-          <input v-model="roomName" type="text" class="modal-input" placeholder="Введите название..." />
+        <p class="modal-title">Создание комнаты</p>
 
-          <div class="radio-group">
-            <label class="radio-label">
-              <input type="radio" name="roomType" value="public" v-model="roomType" />
-              <span class="custom-radio"></span>
-              Публичная
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="roomType" value="private" v-model="roomType" />
-              <span class="custom-radio"></span>
-              Приватная
-            </label>
-          </div>
+        <label class="input-label">Название комнаты</label>
+        <input v-model="roomName" type="text" class="modal-input" placeholder="Введите название..." />
 
-          <input 
-      v-if="roomType === 'private'" 
-      v-model="roomPassword" 
-      type="password" 
-      placeholder="Введите пароль" 
-      class="input fade-in"
-    />
-
-          <MyButton class="create-btn" @click="createRoom">
-            Создать комнату
-          </MyButton>
-
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" name="roomType" value="public" v-model="roomType" />
+            <span class="custom-radio"></span>
+            Публичная
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="roomType" value="private" v-model="roomType" />
+            <span class="custom-radio"></span>
+            Приватная
+          </label>
         </div>
+
+        <input v-if="roomType === 'private'" v-model="roomPassword" type="password" placeholder="Введите пароль"
+          class="input fade-in" />
+
+        <MyButton class="create-btn" @click="createRoom">
+          Создать комнату
+        </MyButton>
+
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+
+
+      </div>
     </MyModal>
 
     <NavBar />
@@ -305,7 +311,7 @@ const resetModal = () => {
 
 .btn-in {
   background-color: rgba(86, 74, 126, 0.5);
-  color:#B4D157;
+  color: #B4D157;
   font-family: "Montserrat Alternates", sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -334,7 +340,7 @@ const resetModal = () => {
   color: #a3bd5d;
 }
 
-.modal-content{
+.modal-content {
   font-family: "Montserrat Alternates", sans-serif;
   font-weight: 300;
   font-style: normal;
@@ -417,14 +423,77 @@ const resetModal = () => {
 }
 
 /* При выборе радио-кнопки */
-.radio-label input[type="radio"]:checked + .custom-radio {
+.radio-label input[type="radio"]:checked+.custom-radio {
   border-color: #3a2a50;
 }
 
-.radio-label input[type="radio"]:checked + .custom-radio::after {
+.radio-label input[type="radio"]:checked+.custom-radio::after {
   transform: scale(1);
 }
 
+@media (max-width: 768px) {
+  .main {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 40px;
+    width: 90%;
+  }
 
+  .logo-info {
+    width: 100%;
+    padding: 0 20px;
+  }
+
+  .logo-info h1 {
+    font-size: 48px;
+  }
+
+  .logo-info p {
+    font-size: 14px;
+  }
+
+  .info-blocks {
+    justify-content: center;
+    gap: 15px;
+    margin-right: 10px;
+  }
+
+  .btn-form {
+    padding: 30px 20px;
+    width: 85%;
+  }
+
+  .btn-group {
+    gap: 20px;
+  }
+
+
+  .btn-in {
+    width: 100%;
+    padding: 15px 20px;
+  }
+
+  .modal-content {
+    padding: 10px;
+  }
+
+
+  .create-btn {
+    width: 100%;
+  }
+
+  .radio-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.error-message {
+  color: #ff6b6b;
+  margin-top: 10px;
+  text-align: center;
+  width: 100%;
+}
 
 </style>

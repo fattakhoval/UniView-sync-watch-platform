@@ -58,7 +58,7 @@
     padding: 40px 60px;
     border-radius: 20px;
     min-width: 300px;
-    max-width: 500px;
+    max-width: 300px;
     position: relative;
   }
   
@@ -72,5 +72,18 @@
     cursor: pointer;
     color: aliceblue;
   }
+
+  @media (max-width: 768px) {
+    .modal-content{
+      min-width: none;
+      max-width: 200px;
+      padding: 10px 30px;
+    
+    }
+
+    .modal-input{
+      width: none;
+    }
+}
   </style>
   

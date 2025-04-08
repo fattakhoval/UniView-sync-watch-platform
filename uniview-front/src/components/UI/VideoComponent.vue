@@ -54,8 +54,6 @@ onMounted(() => {
 function setupWebSocketVideo() {
   ws_video = new WebSocket(`ws://localhost:8000/ws/video/${roomId}`) // URL подставь свой
 
-  ws_video.binaryType = 'arraybuffer'
-
   ws_video.onmessage = (event) => {
     const message = event.data;
     
