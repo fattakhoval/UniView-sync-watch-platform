@@ -57,17 +57,15 @@ function setupWebSocketVideo() {
   ws_video.onmessage = (event) => {
     const message = event.data;
     
-    if (message.startsWith("Video path: ")) {
-      console.log(message);
-      let path = "http://localhost:8000/video" + message.replace("Video path: ", "");
-      console.log(path);
-      videoPath.value = path;
+    console.log(message);
+    let path = "http://localhost:8000/video/" + message;
+    console.log(path);
+    videoPath.value = path;
 
-      if (videoElement.value) { // Проверка, что videoElement существует
-        videoElement.value.load(); // Перезагружаем видео, чтобы обновить источник
-        videoElement.value.play(); // Автоматическое воспроизведение видео
-        duration.value = videoElement.value.duration;
-      }
+    if (videoElement.value) { // Проверка, что videoElement существует
+      videoElement.value.load(); // Перезагружаем видео, чтобы обновить источник
+      videoElement.value.play(); // Автоматическое воспроизведение видео
+      duration.value = videoElement.value.duration;
     }
 
   }

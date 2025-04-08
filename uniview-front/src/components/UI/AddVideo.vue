@@ -68,7 +68,7 @@
     }
 
     // Отправляем маркер окончания
-    videoSocket.value.send(new TextEncoder().encode("__END_OF_STREAM__"));
+    videoSocket.value.send(new TextEncoder().encode(`__FILENAME__:${file.name}`));
   };
   </script>
   
