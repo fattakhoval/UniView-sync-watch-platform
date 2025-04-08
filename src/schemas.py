@@ -35,3 +35,14 @@ class RoomJoin(BaseModel):
 class RoomPasswordCheck(BaseModel):
     room_id: UUID
     password: str
+
+
+class MessageOut(BaseModel):
+    sender: str
+    type: str
+    text: str | None
+    voice_path: str | None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

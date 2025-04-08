@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from fastapi.responses import Response, JSONResponse, HTMLResponse
+from fastapi.responses import Response, JSONResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,16 +23,6 @@ async def login(user_data: UserLogin, response: Response, session: AsyncSession 
         return JSONResponse(status_code=401, content="Incorrect username or password")
 
     access_token = create_access_token(data={"username": user.username, "id_user": str(user.id)})
-    #
-    # response.set_cookie(
-    #     key="access_token",
-    #     value=access_token,
-    #     httponly=True,
-    #     secure=False,  # Только HTTPS
-    #     samesite="lax",
-    #     domain="localhost",
-    #     path='/'
-    # )
 
     return JSONResponse(content={"access_token": access_token, "token_type": "bearer"}, status_code=200)
 

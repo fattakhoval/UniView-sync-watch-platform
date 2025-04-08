@@ -1,7 +1,9 @@
+
 from sqlalchemy import select
-from fastapi import APIRouter, Depends
+
 from starlette.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends
 
 from src.db import get_db
 from src.manager import room_registry
@@ -70,3 +72,6 @@ async def join_room(room_data: RoomJoin, session: AsyncSession = Depends(get_db)
         'type': room.room_type,
         'password': room.room_password,
         'id_host': str(room.id_host)}})
+
+
+
