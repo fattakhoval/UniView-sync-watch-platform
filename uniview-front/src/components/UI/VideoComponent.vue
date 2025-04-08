@@ -1,24 +1,27 @@
 <template>
-<video ref="videoElement" controls class="video-player" muted>
-  <source class="video" :src="videoPath" type="video/webm" />
-</video>
+    <div class="video_box">
 
-<div>
-  <button @click="sendControlAction('play')">Play</button>
-  <button @click="sendControlAction('pause')">Pause</button>
-  <button @click="sendControlAction('stop')">Stop</button>
-</div>
 
-<div>
-  <input
-    type="range"
-    min="0"
-    :max="duration"
-    v-model="currentTime"
-    @input="onSeekInput"
-    @change="onSeekChange"
-  />
-</div>
+        <video ref="videoElement" class="video-player" muted>
+            <source class="video" :src="videoPath" type="video/webm" />
+        </video>
+
+        <div class="controls">
+            <!-- <button @click="sendControlAction('play')">Play</button>
+            <button @click="sendControlAction('pause')">Pause</button> -->
+
+            <button @click="togglePlayPause">
+                {{ isPlaying ? 'Pause' : 'Play' }}
+            </button>
+            <button @click="sendControlAction('stop')">Stop</button>
+            <div>
+                <input type="range" min="0" :max="duration" v-model="currentTime" @input="onSeekInput"
+                    @change="onSeekChange" />
+            </div>
+        </div>
+
+
+    </div>
 
 
 
@@ -42,87 +45,88 @@ const duration = ref(0)
 
 
 onMounted(() => {
-  setupWebSocketVideo()
-  setupWebsocketController()
-  watch(currentTime, () => {
-    if (videoElement.value) {
-      videoElement.value.currentTime = currentTime.value;
-    }
-  });
+    setupWebSocketVideo()
+    setupWebsocketController()
+    watch(currentTime, () => {
+        if (videoElement.value) {
+            videoElement.value.currentTime = currentTime.value;
+        }
+    });
 });
 
 function setupWebSocketVideo() {
-  ws_video = new WebSocket(`ws://localhost:8000/ws/video/${roomId}`) // URL подставь свой
+    ws_video = new WebSocket(`ws://localhost:8000/ws/video/${roomId}`) // URL подставь свой
 
-  ws_video.onmessage = (event) => {
-    const message = event.data;
-    
-    if (message.startsWith("Video path: ")) {
-      console.log(message);
-      let path = "http://localhost:8000/video" + message.replace("Video path: ", "");
-      console.log(path);
-      videoPath.value = path;
+    ws_video.onmessage = (event) => {
+        const message = event.data;
 
-      if (videoElement.value) { // Проверка, что videoElement существует
-        videoElement.value.load(); // Перезагружаем видео, чтобы обновить источник
-        videoElement.value.play(); // Автоматическое воспроизведение видео
-        duration.value = videoElement.value.duration;
-      }
+        if (message.startsWith("Video path: ")) {
+            console.log(message);
+            let path = "http://localhost:8000/video" + message.replace("Video path: ", "");
+            console.log(path);
+            videoPath.value = path;
+
+            if (videoElement.value) { // Проверка, что videoElement существует
+                videoElement.value.load(); // Перезагружаем видео, чтобы обновить источник
+                videoElement.value.play(); // Автоматическое воспроизведение видео
+                duration.value = videoElement.value.duration;
+            }
+        }
+
     }
-
-  }
 };
 
-function setupWebsocketController(){
-  ws_control = new WebSocket(`ws://localhost:8000/ws/control/${roomId}`)
+function setupWebsocketController() {
+    ws_control = new WebSocket(`ws://localhost:8000/ws/control/${roomId}`)
 
-  ws_control.onmessage = (event) => {
-    const message = JSON.parse(event.data);
-    const action = message.action
+    ws_control.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        const action = message.action
 
-    console.log(action);
-    if (videoElement.value) { // Проверка, что videoElement существует
-      if (action === "pause") {
-        videoElement.value.pause();
-      }
+        console.log(action);
+        if (videoElement.value) { // Проверка, что videoElement существует
+            if (action === "pause") {
+                videoElement.value.pause();
 
-      if (action === "play") {
-        videoElement.value.play();
-      }
+            }
 
-      if (action === "stop") {
-        videoElement.value.pause();
-        videoElement.value.currentTime = 0;
-      }
+            if (action === "play") {
+                videoElement.value.play();
+            }
 
-      if (action === "seek" && message.value !== undefined) {
-        videoElement.value.currentTime = message.value;
-      }
+            if (action === "stop") {
+                videoElement.value.pause();
+                videoElement.value.currentTime = 0;
+            }
+
+            if (action === "seek" && message.value !== undefined) {
+                videoElement.value.currentTime = message.value;
+            }
+        }
     }
-  }
 }
 
 function sendControlAction(action) {
-  if (ws_control && ws_control.readyState === WebSocket.OPEN) {
-    if (action === 'seek') {
-      // Отправляем действие "seek" с value
-      ws_control.send(JSON.stringify({ action, value: currentTime.value }));
-    } else {
-      // Отправляем другие действия (play, pause, stop) без value
-      ws_control.send(JSON.stringify({ action }));
+    if (ws_control && ws_control.readyState === WebSocket.OPEN) {
+        if (action === 'seek') {
+            // Отправляем действие "seek" с value
+            ws_control.send(JSON.stringify({ action, value: currentTime.value }));
+        } else {
+            // Отправляем другие действия (play, pause, stop) без value
+            ws_control.send(JSON.stringify({ action }));
+        }
     }
-  }
 }
 
 
 function onSeekInput() {
-  if (videoElement.value) {
-    currentTime.value = videoElement.value.currentTime;
-  }
+    if (videoElement.value) {
+        currentTime.value = videoElement.value.currentTime;
+    }
 }
 
 function onSeekChange() {
-  sendControlAction('seek');
+    sendControlAction('seek');
 }
 
 </script>
@@ -134,8 +138,79 @@ function onSeekChange() {
     height: 100%;
     background-color: black;
 }
-.video-player {
+
+.video_box {
     width: 75%;
-    height: 100%;
+    height: 90%;
+    background-color: #1f1f1f;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.video-player {
+    width: 100%;
+
+}
+
+/* Кнопки управления */
+.controls {
+    margin-top: 12px;
+    display: flex;
+    gap: 16px;
+    position: absolute;
+    bottom: 0;
+
+}
+
+.controls button {
+    background-color: #1f1f1f;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s ease;
+}
+
+.controls button:hover {
+    background-color: #2d2d2d;
+}
+
+/* Ползунок */
+.slider-container {
+    margin-top: 16px;
+    width: 100%;
+    max-width: 960px;
+}
+
+.slider {
+    width: 100%;
+    height: 6px;
+    appearance: none;
+    background: #444;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: #9db358;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: #9db358;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
 }
 </style>
