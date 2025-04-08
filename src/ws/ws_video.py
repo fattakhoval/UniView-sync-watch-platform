@@ -4,9 +4,11 @@ from fastapi.routing import APIRouter
 from fastapi import WebSocket, WebSocketDisconnect
 
 
+from config import config
 from src.manager import video_manager
 
 ws_video_route = APIRouter()
+
 
 
 @ws_video_route.websocket("/ws/video/{room_id}")
@@ -14,15 +16,19 @@ async def ws_video(room_id: UUID, websocket: WebSocket):
     await video_manager.connect(room_id, websocket)
 
     try:
-
-        print(f"[Room {room_id}] Accepting file...")
         video_data = bytearray()
 
         while True:
             chunk = await websocket.receive_bytes()
-            if chunk.endswith(b"__END_OF_STREAM__"):
-                await send(video_data, video_manager.rooms.get(room_id, []))
+            if chunk.startswith(b"__FILENAME__"):
+                filename = chunk.decode().split(':')[1]
+                if not filename.endswith('.webm'):
+                    filename = f'{filename}.webm'
+
+                await send(filename, video_data, video_manager.rooms.get(room_id, []))
+                video_data.clear()
                 continue
+
             video_data.extend(chunk)
 
 
@@ -30,11 +36,12 @@ async def ws_video(room_id: UUID, websocket: WebSocket):
         video_manager.disconnect(room_id, websocket)
 
 
-async def send(video_bytes, websockets):
+async def send(filename, video_bytes, websockets):
 
-    filename = 'video.webm'
-    with open(f'temp_video/{filename}', 'wb') as file:
+    path = config.VIDEO_DIR / filename
+    print(path)
+    with open(path, 'wb') as file:
         file.write(video_bytes)
 
     for ws in websockets:
-        await ws.send_text(f"Video path: /{filename}")
+        await ws.send_text(f"{filename}")
