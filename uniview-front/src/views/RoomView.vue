@@ -16,6 +16,11 @@ const roomId = route.params.id;
 
 async function checkRoomAccess(roomId) {
     const room_info = Cookies.get(`room_info${roomId}`);
+    const token = Cookies.get('access_token');
+
+if (!token) {
+  router.push('/');
+}
     
     if (!room_info) {
         const inputPassword = prompt('Введите пароль для комнаты:');

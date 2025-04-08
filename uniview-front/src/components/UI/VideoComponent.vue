@@ -9,12 +9,16 @@
         <div class="controls">
             <!-- <button @click="sendControlAction('play')">Play</button>
             <button @click="sendControlAction('pause')">Pause</button> -->
+            <div class="play-div">
 
-            <button @click="togglePlayPause">
-                {{ isPlaying ? 'Pause' : 'Play' }}
-            </button>
-            <button @click="sendControlAction('stop')">Stop</button>
-            <div>
+
+
+                <button @click="togglePlayPause">
+                    {{ isPlaying ? 'Pause' : 'Play' }}
+                </button>
+                <button @click="sendControlAction('stop')">Stop</button>
+            </div>
+            <div class="range-div">
                 <input type="range" min="0" :max="duration" v-model="currentTime" @input="onSeekInput"
                     @change="onSeekChange" />
             </div>
@@ -36,12 +40,25 @@ const route = useRoute();
 const roomId = route.params.id;
 const videoPath = ref('');
 const videoElement = ref(null);
+const isPlaying = ref(true); // отслеживает, играет ли видео
+
 let ws_video;
 let ws_control;
 
 
 const currentTime = ref(0);
-const duration = ref(0)
+const duration = ref(0);
+
+function togglePlayPause() {
+    if (isPlaying.value) {
+        sendControlAction('pause');
+        isPlaying.value = false;
+    } else {
+        sendControlAction('play');
+        isPlaying.value = true;
+    }
+}
+
 
 
 onMounted(() => {
@@ -87,11 +104,13 @@ function setupWebsocketController() {
         if (videoElement.value) { // Проверка, что videoElement существует
             if (action === "pause") {
                 videoElement.value.pause();
+                isPlaying.value = false;
 
             }
 
             if (action === "play") {
                 videoElement.value.play();
+                isPlaying.value = true;
             }
 
             if (action === "stop") {
@@ -161,7 +180,14 @@ function onSeekChange() {
     gap: 16px;
     position: absolute;
     bottom: 0;
+    width: 100%;
+    justify-content: start;
+    align-items: center;
 
+}
+
+.play-div {
+    display: flex;
 }
 
 .controls button {
@@ -179,11 +205,16 @@ function onSeekChange() {
     background-color: #2d2d2d;
 }
 
+.range-div,
+.range-div input {
+    width: 90%;
+}
+
 /* Ползунок */
 .slider-container {
     margin-top: 16px;
     width: 100%;
-    max-width: 960px;
+    /* max-width: 960px; */
 }
 
 .slider {
