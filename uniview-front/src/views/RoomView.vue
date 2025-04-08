@@ -104,10 +104,8 @@ onMounted(() => {
         <button @click="joinRoom" v-if="showPasswordInput">Войти</button>
     </div>
 
-    <p v-else>Вы успешно вошли в комнату!</p>
-
         <div class="room-info">
-            <h3>Комната: 111</h3>
+            <h3>Комната: Вечер кино</h3>
 
             <MyButton class="share-btn">
                 Пригласить

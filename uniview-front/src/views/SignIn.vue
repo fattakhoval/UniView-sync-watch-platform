@@ -52,6 +52,10 @@ const loginUser = async () => {
                 <button @click="loginUser" :disabled="isLoading" class="auth-btn">
                     {{ isLoading ? 'Вход...' : 'Войти' }}
                 </button>
+
+                <p>Нет аккаунта?      
+                     <router-link to="/register" class="p"  v-if="!username" >Зарегитрируйтесь</router-link>
+                </p>
             </div>
         </div>
     </div>
@@ -89,6 +93,19 @@ h2 {
     font-family: "Montserrat Alternates", sans-serif;
     color: #d6f879;
     margin-bottom: 20px;
+}
+
+p{
+    font-family: "Montserrat Alternates", sans-serif;
+    color: #1c2011;
+    font-size: 14px;
+    text-align: center;
+}
+
+.p{
+    font-family: "Montserrat Alternates", sans-serif;
+    color: #d6f879;
+    font-size: 14px;
 }
 
 .input {

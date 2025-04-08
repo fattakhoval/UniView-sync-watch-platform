@@ -33,7 +33,7 @@ onMounted(() => {
 
 mediaSource.addEventListener('sourceopen', () => {
 
-    sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp9, opus"');
+    sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8, opus"');
 
     sourceBuffer.addEventListener("updateend", () => {
         if (chunkQueue.length > 0 && !sourceBuffer.updating) {
@@ -68,7 +68,7 @@ mediaSource.addEventListener('sourceopen', () => {
 onBeforeUnmount(() => {
     // Закрытие соединений при выходе из компонента
     videoSocket.value?.close();
-    controlSocket.value?.close();
+    // controlSocket.value?.close();
 });
 
 

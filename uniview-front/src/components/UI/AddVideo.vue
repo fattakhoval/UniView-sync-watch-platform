@@ -17,7 +17,6 @@
       <transition name="fade">
         <div v-if="showFileInput" class="input-wrapper">
             <UploadVideo @change="handleFileUpload" />
-            <button @click="sendFile" class="send-button">Отправить файл</button>
         </div>
       </transition>
     </div>
@@ -93,6 +92,7 @@ sendChunks();
   <style scoped>
   .add-video-container {
     display: flex;
+    position: relative;
     gap: 10px;
     padding: 10px 20px;
   }
@@ -115,8 +115,8 @@ sendChunks();
   /* Контейнер для инпутов — поверх всех слоев */
   .input-wrapper {
     position: absolute;
-    top: 220px;
-    left: 13%;
+    top: 10px;
+    left: 40%;
     transform: translateX(-50%);
     z-index: 1000;
   }

@@ -74,6 +74,10 @@ const registerUser = async () => {
                 <button @click="registerUser" :disabled="isLoading" class="register-btn">
                     {{ isLoading ? 'Регистрация...' : 'Зарегистрироваться' }}
                 </button>
+
+                <p>Есть аккаунт?      
+                     <router-link to="/login" class="p"  v-if="!username" >Войти</router-link>
+                </p>
             </div>
         </div>
     </div>
@@ -96,6 +100,19 @@ const registerUser = async () => {
     justify-content: center;
     align-items: center;
     padding-top: 5%;
+}
+
+p{
+    font-family: "Montserrat Alternates", sans-serif;
+    color: #1c2011;
+    font-size: 14px;
+    text-align: center;
+}
+
+.p{
+    font-family: "Montserrat Alternates", sans-serif;
+    color: #d6f879;
+    font-size: 14px;
 }
 
 .register-container {
