@@ -8,44 +8,49 @@
           <span class="sender">{{ msg.sender }}</span>
           <span class="time">{{ msg.time }}</span>
         </div>
-        <div class="message-text">{{ msg.text }}</div>
+        <div class="message-text">
+          <template v-if="msg.type === 'voice' && msg.voice_path">
+            <audio controls :src="`http://localhost:8000/messages/voices/${msg.voice_path}`"></audio>
+          </template>
+          <template v-else>
+            {{ msg.text }}
+          </template>
+        </div>
       </div>
     </div>
 
     <div class="message-input">
       <input class="input" v-model="chatInput" @keyup.enter="sendMessage" placeholder="Введите сообщение..." />
       <button @click="sendMessage">></button>
+      <button @mousedown="startRecording" @mouseup="stopRecording">🎤</button>
     </div>
   </div>
 </template>
 
 <script setup>
-
+import axios from 'axios';
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
-import { useUserStore } from '@/stores/userStore';
-import Cookies from 'js-cookie';  // Для работы с куками
+import { v4 as uuidv4 } from 'uuid'
+import Cookies from 'js-cookie';
 import parseJwt from '@/utils';
 
 
 const chatInput = ref('');
 const messages = ref([]);
 const chatSocket = ref(null);
+const chatContainer = ref(null);
 const route = useRoute();
-const userStore = useUserStore();
+const roomId = route.params.id;
 let username = null;
+let mediaRecorder = null;
+let chunks = [];
 
-// Получаем имя пользователя из токена
 const token = Cookies.get('access_token');
 if (token) {
   const decoded = parseJwt(token);
   username = decoded.username;
 }
-
-
-const roomId = route.params.id;
-
-const chatContainer = ref(null);
 
 function addMessage() {
   nextTick(() => {
@@ -75,13 +80,33 @@ function sendMessage() {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  try {
+    const response = await axios.get(`http://localhost:8000/messages/room_messages/${roomId}`);
+    messages.value = response.data.map(msg => ({
+      sender: msg.sender || msg.username || 'Unknown',
+      text: msg.text || msg.message,
+      type: msg.type,
+      voice_path: msg.voice_path,
+      time: new Date(msg.created_at).toLocaleTimeString(),
+    }));
+    console.log(messages.value);
+    addMessage();
+  } catch (err) {
+    console.error('Ошибка при загрузке сообщений:', err);
+  }
+
   chatSocket.value = new WebSocket(`ws://localhost:8000/ws/chat/${roomId}`);
 
   chatSocket.value.onmessage = (event) => {
-    const message = JSON.parse(event.data);
-    messages.value.push(message);
-    // messages.value.push(event.data);
+    const msg = JSON.parse(event.data);
+    messages.value.push({
+      sender: msg.sender,
+      type: msg.type || 'text',
+      text: msg.text || '',
+      voice_path: msg.voice_path || msg.filename,
+      time: new Date().toLocaleTimeString(),
+    });
     addMessage();
   };
 });
@@ -89,6 +114,39 @@ onMounted(() => {
 onBeforeUnmount(() => {
   chatSocket.value?.close();
 });
+
+async function startRecording() {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  mediaRecorder = new MediaRecorder(stream);
+  chunks = [];
+
+  mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+
+  mediaRecorder.onstop = async () => {
+    const blob = new Blob(chunks, { type: 'audio/webm' });
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64Audio = reader.result.split(',')[1];
+      const voiceMessage = {
+        sender: username,
+        type: 'voice',
+        filename: uuidv4(),
+        data: base64Audio,
+        time: new Date().toISOString(),
+      };
+      chatSocket.value.send(JSON.stringify(voiceMessage));
+    };
+    reader.readAsDataURL(blob);
+  };
+
+  mediaRecorder.start();
+}
+
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+  }
+}
 
 </script>
 
