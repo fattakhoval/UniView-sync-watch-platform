@@ -51,7 +51,7 @@
   videoSocket.value = new WebSocket(`ws://localhost:8000/ws/video/${roomId}`);
 });
   
-  const handleFileUpload = (FileOrEvent) => {
+  const handleFileUpload = async (FileOrEvent) => {
 
     const file = FileOrEvent?.target?.files?.[0] || FileOrEvent;
 
@@ -61,32 +61,15 @@
     }
 
     const chunkSize = 1024 * 1024;
-    const END_MARKER = new TextEncoder().encode("__END_OF_STREAM__");
 
-    const sendChunks = () => {
-      const chunkPromises = [];
-      for (let offset = 0; offset < file.size; offset += chunkSize) {
-        const chunk = file.slice(offset, offset + chunkSize);
-        const reader = new FileReader();
+    for (let i = 0; i < file.size; i += chunkSize) {
+      const chunk = file.slice(i, i + chunkSize);
+      const buffer = await chunk.arrayBuffer();
+      videoSocket.value.send(buffer);
+    }
 
-        const promise = new Promise((resolve) => {
-      reader.onload = () => {
-        console.log(chunk.size);
-        videoSocket.value.send(reader.result);
-        resolve();
-      };
-      reader.readAsArrayBuffer(chunk);
-    });
-
-    chunkPromises.push(promise);
-  }
-
-  // После того как все чанки отправлены, отправляем маркер конца потока
-  //Promise.all(chunkPromises).then(() => {
-  //  videoSocket.value.send(END_MARKER);
-  //});
-};
-sendChunks();
+    // Отправляем маркер окончания
+    videoSocket.value.send(new TextEncoder().encode("__END_OF_STREAM__"));
   };
   </script>
   
