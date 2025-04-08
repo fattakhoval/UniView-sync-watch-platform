@@ -9,7 +9,7 @@ from src.models import Room, RoomType
 from src.schemas import RoomCreate, RoomJoin
 from src.ws.ws_chat import chat_manager
 from src.ws.ws_action import control_manager
-from src.ws.ws_share_video import video_manager
+from src.ws.ws_video import video_manager
 from src.jwt_utils import hash_password, verify_password
 
 room_router = APIRouter(prefix='/rooms')

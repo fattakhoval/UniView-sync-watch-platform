@@ -84,6 +84,13 @@ class VideoManager(BaseManager):
         self.video_state[room_id] = state
         await self.broadcast(room_id, json.dumps(state))
 
+    async def broadcast_seek(self, room_id, seek_time):
+        for websocket in self.rooms.get(room_id, []):
+            try:
+                await websocket.send_text(json.dumps({"action": f"seek:{seek_time}"}))
+            except:
+                pass
+
 
 room_registry = RoomRegistry()
 

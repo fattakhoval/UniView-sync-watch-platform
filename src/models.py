@@ -15,6 +15,11 @@ class RoomType(PyEnum):
     Private = 'private'
 
 
+class UserRole(PyEnum):
+    User = 'user'
+    Admin = 'admin'
+
+
 class User(Base):
     __tablename__ = 'users'
 
@@ -22,8 +27,7 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
     email: Mapped[str] = mapped_column(String(256), nullable=False, unique=True)
     password: Mapped[str] = mapped_column(String(256), nullable=True)
-    is_registered: Mapped[bool] = mapped_column(Boolean, default=False)
-    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
+    role: Mapped[PyEnum] = mapped_column(Enum(UserRole), nullable=False, default=UserRole.User)
     updated_at: Mapped[datetime] = Column(DateTime(timezone=True), default=datetime.datetime.now(datetime.UTC), onupdate=datetime.datetime.now(datetime.UTC), nullable=False)
     created_at: Mapped[datetime] = Column(DateTime(timezone=True), default=datetime.datetime.now(datetime.UTC), nullable=False)
 
