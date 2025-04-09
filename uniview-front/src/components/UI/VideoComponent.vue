@@ -1,6 +1,7 @@
 <template>
-    <div class="video_box">
+    <div class="video_iframe" v-if="iframeHtml" v-html="iframeHtml"></div>
 
+    <div v-else class="video_box">
 
         <video ref="videoElement" class="video-player" muted>
             <source class="video" :src="videoPath" type="video/webm" />
@@ -47,13 +48,11 @@
 
     </div>
 
-
-
 </template>
 
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
@@ -62,6 +61,7 @@ const videoPath = ref('');
 const videoElement = ref(null);
 const isPlaying = ref(true); // отслеживает, играет ли видео
 const isSeeking = ref(false); // флаг ручной перемотки
+const iframeHtml = ref('');
 
 let ws_video;
 let ws_control;
@@ -87,47 +87,68 @@ function formatTime(seconds) {
 }
 
 
-
-
-
-
 onMounted(() => {
     setupWebSocketVideo()
     setupWebsocketController()
-    // watch(currentTime, () => {
-    //     if (videoElement.value) {
-    //         videoElement.value.currentTime = currentTime.value;
-    //     }
-    // });
 });
 
-function setupWebSocketVideo() {
-    ws_video = new WebSocket(`ws://localhost:8000/ws/video/${roomId}`) // URL подставь свой
 
-    ws_video.onmessage = (event) => {
-        const message = event.data;
+function resetVideoElement() {
+  if (videoElement.value) {
+    videoElement.value.pause();
+    videoElement.value.removeAttribute('src');
+    videoElement.value.load();
+    videoElement.value.ontimeupdate = null;
+    videoElement.value.onloadedmetadata = null;
+  }
+}
 
-        console.log(message);
-        let path = "http://localhost:8000/video/" + message;
-        console.log(path);
-        videoPath.value = path;
+function initVideoElement(videoPathUrl) {
 
-        if (videoElement.value) { // Проверка, что videoElement существует
-            videoElement.value.load(); // Перезагружаем видео, чтобы обновить источник
-
-            videoElement.value.onloadedmetadata = () => {
-                duration.value = videoElement.value.duration;
-                videoElement.value.play(); // Автоматическое воспроизведение видео
-
-            }
-            //   duration.value = videoElement.value.duration;
+  nextTick(() => {
+        if (!videoElement.value) {
+            console.warn("videoElement еще не готов");
+            return;
         }
+
+        resetVideoElement();
+
+        videoElement.value.onloadedmetadata = () => {
+            duration.value = videoElement.value.duration;
+            videoElement.value.play();
+            isPlaying.value = true;
+        };
 
         videoElement.value.ontimeupdate = () => {
             if (!videoElement.value.seeking && !isSeeking.value) {
                 currentTime.value = videoElement.value.currentTime;
             }
         };
+
+        videoElement.value.src = videoPathUrl;
+        videoElement.value.load();
+    });
+}
+
+function setupWebSocketVideo() {
+    ws_video = new WebSocket(`ws://localhost:8000/ws/video/${roomId}`) // URL подставь свой
+
+    ws_video.onmessage = (event) => {
+        const message = event.data;
+        console.log(message);
+
+        if (typeof message === 'string' && message.startsWith('IFRAME:')) {
+          const url = message.slice(7);
+          iframeHtml.value = `<iframe src="${url}" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>`;
+          resetVideoElement();
+          return;
+        }
+
+        iframeHtml.value = '';
+
+        const path = "http://localhost:8000/video/" + message;
+        console.log(path);
+        initVideoElement(path);
 
     }
 };
@@ -199,6 +220,12 @@ function onSeekChange() {
 
 
 <style scoped>
+
+.video_iframe {
+  width: 75%;
+  height: 90%;
+}
+
 .video {
     width: 100%;
     height: 100%;
@@ -209,7 +236,7 @@ function onSeekChange() {
     color: #ccc;
     font-size: 14px;
     padding: 0 12px;
-    min-width: 80px;
+    min-width: 100px;
 }
 
 

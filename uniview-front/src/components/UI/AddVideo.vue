@@ -11,6 +11,7 @@
             placeholder="Введите ссылку на видео" 
             class="input-field"
           />
+          <button @click="sendVideoLink" class="send-button">Отправить ссылку</button>
         </div>
       </transition>
   
@@ -35,6 +36,16 @@
   const videoUrl = ref('');
   const videoSocket = ref(null);
   
+
+  const sendVideoLink = () => {
+  if (!videoUrl.value) return;
+
+  const linkMessage = `LINK:${videoUrl.value}`;
+  const encoded = new TextEncoder().encode(linkMessage);
+  videoSocket.value.send(encoded);
+
+  videoUrl.value = '';
+};
   
   const toggleInput = (type) => {
     if (type === 'url') {
