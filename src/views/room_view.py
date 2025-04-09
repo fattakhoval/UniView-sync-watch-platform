@@ -69,7 +69,7 @@ async def join_room(room_data: RoomJoin, session: AsyncSession = Depends(get_db)
 
     return JSONResponse(status_code=200, content={'access': True, 'room': {'id': str(room.id),
         'name': room.name,
-        'type': room.room_type,
+        'type': room.room_type.value,
         'password': room.room_password,
         'id_host': str(room.id_host)}})
 
