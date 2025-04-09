@@ -21,7 +21,7 @@
 
     <div class="message-input">
       <input class="input" v-model="chatInput" @keyup.enter="sendMessage" placeholder="Введите сообщение..." />
-      <button @click="sendMessage">></button>
+      <!-- <button @click="sendMessage">></button> -->
       <button @mousedown="startRecording" @mouseup="stopRecording">🎤</button>
     </div>
   </div>
@@ -150,7 +150,7 @@ function stopRecording() {
 
 </script>
 
-<style>
+<style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
 
 .chat {
@@ -176,6 +176,7 @@ function stopRecording() {
     display: flex;
     align-items: center;
     justify-content: space-around;
+    gap: 5px;
 }
 
 button {
@@ -207,6 +208,7 @@ button:focus {
     border-radius: 10px;
     outline: none;
     transition: all 0.3s ease-in-out;
+    width: 80%;
 }
 
 .input::placeholder {

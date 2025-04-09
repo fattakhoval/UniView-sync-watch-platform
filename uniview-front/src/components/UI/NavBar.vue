@@ -11,9 +11,9 @@
       <!-- Навигация -->
       <ul class="nav-links" :class="{ open: isMenuOpen }">
         <li><router-link to="/" class="active">Главная</router-link></li>
-        <li><router-link to="/rooms">Комнаты</router-link></li>
-        <li><router-link to="/friends">Друзья</router-link></li>
-        <li><router-link to="/calendar">Календарь</router-link></li>
+        <li><router-link to="#">Комнаты</router-link></li>
+        <li><router-link to="#">Друзья</router-link></li>
+        <li><router-link to="#">Календарь</router-link></li>
       </ul>
 
       <!-- Кнопки -->

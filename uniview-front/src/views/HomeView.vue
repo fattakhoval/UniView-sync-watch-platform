@@ -6,7 +6,7 @@ import BlocksIcon from '@/components/UI/BlocksIcon.vue';
 import BlockHr from '@/components/UI/BlockHr.vue';
 import MyModal from '@/components/UI/MyModal.vue';
 
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useCookies } from "vue3-cookies";
 
 import { useRoomStore } from '@/stores/roomStore';
@@ -15,7 +15,7 @@ import { useRouter } from 'vue-router';
 
 const { cookies } = useCookies();
 const router = useRouter();
-
+const roomLink = ref('');
 const isModalOpen = ref(false);
 
 
@@ -58,6 +58,18 @@ const createRoom = async () => {
   }
 };
 
+// Обработчик для кнопки "Войти в комнату"
+const joinRoom = () => {
+  // Извлекаем ID комнаты из введенной ссылки
+  const roomId = roomLink.value.split('/').pop(); // Предполагаем, что ссылка вида "/room/ID"
+  
+  if (roomId) {
+    // Переходим на страницу комнаты с указанным ID
+    router.push(`/room/${roomId}`);
+  } else {
+    alert('Неверная ссылка на комнату');
+  }
+};
 // Функция сброса состояния
 const resetModal = () => {
   roomName.value = '';
@@ -67,7 +79,11 @@ const resetModal = () => {
 };
 
 
+onMounted(() => {
+    document.title = `UniView`;
 
+  
+});
 
 
 </script>
@@ -176,8 +192,8 @@ const resetModal = () => {
                 ИЛИ
               </BlockHr>
 
-              <input type="text" class="input" placeholder="Ссылка на комнату">
-              <button class="btn-in">Войти в комнату</button>
+              <input v-model="roomLink" type="text" class="input" placeholder="Ссылка на комнату">
+              <button class="btn-in"  @click="joinRoom">Войти в комнату</button>
             </div>
           </div>
 

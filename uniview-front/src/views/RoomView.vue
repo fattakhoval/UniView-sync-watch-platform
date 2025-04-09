@@ -5,7 +5,7 @@ import MyChat from '@/components/UI/MyChat.vue';
 import NavBar from '@/components/UI/NavBar.vue';
 
 import { useRoute, useRouter } from 'vue-router';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import router from '@/router';
@@ -13,6 +13,23 @@ import VideoComponent from '@/components/UI/VideoComponent.vue';
 
 const route = useRoute();
 const roomId = route.params.id;
+const inviteLink = ref('');
+
+const roomName = ref('');
+const roomTitle = ref('');
+
+// Получаем название комнаты из куки
+onMounted(() => {
+  const storedRoomName = Cookies.get(`room_info${roomId}`);
+  if (storedRoomName) {
+    roomName.value = JSON.parse(storedRoomName);
+    document.title = `Комната: ${roomName.value.name}`;
+
+  } else {
+    roomName.value = 'Комната не найдена';
+  }
+});
+
 
 async function checkRoomAccess(roomId) {
     const room_info = Cookies.get(`room_info${roomId}`);
@@ -45,6 +62,24 @@ if (!token) {
             }
         }
     }
+}
+
+// Генерация ссылки на текущую комнату
+function generateInviteLink() {
+  const link = `${window.location.origin}/room/${roomId}`; // ссылка на текущую комнату
+  inviteLink.value = link;
+  copyToClipboard(link); // Автоматически копируем ссылку в буфер обмена
+}
+
+// Копирование ссылки в буфер обмена
+function copyToClipboard(text) {
+  const el = document.createElement('textarea');
+  el.value = text;
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+  alert('Ссылка скопирована в буфер обмена!');
 }
 
 // Запускаем проверку при загрузке компонента
@@ -110,11 +145,12 @@ onMounted(() => {
     </div>
 
         <div class="room-info">
-            <h3>Комната: Вечер кино</h3>
+            <h3>Комната: {{ roomName.name }}</h3>
 
-            <MyButton class="share-btn">
+            <MyButton class="share-btn"  @click="generateInviteLink">
                 Пригласить
             </MyButton>
+
 
 
 
