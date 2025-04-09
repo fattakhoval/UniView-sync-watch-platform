@@ -16,6 +16,12 @@ async def ws_control(room_id: UUID, websocket: WebSocket):
     await control_manager.connect(room_id, websocket)
 
     try:
+
+        # state = control_manager.video_state.get(room_id)
+        # if state:
+        #     print(f'state: {state}')
+        #     await websocket.send_text(json.dumps(state))
+
         while True:
             data = await websocket.receive_text()
             message = json.loads(data)
@@ -24,16 +30,21 @@ async def ws_control(room_id: UUID, websocket: WebSocket):
                 action = message["action"]
 
                 if action == "seek" and "value" in message:
-                    # Отправляем всем подключённым пользователям команду перемотки
-                    for client in control_manager.rooms.get(room_id, []):
-                        await client.send_text(json.dumps({
+                    await control_manager.broadcast(room_id, json.dumps({
                             "action": "seek",
                             "value": message["value"]
                         }))
+                # elif action == "sync_time":
+                #     state = control_manager.video_state.get(room_id, {})
+                #     state["current_time"] = message["current_time"]
+                #
+                #     if "filename" in message:
+                #         state["filename"] = message["filename"]
+                #
+                #     await control_manager.update_video_state(room_id, state)
+
                 else:
-                    # Обрабатываем другие действия
-                    await control_manager.update_video_state(room_id, message)
+                    await control_manager.broadcast(room_id, json.dumps(message))
 
     except WebSocketDisconnect:
         control_manager.disconnect(room_id, websocket)
-

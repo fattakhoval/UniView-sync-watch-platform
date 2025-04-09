@@ -13,7 +13,7 @@ auth = APIRouter(prefix='/auth')
 
 
 @auth.post("/login")
-async def login(user_data: UserLogin, response: Response, session: AsyncSession = Depends(get_db)):
+async def login(user_data: UserLogin, session: AsyncSession = Depends(get_db)):
 
     stmt = select(User).where(User.username.expression == user_data.username)
     result = await session.execute(stmt)
