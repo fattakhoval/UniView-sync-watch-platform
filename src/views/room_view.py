@@ -17,12 +17,6 @@ from src.jwt_utils import hash_password, verify_password
 room_router = APIRouter(prefix='/rooms')
 
 
-def init_room_settings(room_id):
-    video_manager.add_room(room_id)
-    chat_manager.add_room(room_id)
-    control_manager.add_room(room_id)
-
-
 @room_router.post('/create_room')
 async def create_room(room_data: RoomCreate, session: AsyncSession = Depends(get_db)):
 
@@ -60,7 +54,7 @@ async def join_room(room_data: RoomJoin, session: AsyncSession = Depends(get_db)
     if not room:
         return JSONResponse(status_code=404, content={'detail': 'Комната не найдена'})
 
-    # Получаем пароль из тела запроса или cookies
+    # Получаем пароль из тела запроса
     password = room_data.password
 
     # Если комната приватная и пароль не совпадает
