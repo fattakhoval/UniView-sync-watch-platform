@@ -11,7 +11,7 @@
             placeholder="Введите ссылку на видео" 
             class="input-field"
           />
-          <button @click="sendVideoLink" class="send-button">Отправить ссылку</button>
+          <button @click="sendVideoLink" class="send-button">Отправить</button>
         </div>
       </transition>
   
@@ -91,7 +91,7 @@
     padding: 10px 20px;
   }
   
-  .add-button {
+  .add-button, .send-button {
     background: rgba(49, 40, 66, 0.7);
     color: #fff;
     border: 1px solid rgba(105, 96, 131, 0.769);
