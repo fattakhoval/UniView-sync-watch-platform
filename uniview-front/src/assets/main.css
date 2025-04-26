@@ -1,10 +1,72 @@
-body {
-  background-color: #312842;
+:root {
+  --text-color: #90609D;
+  --p1: #CC37B6;
+  --p2: #fff;
+
+  --text-p: #90609D;
+  --background-color: #afb7db;
+  --accent-color: #CC37B6;
+  --accent-hover: #CC37B6;
+  --card-background: #f4f4f4;
+  --input-bg: rgba(204, 55, 182, 0.2);
+  --input-border: rgba(217, 217, 217, 0.2);
+  --placeholder-color: rgba(0, 0, 0, 0.5);
+  --bg-oval: url('/images/oval-light.png') no-repeat center;
+  --icon-color: #CC37B6;
+  --block-border: #9a9eb4e1;
+  --base-button-color: #985CCE;
+  --base-button-color-hover: #804aaf;
+  --btn-in: rgba(217, 192, 241, 0.5);
+  --btn-in-text: #CC37B6;
+  --btn-in-hover: rgba(176, 133, 196, 0.5);
+  --input-focus: rgba(162, 6, 110, 0.2);
+  --hr: #bfbfbfa9;
+  --sign-btn: #985CCE;
+  --sign-btn-text: #fff;
+  --dp-background-color: rgba(108, 103, 128, 0.2);
+
+
+  transition: all 0.3s ease-in-out;
 }
 
-html, body {
+.dark {
+  --text-color: #ffffff;
+  --p1: #fff;
+  --p2: #C4C4C4;
+  --btn-in: rgba(86, 74, 126, 0.5);
+  --btn-in-hover: rgba(56, 46, 86, 0.5);
+  --input-focus: rgba(255, 255, 255, 0.15);
+  --btn-in-text: #B4D157;
+  --text-p: #BABDC0;
+  --background-color: #312842;
+  --accent-color: #D6F879;
+  --accent-hover: #c4e568;
+  --card-background: rgba(108, 103, 128, 0.2);
+  --input-bg: rgba(174, 174, 174, 0.1);
+  --input-border: rgba(255, 255, 255, 0.3);
+  --placeholder-color: rgba(255, 255, 255, 0.6);
+  --bg-oval: url('/images/oval.png') no-repeat center;
+  --icon-color: #A9C757;
+  --block-border: #505050;
+  --base-button-color: #8DA04E;
+  --base-button-color-hover: #73843c;
+  --sign-btn: #634d7a;
+  --sign-btn-text: #D6F879;
+
+
+  --hr: #5a5a5aa9;
+}
+
+
+body {
+  background-color: var(--background-color);
+}
+
+html,
+body {
   overflow-x: hidden;
   width: 100%;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 
@@ -12,10 +74,11 @@ html, body {
   position: relative;
   z-index: 0;
   min-height: 100vh;
-  background: url('/images/oval.png') no-repeat center;
+  background: var(--bg-oval);
   background-size: contain;
-  
+
 }
+
 /* body {
   background: radial-gradient(circle at center, rgba(99, 77, 122, 0.6) 0%, rgba(25, 25, 50, 1) 50%);
   background-color: #1a1a33;

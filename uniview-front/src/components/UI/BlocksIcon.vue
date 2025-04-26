@@ -1,6 +1,6 @@
 <template>
     <div class="block">
-        <slot name="block-icon"></slot>
+        <slot name="block-icon" fill="currentColor"></slot>
         <div class="content-slot">
             <slot></slot>
         </div>
@@ -17,7 +17,7 @@ export default {
 .block {
     background: rgba(108, 103, 128, 0.2);
     border-radius: 20px;
-    border: 1px solid #505050;
+    border: 1px solid var(--block-border);
     width: 250px;
     height: 130px;
     display: flex;

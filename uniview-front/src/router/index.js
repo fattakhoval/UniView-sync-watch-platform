@@ -4,6 +4,9 @@ import RoomView from '@/views/RoomView.vue'
 import SignUp from '@/views/SignUp.vue'
 import SignIn from '@/views/SignIn.vue'
 import UserProfile from '@/views/UserProfile.vue'
+import AllRooms from '@/views/AllRooms.vue'
+import FriendsView from '@/views/FriendsView.vue'
+import ScheduleView from '@/views/ScheduleView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,6 +36,21 @@ const router = createRouter({
       path: '/profile',
       name: 'profile',
       component: UserProfile,
+    },
+    {
+      path: '/rooms',
+      name: 'rooms',
+      component: AllRooms,
+    },
+    {
+      path: '/friends',
+      name: 'friends',
+      component: FriendsView,
+    },
+    {
+      path: '/schedule',
+      name: 'schedule',
+      component: ScheduleView,
     },
     // {
     //   path: '/about',

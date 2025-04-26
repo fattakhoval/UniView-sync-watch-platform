@@ -6,12 +6,19 @@ import BlocksIcon from '@/components/UI/BlocksIcon.vue';
 import BlockHr from '@/components/UI/BlockHr.vue';
 import MyModal from '@/components/UI/MyModal.vue';
 
+
 import { ref, onMounted } from 'vue';
 import { useCookies } from "vue3-cookies";
 
 import { useRoomStore } from '@/stores/roomStore';
 
 import { useRouter } from 'vue-router';
+
+import CameraIcon from '@/components/icons/CameraIcon.vue';
+import CodeIcon from '@/components/icons/CodeIcon.vue';
+import ShareIcon from '@/components/icons/ShareIcon.vue';
+import PeopleIcon from '@/components/icons/PeopleIcon.vue';
+import PlayIcon from '@/components/icons/PlayIcon.vue';
 
 const { cookies } = useCookies();
 const router = useRouter();
@@ -29,8 +36,29 @@ const roomPassword = ref(''); // Поле для пароля
 const errorMessage = ref("");
 const isLoading = ref(false);
 
+// Функция для валидации
+const validateForm = () => {
+  if (!roomName.value) {
+    errorMessage.value = "Название комнаты не может быть пустым.";
+    return false;
+  }
+  if (roomName.value.length > 30) {
+    errorMessage.value = "Название комнаты не может быть длиннее 30 символов.";
+    return false;
+  }
+  if (roomType.value === 'private' && roomPassword.value.length < 3) {
+    errorMessage.value = "Пароль должен быть не менее 3 символов.";
+    return false;
+  }
+  return true;
+};
+
 
 const createRoom = async () => {
+  // Проверяем, что форма прошла валидацию
+  if (!validateForm()) {
+    return;
+  }
 
   const token = cookies.get('access_token');
 
@@ -60,10 +88,17 @@ const createRoom = async () => {
 
 // Обработчик для кнопки "Войти в комнату"
 const joinRoom = () => {
+
+  const link = roomLink.value.trim();
+  // Паттерн для допустимых ссылок (можно адаптировать под структуру твоего проекта)
+  const roomLinkRegex = /(\/room\/|room\/)?([a-zA-Z0-9_-]{6,})$/;
+
   // Извлекаем ID комнаты из введенной ссылки
   const roomId = roomLink.value.split('/').pop(); // Предполагаем, что ссылка вида "/room/ID"
-  
-  if (roomId) {
+
+  const match = link.match(roomLinkRegex);
+  if (match && match[2]) {
+    const roomId = match[2];
     // Переходим на страницу комнаты с указанным ID
     router.push(`/room/${roomId}`);
   } else {
@@ -80,9 +115,9 @@ const resetModal = () => {
 
 
 onMounted(() => {
-    document.title = `UniView`;
+  document.title = `UniView`;
 
-  
+
 });
 
 
@@ -139,7 +174,8 @@ onMounted(() => {
           <div class="info-blocks">
             <BlocksIcon>
               <template #block-icon>
-                <img src="@/assets/camera.svg" width="50px" />
+                <CameraIcon class="my-icon" />
+                <!-- <img src="@/assets/camera.svg" width="50px" /> -->
 
               </template>
               Идеальная синхронизация
@@ -147,24 +183,21 @@ onMounted(() => {
 
             <BlocksIcon>
               <template #block-icon>
-                <img src="@/assets/people.svg" width="50px" />
-
+                <PeopleIcon class="my-icon" />
               </template>
               Совместный просмотр
             </BlocksIcon>
 
             <BlocksIcon>
               <template #block-icon>
-                <img src="@/assets/share.svg" width="50px" />
-
+                <ShareIcon class="my-icon" />
               </template>
               Легко делиться
             </BlocksIcon>
 
             <BlocksIcon>
               <template #block-icon>
-                <img src="@/assets/code.svg" width="50px" />
-
+                <CodeIcon class="my-icon" />
               </template>
               Смотрите любые видео
             </BlocksIcon>
@@ -183,7 +216,7 @@ onMounted(() => {
               <MyButton @click="isModalOpen = true">
 
                 <template #icon>
-                  <img src="@/assets/play.svg" width="14px" />
+                  <PlayIcon class="play-icon" />
                 </template>
                 Создать Комнату
               </MyButton>
@@ -193,7 +226,7 @@ onMounted(() => {
               </BlockHr>
 
               <input v-model="roomLink" type="text" class="input" placeholder="Ссылка на комнату">
-              <button class="btn-in"  @click="joinRoom">Войти в комнату</button>
+              <button class="btn-in" @click="joinRoom">Войти в комнату</button>
             </div>
           </div>
 
@@ -248,7 +281,7 @@ onMounted(() => {
   font-family: "Raleway", sans-serif;
   font-size: 100px;
   font-weight: 400;
-  color: #D6F879;
+  color: var(--accent-color);
   margin: 0;
 
 }
@@ -257,7 +290,7 @@ onMounted(() => {
   font-family: "Raleway", sans-serif;
   font-size: 16px;
   font-weight: 400;
-  color: #BABDC0;
+  color: var(--text-p);
   line-height: 140%;
 
 }
@@ -269,10 +302,18 @@ onMounted(() => {
   justify-content: space-between;
 }
 
+.my-icon {
+  width: 50px;
+  height: 50px;
+  fill: var(--icon-color);
+  /* или color, если используется currentColor */
+  transition: fill 0.3s ease;
+}
+
 .btn-form {
   background: rgba(108, 103, 128, 0.2);
   border-radius: 20px;
-  border: 1px solid #505050;
+  border: 1px solid var(--input-border);
   padding: 40px 60px;
   display: flex;
   flex-direction: column;
@@ -282,10 +323,10 @@ onMounted(() => {
 
 .btn-form .p1 {
   font-family: "Montserrat Alternates", sans-serif;
-  font-weight: 400;
+  font-weight: 500;
   font-style: normal;
-  font-size: 16px;
-  color: #fff;
+  font-size: 18px;
+  color: var(--p1);
 }
 
 .btn-form .p2 {
@@ -293,7 +334,7 @@ onMounted(() => {
   font-weight: 300;
   font-style: normal;
   font-size: 14px;
-  color: #C4C4C4;
+  color: var(--p2);
 }
 
 .btn-group {
@@ -309,8 +350,8 @@ onMounted(() => {
   font-family: "Montserrat Alternates", sans-serif;
   font-weight: 300;
   color: #A6A6A6;
-  background-color: rgba(174, 174, 174, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
   border-radius: 15px;
   outline: none;
   transition: all 0.3s ease-in-out;
@@ -322,12 +363,13 @@ onMounted(() => {
 
 .input:focus {
   border-color: #634D7A;
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: var(--input-focus);
+  
 }
 
 .btn-in {
-  background-color: rgba(86, 74, 126, 0.5);
-  color: #B4D157;
+  background-color: var(--btn-in);
+  color: var(--btn-in-text);
   font-family: "Montserrat Alternates", sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -343,7 +385,7 @@ onMounted(() => {
 }
 
 .btn-in:hover {
-  background-color: rgba(56, 46, 86, 0.5);
+  background-color: var(--btn-in-hover);
 
 }
 
@@ -511,5 +553,4 @@ onMounted(() => {
   text-align: center;
   width: 100%;
 }
-
 </style>

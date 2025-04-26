@@ -32,7 +32,7 @@ hr {
     /* Длина 50% от родительского контейнера */
     border: none;
     height: 2px;
-    background-color: #5a5a5aa9;
+    background-color: var(--hr);
     /* Цвет линии */
 }
 </style>

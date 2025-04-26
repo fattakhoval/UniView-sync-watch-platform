@@ -16,7 +16,7 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 .base-button {
-    background-color: #8DA04E;
+    background-color: var(--base-button-color);
     /* Зеленый цвет из макета */
     color: white;
     font-family: "Montserrat Alternates", sans-serif;
@@ -34,6 +34,6 @@ export default {
 }
 
 .base-button:hover {
-    background-color: #73843c;
+    background-color: var(--base-button-color-hover);
 }
 </style>

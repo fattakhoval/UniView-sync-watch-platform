@@ -13,11 +13,37 @@ const errorMessage = ref('');
 const successMessage = ref('');
 const isLoading = ref(false);
 
+const usernameError = ref('');
+const passwordError = ref('');
+
 const userStore = useUserStore();
 
 
 
 const loginUser = async () => {
+
+    usernameError.value = '';
+    passwordError.value = '';
+    errorMessage.value = '';
+    successMessage.value = '';
+
+    const trimmedUsername = username.value.trim();
+    const trimmedPassword = password.value.trim();
+
+    let hasError = false;
+
+    if (!trimmedUsername) {
+        usernameError.value = 'Введите имя пользователя.';
+        hasError = true;
+    }
+
+    if (!trimmedPassword) {
+        passwordError.value = 'Введите пароль.';
+        hasError = true;
+    }
+
+    if (hasError) return;
+
     try {
         isLoading.value = true;
         await userStore.login(username.value, password.value);
@@ -43,21 +69,46 @@ const loginUser = async () => {
             <div class="auth-container">
                 <h2>Вход</h2>
 
-                <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+                <div v-if="errorMessage" class="error-message animated-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" width="18" height="18">
+                        <path fill="currentColor"
+                            d="M12 2a10 10 0 1 0 10 10A10.01 10.01 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z" />
+                    </svg>
+                    <span>{{ errorMessage }}</span>
+                </div>
+
                 <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
 
                 <input v-model="username" type="text" placeholder="Имя" class="input" />
+                <div v-if="usernameError" class="error-message animated-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" width="18" height="18">
+                        <path fill="currentColor"
+                            d="M12 2a10 10 0 1 0 10 10A10.01 10.01 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z" />
+                    </svg>
+                    <span>{{ usernameError }}</span>
+                </div>
+
                 <input v-model="password" type="password" placeholder="Пароль" class="input" />
+                <div v-if="passwordError" class="error-message animated-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" width="18" height="18">
+                        <path fill="currentColor"
+                            d="M12 2a10 10 0 1 0 10 10A10.01 10.01 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z" />
+                    </svg>
+                    <span>{{ passwordError }}</span>
+                </div>
 
                 <button @click="loginUser" :disabled="isLoading" class="auth-btn">
                     {{ isLoading ? 'Вход...' : 'Войти' }}
                 </button>
 
-                <p>Нет аккаунта?      
-                     <router-link to="/register" class="p"  v-if="!username" >Зарегитрируйтесь</router-link>
+                <p>Нет аккаунта?
+                    <router-link to="/register" class="p" v-if="!username">Зарегитрируйтесь</router-link>
                 </p>
             </div>
         </div>
+    </div>
+
+    <div class="page-container">
     </div>
 </template>
 
@@ -91,20 +142,20 @@ const loginUser = async () => {
 
 h2 {
     font-family: "Montserrat Alternates", sans-serif;
-    color: #d6f879;
+    color: var(--accent-color);
     margin-bottom: 20px;
 }
 
-p{
+p {
     font-family: "Montserrat Alternates", sans-serif;
     color: #1c2011;
     font-size: 14px;
     text-align: center;
 }
 
-.p{
+.p {
     font-family: "Montserrat Alternates", sans-serif;
-    color: #d6f879;
+    color: var(--accent-color);
     font-size: 14px;
 }
 
@@ -124,8 +175,9 @@ p{
 
 .auth-btn {
     padding: 12px;
-    background: #634d7a;
-    color: #d6f879;
+    /* background: #634d7a; */
+    background: var(--sign-btn);
+    color: var(--sign-btn-text);
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -137,10 +189,45 @@ p{
     background: #4b3960;
 }
 
-.error-message {
+/* .error-message {
     color: #ff4a4a;
     margin-bottom: 10px;
+} */
+
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(255, 0, 0, 0.05);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    color: #b00020;
+    padding: 2px 6px;
+    border-radius: 8px;
+    margin-bottom: 2px;
+    font-size: 12px;
 }
+
+.icon {
+    fill: #b00020;
+    flex-shrink: 0;
+}
+
+.animated-error {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-2px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
 .success-message {
     color: #8da04e;
