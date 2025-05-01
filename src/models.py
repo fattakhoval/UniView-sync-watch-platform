@@ -24,6 +24,12 @@ class UserRole(PyEnum):
     Bot = 'bot'
 
 
+class FriendshipStatus(PyEnum):
+    Pending = 'pending'
+    Accepted = 'accepted'
+    Declined = 'declined'
+
+
 class User(Base):
     __tablename__ = 'users'
 
@@ -112,3 +118,16 @@ class Message(Base):
 
     room: Mapped['Room'] = relationship(back_populates='messages')
     user: Mapped['User'] = relationship(back_populates='messages')
+
+
+class Friendship(Base):
+    __tablename__ = 'friendships'
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    id_requester: Mapped[UUID] = mapped_column(ForeignKey('users.id'), index=True)
+    id_addressee: Mapped[UUID] = mapped_column(ForeignKey('users.id'), index=True)
+    status: Mapped[PyEnum] = mapped_column(Enum(FriendshipStatus), nullable=False, default=FriendshipStatus.Pending)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.datetime.now, nullable=False)
+
+    requester = relationship('User', foreign_keys=[id_requester])
+    addressee = relationship('User', foreign_keys=[id_addressee])

@@ -1,5 +1,4 @@
 import base64
-import datetime
 import json
 from uuid import UUID
 
@@ -47,8 +46,9 @@ async def save_message(room_id, username, message):
         session.add(new_message)
         await session.commit()
 
-@ws_chat_route.websocket("/ws/chat/{room_id}")
-async def ws_chat(room_id: UUID, websocket: WebSocket):
+@ws_chat_route.websocket("/ws/chat/{room_id}/{user_id}")
+async def ws_chat(room_id: UUID, user_id: UUID, websocket: WebSocket):
+    websocket.user_id = user_id
     await chat_manager.connect(room_id, websocket)
     name = None
     try:
@@ -63,7 +63,6 @@ async def ws_chat(room_id: UUID, websocket: WebSocket):
 
             await chat_manager.broadcast(room_id, json.dumps(data))
 
-            print(data)
             if data.get('type') != 'voice' and data.get('text').startswith('!bot '):
                 if uniview_bot.is_about_movies(data.get('text')):
 
@@ -90,4 +89,3 @@ async def ws_chat(room_id: UUID, websocket: WebSocket):
 
     except WebSocketDisconnect:
         chat_manager.disconnect(room_id, websocket)
-        await chat_manager.broadcast(room_id, f"Client `{name}` left the chat")

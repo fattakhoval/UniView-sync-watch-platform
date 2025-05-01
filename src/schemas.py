@@ -49,7 +49,27 @@ class MessageOut(BaseModel):
 
 
 class RoomOut(BaseModel):
+    id: UUID
     name: str
+    count: int
     id_host: UUID
     room_type: RoomType
     live_time_room: Optional[datetime] = None
+
+
+class FriendPending(BaseModel):
+    id: UUID
+    username: str
+    status: str
+
+    class Config:
+        from_attributes = True
+
+
+class Friend(BaseModel):
+    id: UUID
+    username: str
+    email: str
+
+    class Config:
+        from_attributes = True

@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
 
         async for session in get_db():
             await room_registry.load_rooms_from_db(session)
-            await User.create_bot(session)
+            #await User.create_bot(session)
     yield
 
     await engine.dispose()

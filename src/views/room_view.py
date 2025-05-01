@@ -1,18 +1,16 @@
 import datetime
 
-from sqlalchemy import select, and_
+from sqlalchemy import select
 
-from starlette.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
 
 from src.db import get_db
 from src.manager import room_registry
 from src.models import Room, RoomType
 from src.schemas import RoomCreate, RoomJoin, RoomOut
 from src.ws.ws_chat import chat_manager
-from src.ws.ws_action import control_manager
-from src.ws.ws_video import video_manager
 from src.jwt_utils import hash_password, verify_password
 
 room_router = APIRouter(prefix='/rooms')
@@ -34,7 +32,6 @@ async def create_room(room_data: RoomCreate, session: AsyncSession = Depends(get
 
     room_registry.add_room(room_id=new_room.id)
 
-    print(room_registry.active_rooms)
     return JSONResponse(status_code=200, content={'message': 'Room created', 'Room': {
         'id': str(new_room.id),
         'name': new_room.name,
@@ -42,8 +39,6 @@ async def create_room(room_data: RoomCreate, session: AsyncSession = Depends(get
         'password': new_room.room_password,
         'id_host': str(new_room.id_host),
     }})
-
-
 
 
 @room_router.post('/join_room')
@@ -69,10 +64,13 @@ async def join_room(room_data: RoomJoin, session: AsyncSession = Depends(get_db)
         'id_host': str(room.id_host)}})
 
 
-@room_router.get('/get_rooms')
+@room_router.get('/get_rooms', response_model=list[RoomOut])
 async def get_rooms(session: AsyncSession = Depends(get_db)):
     stmt = select(Room).where(Room.live_time_room > datetime.datetime.now())
     result = (await session.execute(stmt)).all()
-    result = [RoomOut(**list(res)[0].__dict__) for res in result]
-    print(result)
+    result = [list(res)[0].__dict__ for res in result]
+
+    for room in result:
+        room['count'] = chat_manager.get_active_connections_count(room.get('id'))
+
     return result

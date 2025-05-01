@@ -65,7 +65,9 @@ class BaseManager:
             self.rooms[room_id].remove(websocket)
 
     def get_active_connections_count(self, room_id: UUID):
-        return len(self.rooms.get(room_id, []))
+        connection = self.rooms.get(room_id, [])
+        union = (set(con.user_id for con in connection))
+        return len(union)
 
     def add_room(self, room_id):
         if room_id not in self.rooms:

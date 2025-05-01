@@ -45,5 +45,5 @@ async def register(user_data: UserRegister, session: AsyncSession = Depends(get_
 
     session.add(new_user)
     await session.commit()
-    return JSONResponse(status_code=200, content={"message": "User created", "User": new_user})
+    return JSONResponse(status_code=200, content={"message": "User created", "User": str(new_user)})
 
