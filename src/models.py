@@ -4,8 +4,10 @@ from typing import List
 
 from sqlalchemy import String, DateTime, Enum, Text, ForeignKey, Boolean, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from config import config
 from src.db import Base
 
 from enum import Enum as PyEnum
@@ -19,6 +21,7 @@ class RoomType(PyEnum):
 class UserRole(PyEnum):
     User = 'user'
     Admin = 'admin'
+    Bot = 'bot'
 
 
 class User(Base):
@@ -44,6 +47,23 @@ class User(Base):
         result = await session.execute(stmt)
         return result.scalar_one_or_none()
 
+    @classmethod
+    async def create_bot(cls, session: AsyncSession):
+        new_bot = cls(
+            id=UUID(config.BOT_UUID),
+            username='UniViewBOT',
+            email='empty',
+            password=str(uuid4()),
+            role=UserRole.Bot
+        )
+        try:
+            session.add(new_bot)
+            await session.commit()
+        except IntegrityError as exc:
+            print(exc)
+
+        finally:
+            return None
 
 
 def default_live_time():

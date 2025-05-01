@@ -1,4 +1,5 @@
 import base64
+import datetime
 import json
 from uuid import UUID
 
@@ -7,6 +8,7 @@ from fastapi import WebSocket, WebSocketDisconnect
 
 from config import config
 from src.db import get_db
+from src.bot_api import uniview_bot
 from src.manager import chat_manager
 from src.models import Message, User
 
@@ -60,6 +62,31 @@ async def ws_chat(room_id: UUID, websocket: WebSocket):
                 await save_message(room_id, data["sender"], data["text"])
 
             await chat_manager.broadcast(room_id, json.dumps(data))
+
+            print(data)
+            if data.get('type') != 'voice' and data.get('text').startswith('!bot '):
+                if uniview_bot.is_about_movies(data.get('text')):
+
+                    request = data.get('text').split('!bot ')[1]
+                    response = await uniview_bot.ask(request)
+
+                    json_response = {
+                        'sender': uniview_bot.name,
+                        'type': 'text',
+                        'text': response,
+                        'voice_path': None
+                    }
+                    await save_message(room_id, uniview_bot.name, response)
+                    await chat_manager.broadcast(room_id, json.dumps(json_response))
+                else:
+                    response = {
+                        'sender': uniview_bot.name,
+                        'type': 'text',
+                        'text': uniview_bot.error_message,
+                        'voice_path': None
+                    }
+                    await save_message(room_id, uniview_bot.name, uniview_bot.error_message)
+                    await chat_manager.broadcast(room_id, json.dumps(response))
 
     except WebSocketDisconnect:
         chat_manager.disconnect(room_id, websocket)

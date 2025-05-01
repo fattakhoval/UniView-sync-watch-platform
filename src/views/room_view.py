@@ -1,5 +1,6 @@
+import datetime
 
-from sqlalchemy import select
+from sqlalchemy import select, and_
 
 from starlette.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,7 +9,7 @@ from fastapi import APIRouter, Depends
 from src.db import get_db
 from src.manager import room_registry
 from src.models import Room, RoomType
-from src.schemas import RoomCreate, RoomJoin
+from src.schemas import RoomCreate, RoomJoin, RoomOut
 from src.ws.ws_chat import chat_manager
 from src.ws.ws_action import control_manager
 from src.ws.ws_video import video_manager
@@ -74,4 +75,10 @@ async def join_room(room_data: RoomJoin, session: AsyncSession = Depends(get_db)
         'id_host': str(room.id_host)}})
 
 
-
+@room_router.get('/get_rooms')
+async def get_rooms(session: AsyncSession = Depends(get_db)):
+    stmt = select(Room).where(Room.live_time_room > datetime.datetime.now())
+    result = (await session.execute(stmt)).all()
+    result = [RoomOut(**list(res)[0].__dict__) for res in result]
+    print(result)
+    return result

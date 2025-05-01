@@ -9,6 +9,7 @@ from src.manager import video_manager
 ws_video_route = APIRouter()
 
 def get_id_from_chuck(chunk: str):
+
     if chunk.endswith('/'):
         chunk = chunk[:-1]
 

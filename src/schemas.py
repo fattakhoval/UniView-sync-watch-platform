@@ -46,3 +46,10 @@ class MessageOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class RoomOut(BaseModel):
+    name: str
+    id_host: UUID
+    room_type: RoomType
+    live_time_room: Optional[datetime] = None
