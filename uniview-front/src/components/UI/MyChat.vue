@@ -59,6 +59,7 @@ const chatContainer = ref(null);
 const route = useRoute();
 const roomId = route.params.id;
 let username = null;
+let userId = null;
 let mediaRecorder = null;
 let chunks = [];
 
@@ -68,6 +69,7 @@ const token = Cookies.get('access_token');
 if (token) {
   const decoded = parseJwt(token);
   username = decoded.username;
+  userId = decoded.id_user;
 }
 
 function addMessage() {
@@ -114,7 +116,7 @@ onMounted(async () => {
     console.error('Ошибка при загрузке сообщений:', err);
   }
 
-  chatSocket.value = new WebSocket(`ws://localhost:8000/ws/chat/${roomId}`);
+  chatSocket.value = new WebSocket(`ws://localhost:8000/ws/chat/${roomId}/${userId}`);
 
   chatSocket.value.onmessage = (event) => {
     const msg = JSON.parse(event.data);

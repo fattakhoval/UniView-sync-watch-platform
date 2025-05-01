@@ -20,6 +20,7 @@ const roomTitle = ref('');
 
 // Получаем название комнаты из куки
 onMounted(() => {
+  checkRoomAccess(roomId);
   const storedRoomName = Cookies.get(`room_info${roomId}`);
   if (storedRoomName) {
     roomName.value = JSON.parse(storedRoomName);
@@ -32,34 +33,53 @@ onMounted(() => {
 
 
 async function checkRoomAccess(roomId) {
-    const room_info = Cookies.get(`room_info${roomId}`);
     const token = Cookies.get('access_token');
+    if (!token) {
+        router.push('/');
+        return;
+    }
 
-if (!token) {
-  router.push('/');
-}
-    
-    if (!room_info) {
-        const inputPassword = prompt('Введите пароль для комнаты:');
-        if (!inputPassword) {
-            alert('Пароль обязателен!');
-            router.push('/'); // Если пароль не введён, перенаправляем на главную
-            return;
-        }
-        try{
-            const response = await axios.post('http://127.0.0.1:8000/rooms/join_room', {
-                room_id: roomId,
-                password: inputPassword
-            }, { headers: { 'Content-Type': 'application/json' } });
-            console.log(`AAAAAA ${response.data.room.id}`);
-            //Cookies.set(`room_password${roomId}`, inputPassword, { expires: 1 });
-        }
-        catch (error) {
-            console.error('Ошибка при подключении комнаты: Not access password');
-            if (!error.response.data.access) {
-                alert('Неверный пароль!');
-                router.push('/'); // Если пароль неверный, возвращаем на главную
+    const roomKey = `room_info${roomId}`;
+    const roomInfo = Cookies.get(roomKey);
+    if (roomInfo) return;
+
+    try {
+        // Пробуем без пароля
+        const response = await axios.post(
+            'http://127.0.0.1:8000/rooms/join_room',
+            { room_id: roomId },
+            { headers: { 'Content-Type': 'application/json' } }
+        );
+        Cookies.set(roomKey, JSON.stringify(response.data.room), { expires: 1 });
+        roomName.value = response.data.room;
+        document.title = `Комната: ${roomName.value.name}`;
+    } catch (error) {
+        if (error.response?.status === 401) {
+            // Запрос пароля
+            const inputPassword = prompt('Введите пароль для комнаты:');
+            if (!inputPassword) {
+                alert('Пароль обязателен!');
+                router.push('/');
+                return;
             }
+
+            try {
+                const retryResponse = await axios.post(
+                    'http://127.0.0.1:8000/rooms/join_room',
+                    {
+                        room_id: roomId,
+                        password: inputPassword
+                    },
+                    { headers: { 'Content-Type': 'application/json' } }
+                );
+                Cookies.set(roomKey, JSON.stringify(retryResponse.data.room), { expires: 1 });
+            } catch (retryError) {
+                alert('Неверный пароль!');
+                router.push('/');
+            }
+        } else {
+            console.error('Ошибка при подключении к комнате:', error);
+            router.push('/');
         }
     }
 }
@@ -81,11 +101,6 @@ function copyToClipboard(text) {
   document.body.removeChild(el);
   alert('Ссылка скопирована в буфер обмена!');
 }
-
-// Запускаем проверку при загрузке компонента
-onMounted(() => {
-    checkRoomAccess(roomId);
-});
 
 
 // const roomId = route.params.room_id;
