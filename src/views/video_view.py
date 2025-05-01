@@ -1,9 +1,10 @@
 import os
 
+
 from config import config
 
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 
 video_router = APIRouter(prefix='/video')
@@ -16,6 +17,6 @@ async def get_video(file_path: str):
 
     path = config.VIDEO_DIR / file_path
     if not os.path.exists(path):
-        raise HTTPException(status_code=404, detail="File not found")
+        return JSONResponse(status_code=404, content="File not found")
 
     return FileResponse(path, media_type="video/webm")
