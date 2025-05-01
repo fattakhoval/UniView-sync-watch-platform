@@ -98,7 +98,6 @@ async def get_friends(current_user: UUID, session: AsyncSession = Depends(get_db
 
     result = await session.execute(stms)
     friends = result.scalars().all()
-    print(friends[0])
 
     return JSONResponse(status_code=200, content=[Friend.model_validate({**friend.__dict__}).model_dump(mode='json') for friend in friends])
 
@@ -144,16 +143,5 @@ async def remove_friend(target_user_id: UUID = Body(...), current_user: UUID = B
         )
 
     return JSONResponse(status_code=200, content={'result': True})
-
-@friend_view.post('/find')
-async def find_friend(name_or_email: str = Body(...), session: AsyncSession = Depends(get_db)):
-
-    exists_stmt = select(User).where(or_(User.username == name_or_email, User.email == name_or_email))
-
-    result = await session.execute(exists_stmt)
-    user = result.scalars().one()
-
-    if not user:
-        return JSONResponse(status_code=404, content={'Error': f'User with name or email: {name_or_email} not found'})
 
 
