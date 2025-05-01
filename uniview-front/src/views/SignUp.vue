@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue';
 import axios from 'axios';
 import NavBar from '@/components/UI/NavBar.vue';
+import FloatingInput from '@/components/UI/FloatingInput.vue';
 
 const email = ref('');
 const password = ref('');
@@ -126,7 +127,8 @@ const registerUser = async () => {
 
                 <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
 
-                <input v-model="username" type="text" placeholder="Имя" class="input" />
+                <!-- <input v-model="username" type="text" placeholder="Имя" class="input" /> -->
+                <FloatingInput label="Имя" v-model="username" :error="usernameError" type="text" />
                 <div v-if="usernameError" class="error-message animated-error">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" width="18" height="18">
                         <path fill="currentColor"
@@ -135,7 +137,8 @@ const registerUser = async () => {
                     <span>{{ usernameError }}</span>
                 </div>
 
-                <input v-model="email" type="email" placeholder="Email" class="input" />
+                <!-- <input v-model="email" type="email" placeholder="Email" class="input" /> -->
+                <FloatingInput label="Email" v-model="email" :error="emailError" type="email" />
                 <div v-if="emailError" class="error-message animated-error">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" width="18" height="18">
                         <path fill="currentColor"
@@ -144,7 +147,8 @@ const registerUser = async () => {
                     <span>{{ emailError }}</span>
                 </div>
 
-                <input v-model="password" type="password" placeholder="Пароль" class="input" />
+                <!-- <input v-model="password" type="password" placeholder="Пароль" class="input" /> -->
+                <FloatingInput label="Пароль" v-model="password" :error="passwordError" type="password" />
                 <div v-if="passwordError" class="error-message animated-error">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" width="18" height="18">
                         <path fill="currentColor"
@@ -153,7 +157,9 @@ const registerUser = async () => {
                     <span>{{ passwordError }}</span>
                 </div>
 
-                <input v-model="confirmPassword" type="password" placeholder="Повторите пароль" class="input" />
+                <!-- <input v-model="confirmPassword" type="password" placeholder="Повторите пароль" class="input" /> -->
+                <FloatingInput label="Повторите пароль" v-model="confirmPassword" :error="confirmPasswordError"
+                    type="password" />
                 <div v-if="confirmPasswordError" class="error-message animated-error">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" width="18" height="18">
                         <path fill="currentColor"
@@ -264,11 +270,13 @@ h2 {
     gap: 8px;
     background-color: rgba(255, 0, 0, 0.05);
     border: 1px solid rgba(255, 0, 0, 0.3);
-    color: #b00020;
+    color: #510010;
     padding: 2px 6px;
     border-radius: 8px;
     margin-bottom: 2px;
     font-size: 12px;
+    font-family: "Montserrat Alternates", sans-serif;
+
 }
 
 .icon {

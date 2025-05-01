@@ -1,4 +1,7 @@
 <script setup>
+import MailIcon from '@/components/icons/MailIcon.vue';
+import PeopleIcon from '@/components/icons/PeopleIcon.vue';
+import PersonIcon from '@/components/icons/PersonIcon.vue';
 import MyButton from '@/components/UI/MyButton.vue';
 import NavBar from '@/components/UI/NavBar.vue';
 
@@ -12,17 +15,48 @@ import { ref } from 'vue';
 
         <div class="main">
             <div class="user_container">
-                <div class="avatar">
+
+
+                <div class="st-block">
+
+                    <h1 class="h1">Имя пользователя</h1>
+
+                    <div class="fr-count">
+                        <p>
+                            <PeopleIcon class="u-icon" /> Друзья
+                        </p>
+                        <div class="p">12</div>
+                    </div>
+
+
+
+
 
                 </div>
 
-                <div class="info_block">
-                    
+                <div class="u-info">
+
+
+                    <div class="u-email">
+                        <label for="email"><MailIcon class="u-icon"/> Почта</label>
+                        <input type="email" value="your@mail.ru">
+
+                    </div>
+
+                    <div class="u-email">
+                        <label for="password"> <PersonIcon class="u-icon" />Пароль</label>
+                        <input type="password" value="your.ru">
+
+                    </div>
+
+                    <button>Изменить</button>
+
+
                 </div>
             </div>
         </div>
 
-    
+
 
 
     </div>
@@ -33,6 +67,7 @@ import { ref } from 'vue';
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
 
 .container {
     position: absolute;
@@ -42,5 +77,128 @@ import { ref } from 'vue';
     overflow: hidden;
 }
 
+.main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
+.user_container {
+    width: 90%;
+    background: rgba(108, 103, 128, 0.2);
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 20%;
+
+}
+
+.st-block {
+    padding: 40px;
+}
+
+.st-block .h1 {
+    font-family: "Raleway", sans-serif;
+    font-size: 40px;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-bottom: 20px;
+}
+
+.fr-count p {
+    font-family: "Montserrat Alternates", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    font-size: 24px;
+    color: var(--text-p);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.u-icon {
+    width: 30px;
+    fill: var(--text-p);
+}
+
+.fr-count .p {
+    font-family: "Montserrat Alternates", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    font-size: 24px;
+    color: var(--text-p);
+
+    padding: 5px 15px;
+    background: var(--input-bg);
+    border: none;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+
+}
+
+.u-info {
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 40px;
+    width: 30%;
+}
+
+.u-info input {
+    border: 1px solid #A6A6A6;
+    border-radius: 10px;
+    background: var(--input-bg);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-p);
+    font-family: "Raleway", sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.u-email {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.u-email label {
+    font-family: "Montserrat Alternates", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    font-size: 18px;
+    color: var(--text-p);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.u-info button {
+    background-color: var(--base-button-color);
+    /* Зеленый цвет из макета */
+    color: white;
+    font-family: "Montserrat Alternates", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.u-info button:hover {
+    background-color: var(--base-button-color-hover);
+}
 </style>
