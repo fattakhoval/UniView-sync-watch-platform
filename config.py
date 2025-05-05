@@ -3,7 +3,6 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 
@@ -29,6 +28,9 @@ class Config:
         self.SBER_AUTH_KEY = os.getenv('SBER_AUTH_KEY')
 
         self.BOT_UUID = os.getenv('BOT_UUID')
+
+        self.SMTP_LOGIN = os.getenv('SMTP_LOGIN')
+        self.SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
 
 
 config = Config()

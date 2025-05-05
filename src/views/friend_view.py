@@ -29,16 +29,8 @@ async def request_friend(name_or_email: str = Body(...), current_user: UUID = Bo
         )
 
     check_stmt = select(Friendship).where(
-        or_(
-            and_(
-                Friendship.id_requester == current_user,
-                Friendship.id_addressee == target_user.id
-            ),
-            and_(
-                Friendship.id_requester == target_user.id,
-                Friendship.id_addressee == current_user
-            )
-        )
+        Friendship.id_requester == current_user,
+        Friendship.id_addressee == target_user.id
     )
     result = await session.execute(check_stmt)
     existing = result.scalar_one_or_none()
@@ -47,6 +39,26 @@ async def request_friend(name_or_email: str = Body(...), current_user: UUID = Bo
         return JSONResponse(
             status_code=400,
             content={'error': 'Пользователь уже добавлен или ожидает подтверждения.'}
+        )
+
+    reverse_stmt = select(Friendship).where(
+        Friendship.id_requester == target_user.id,
+        Friendship.id_addressee == current_user
+    )
+    result = await session.execute(reverse_stmt)
+    reverse_request = result.scalar_one_or_none()
+
+    if reverse_request:
+        update_stmt = (
+            update(Friendship)
+            .where(Friendship.id == reverse_request.id)
+            .values(status=FriendshipStatus.Accepted)
+        )
+        await session.execute(update_stmt)
+        await session.commit()
+        return JSONResponse(
+            status_code=200,
+            content={'result': 'Заявка автоматически подтверждена.'}
         )
 
     stmt = insert(Friendship).values(

@@ -1,6 +1,6 @@
 from typing import Optional
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, date, time
 
 from pydantic import BaseModel
 
@@ -73,3 +73,20 @@ class Friend(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class EventCreate(BaseModel):
+
+    id_creator: UUID
+    title: str
+    invited_list: list[UUID]
+    date: date
+    time: time
+
+class EventOut(BaseModel):
+
+    id: UUID
+    id_creator: UUID
+    id_room: Optional[UUID]
+    title: str
+    datetime_start: datetime

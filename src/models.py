@@ -1,6 +1,6 @@
 import datetime
 from uuid import UUID, uuid4
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import String, DateTime, Enum, Text, ForeignKey, Boolean, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -131,3 +131,23 @@ class Friendship(Base):
 
     requester = relationship('User', foreign_keys=[id_requester])
     addressee = relationship('User', foreign_keys=[id_addressee])
+
+
+class Event(Base):
+    __tablename__ = 'events'
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    id_creator: Mapped[UUID] = mapped_column(ForeignKey('users.id'))
+    id_room: Mapped[Optional[UUID]] = mapped_column(ForeignKey('rooms.id'), nullable=True)
+    title: Mapped[str] = mapped_column(String(128))
+    datetime_start: Mapped[datetime] = mapped_column(DateTime)
+    is_second_msg_send: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class Invite(Base):
+    __tablename__ = 'invites'
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    id_event: Mapped[UUID] = mapped_column(ForeignKey('events.id'))
+    id_inviter: Mapped[UUID] = mapped_column(ForeignKey('users.id'))
+    id_invited: Mapped[UUID] = mapped_column(ForeignKey('users.id'))
