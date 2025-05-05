@@ -78,8 +78,8 @@ const acceptRequest = async (id_requester) => {
 
 const declineRequest = async (id_requester) => {
   try {
-    await axios.post('http://localhost:8000/friend/decline', {
-      id_requester,
+    await axios.post('http://localhost:8000/friend/remove', {
+      target_user_id: id_requester,
       current_user: userId,
     });
     await fetchRequests(); // обновить список после отклонения
