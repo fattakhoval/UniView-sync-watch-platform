@@ -1,6 +1,111 @@
 <script setup>
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+
+import Cookies from 'js-cookie';
+import parseJwt from '@/utils';
 import MyButton from '@/components/UI/MyButton.vue';
 import NavBar from '@/components/UI/NavBar.vue';
+
+const friends = ref([]);
+const requests = ref([]);
+const searchQuery = ref('');
+
+const token = Cookies.get('access_token');
+let userId = null;
+
+if (token) {
+  const decoded = parseJwt(token);
+  if (decoded) {
+    userId = decoded.id_user;
+  }
+}
+
+// Получение списка друзей
+const fetchFriends = async () => {
+  if (!userId) return;
+
+  try {
+    const response = await axios.get(`http://localhost:8000/friend/friends/${userId}`);
+    friends.value = response.data;
+    console.log(friends.value);
+  } catch (error) {
+    console.error('Ошибка при получении друзей:', error);
+  }
+};
+
+const sendFriendRequest = async () => {
+  if (!searchQuery.value) return;
+
+  try {
+    const response = await axios.post('http://localhost:8000/friend/request', {
+      name_or_email: searchQuery.value,
+      current_user: userId,
+    });
+
+    if (response.status === 201) {
+      alert('Заявка отправлена!');
+      searchQuery.value = '';
+    }
+  } catch (error) {
+    alert(error.response?.data?.error || 'Ошибка при отправке заявки');
+  }
+};
+
+const fetchRequests = async () => {
+  if (!userId) return;
+
+  try {
+    const response = await axios.get(`http://localhost:8000/friend/pending/${userId}`);
+    requests.value = response.data;
+  } catch (error) {
+    console.error('Ошибка при получении заявок:', error);
+  }
+};
+
+const acceptRequest = async (id_requester) => {
+  try {
+    await axios.post('http://localhost:8000/friend/accept', {
+      id_requester,
+      current_user: userId,
+    });
+    await fetchRequests(); // обновить список после принятия
+    await fetchFriends(); // обновить список друзей
+  } catch (error) {
+    console.error('Ошибка при принятии заявки:', error);
+  }
+};
+
+const declineRequest = async (id_requester) => {
+  try {
+    await axios.post('http://localhost:8000/friend/remove', {
+      target_user_id: id_requester,
+      current_user: userId,
+    });
+    await fetchRequests(); // обновить список после отклонения
+  } catch (error) {
+    console.error('Ошибка при отклонении заявки:', error);
+  }
+};
+
+const removeFriend = async (targetUserId) => {
+  try {
+    await axios.post('http://localhost:8000/friend/remove', {
+      target_user_id: targetUserId,
+      current_user: userId,
+    });
+    await fetchFriends(); // обновим список друзей
+  } catch (error) {
+    console.error('Ошибка при удалении друга:', error);
+  }
+};
+
+
+onMounted(async () => {
+  await fetchFriends();
+  await fetchRequests();  // ← добавь это
+});
+
 
 
 
@@ -14,7 +119,7 @@ import NavBar from '@/components/UI/NavBar.vue';
             <div class="friends-page">
                 <div class="send-request">
                     <input v-model="searchQuery" placeholder="Найти пользователя..." />
-                    <MyButton class="send-fr">
+                    <MyButton class="send-fr" @click="sendFriendRequest">
                         Добавить в друзья
                     </MyButton>
                     <!-- <button @click="sendFriendRequest">Добавить в друзья</button> -->
@@ -26,14 +131,13 @@ import NavBar from '@/components/UI/NavBar.vue';
                         <h2 class="h2">Друзья</h2>
                         <div class="ul">
 
-                            <div class="frnd">
-                                liza
-                                <button @click="removeFriend(friend.id)" class="btn-remove">Удалить</button>
-                            </div>
+                            <div v-if="friends.length === 0" class="frnd">Нет друзей</div>
+
                             <div v-for="friend in friends" :key="friend.id" class="frnd">
-                                {{ friend.name }}
+                                {{ friend.username }}
                                 <button @click="removeFriend(friend.id)" class="btn-remove">Удалить</button>
                             </div>
+                           
 
                         </div>
 
@@ -42,17 +146,15 @@ import NavBar from '@/components/UI/NavBar.vue';
                     <div class="fr-apps">
                         <h2 class="h2">Заявки в друзья</h2>
                         <div class="ul">
-                            <div class="frnd">
-                                lira
+                           
+                            <div class="frnd" v-for="request in requests" :key="request.id">
+                                {{ request.username }}
+
                                 <div class="btn-grp">
                                     <button @click="acceptRequest(request.id)" class="btn-accept">Принять</button>
                                     <button @click="declineRequest(request.id)" class="btn-remove">Отклонить</button>
+
                                 </div>
-                            </div>
-                            <div class="frnd" v-for="request in requests" :key="request.id">
-                                {{ request.from_name }}
-                                <button @click="acceptRequest(request.id)">Принять</button>
-                                <button @click="declineRequest(request.id)">Отклонить</button>
                             </div>
                         </div>
                     </div>

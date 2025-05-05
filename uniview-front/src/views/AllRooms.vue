@@ -1,11 +1,35 @@
 <script setup>
 import PeopleIcon from '@/components/icons/PeopleIcon.vue';
+import LockIcon from '@/components/icons/LockIcon.vue';
 import PublicRoom from '@/components/icons/PublicRoom.vue';
 import MyButton from '@/components/UI/MyButton.vue';
 import NavBar from '@/components/UI/NavBar.vue';
 import router from '@/router';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+
+const rooms = ref([]);
+
+const fetchRooms = async () => {
+  try {
+    const res = await fetch('http://localhost:8000/rooms/get_rooms');
+    const data = await res.json();
+    rooms.value = data;
+  } catch (err) {
+    console.error('Ошибка при получении комнат:', err);
+  }
+};
+
+const getRoomIcon = (type) => {
+    console.log(type);
+  return type === 'public' ? PublicRoom : LockIcon;
+};
+
+onMounted(() => {
+  fetchRooms();
+});
+
+
 
 
 </script>
@@ -28,18 +52,20 @@ import { useRouter } from 'vue-router';
                 </div>
 
                 <div class="room-list">
-                    <div class="room-card">
+                    <div class="room-card" v-for="room in rooms" :key="room.id">
                         <div class="room-title">
-                            <h3 class="h3">Название комнаты</h3>
+                            <h3 class="h3">{{ room.name }}</h3>
                             <span>
-                                <PublicRoom class="icon"/>
+
+                                <component :is="getRoomIcon(room.room_type)" class="icon" />
+                                <!-- <PublicRoom class="icon"/> -->
 
                             </span>
                         </div>
 
                         <div class="room-inf">
-                            <div  class="peoples"><PeopleIcon class="icon-gray"/> Участники коматы</div>
-                            <div class="room-count">2</div>
+                            <div  class="peoples"><PeopleIcon class="icon-gray"/> Участники комнаты</div>
+                            <div class="room-count">{{ room.count }}</div>
                         </div>
                     </div>
                 </div>
@@ -121,6 +147,15 @@ import { useRouter } from 'vue-router';
     border-radius: 10px;
     padding: 5px 10px;
     height: 40px;
+}
+
+.room-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+    gap: 40px;
+    justify-items: center;
+
+
 }
 
 .room-card {
