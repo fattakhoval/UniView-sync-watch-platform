@@ -54,7 +54,7 @@ class EmailSender:
 
 async def send_first_email(username, event_title, event_datetime, email):
 
-    with open('src/template_emails/invite_email.html', 'r') as file:
+    with open('src/template_emails/invite_email.html', 'r', encoding="utf-8") as file:
         html_content = file.read()
 
     html_content = html_content.format(
@@ -98,7 +98,7 @@ async def send_announce(invite_id: UUID, invite_id_event: UUID, session: AsyncSe
     session.add(room_for_event)
     await session.flush()
 
-    with open('src/template_emails/invite_email_repiat.html', 'r') as file:
+    with open('src/template_emails/invite_email_repiat.html', 'r', encoding="utf-8") as file:
 
         html_content = file.read()
 
