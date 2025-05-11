@@ -1,18 +1,15 @@
 <template>
-    <div class="video_iframe" v-if="iframeHtml" v-html="iframeHtml"></div>
 
-    <div v-else class="video_box">
+    <div class="video_box">
 
-        <video ref="videoElement" class="video-player" muted>
-            <source class="video" :src="videoPath" type="video/webm" />
-        </video>
+        <video ref="videoElement" id="video" class="video-player" muted></video>
 
         <div class="controls">
             <!-- <button @click="sendControlAction('play')">Play</button>
             <button @click="sendControlAction('pause')">Pause</button> -->
             <div class="play-div">
 
-
+                <select id="quality"></select>
 
                 <button @click="togglePlayPause" class="control-btn">
                     <svg v-if="!isPlaying" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white"
@@ -62,9 +59,11 @@
             </div>
 
         </div>
-
+        
 
     </div>
+    
+    
 
 </template>
 
@@ -72,12 +71,13 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
+import Hls from 'hls.js';
 
 const route = useRoute();
 const roomId = route.params.id;
 const videoPath = ref('');
 const videoElement = ref(null);
-const isPlaying = ref(true); // отслеживает, играет ли видео
+const isPlaying = ref(false); // отслеживает, играет ли видео
 const isSeeking = ref(false); // флаг ручной перемотки
 const iframeHtml = ref('');
 
@@ -87,7 +87,7 @@ let ws_control;
 
 const currentTime = ref(0);
 const duration = ref(0);
-const isMuted = ref(false);
+const isMuted = ref(true);
 
 function toggleMute() {
     if (videoElement.value) {
@@ -156,21 +156,22 @@ function initVideoElement(videoPathUrl) {
     });
 }
 
-function setupWebSocketVideo() {
-    ws_video = new WebSocket(`ws://localhost:8000/ws/video/${roomId}`) // URL подставь свой
+async function setupWebSocketVideo() {
+    ws_video = new WebSocket(`ws://localhost:8000/ws/video/${roomId}`)
 
-    ws_video.onmessage = (event) => {
+    ws_video.onmessage = async (event) => {
         const message = event.data;
         console.log(message);
 
-        if (typeof message === 'string' && message.startsWith('IFRAME:')) {
-            const url = message.slice(7);
-            iframeHtml.value = `<iframe src="${url}" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>`;
-            resetVideoElement();
+        if (typeof message === 'string' && message.startsWith('LINK:')) {
+            const masterUrl = message.slice(5);
+
+            const playlistData = await getPlaylistData(masterUrl);
+
+            initVideoElementLink(playlistData);
+
             return;
         }
-
-        iframeHtml.value = '';
 
         const path = "http://localhost:8000/video/" + message;
         console.log(path);
@@ -178,6 +179,84 @@ function setupWebSocketVideo() {
 
     }
 };
+
+
+async function getPlaylistData(masterUrl) {
+    const response = await fetch('http://127.0.0.1:8000/video/playlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: masterUrl }),
+    });
+    const data = await response.text();
+    return URL.createObjectURL(new Blob([data], { type: 'application/vnd.apple.mpegurl' }));
+}
+
+function initVideoElementLink(playlistUrl) {
+    const video = document.getElementById('video');
+    const qualitySelect = document.getElementById('quality');
+
+    if (Hls.isSupported()) {
+        const hls = new Hls();
+
+    // Загружаем мастер-плейлист с изменённым URL
+    hls.loadSource(playlistUrl);
+    hls.attachMedia(video);
+
+    hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+      // Заполняем список доступных качеств
+      qualitySelect.innerHTML = ''; // очищаем старые значения
+      data.levels.forEach((level, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.text = `${level.height}p (${Math.round(level.bitrate / 1000)} kbps)`;
+        qualitySelect.appendChild(option);
+      });
+
+      
+      videoElement.value.onloadedmetadata = () => {
+            duration.value = videoElement.value.duration;
+        };
+
+      videoElement.value.ontimeupdate = () => {
+            if (!videoElement.value.seeking && !isSeeking.value) {
+                currentTime.value = videoElement.value.currentTime;
+            }
+        };
+
+      // Устанавливаем обработчик изменения качества
+      qualitySelect.addEventListener('change', function () {
+        const selectedLevel = parseInt(this.value);
+        hls.currentLevel = selectedLevel;
+      });
+
+      // Автовыбор качества (по умолчанию)
+      hls.currentLevel = -1; // Автоматический выбор первого уровня
+    });
+
+    hls.on(Hls.Events.ERROR, function (event, data) {
+      if (data.fatal) {
+        switch (data.type) {
+          case Hls.ErrorTypes.NETWORK_ERROR:
+            console.error("Network error: ", data);
+            break;
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            console.error("Media error: ", data);
+            break;
+          case Hls.ErrorTypes.OTHER_ERROR:
+            console.error("Other error: ", data);
+            break;
+          default:
+            console.error("Fatal error: ", data);
+            break;
+        }
+      }
+    });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    // Для браузеров, поддерживающих natively .m3u8 (например, Safari)
+    video.src = playlistUrl;
+    video.addEventListener('loadedmetadata', () => video.play());
+  }
+}
 
 function setupWebsocketController() {
     ws_control = new WebSocket(`ws://localhost:8000/ws/control/${roomId}`)
