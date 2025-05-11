@@ -90,3 +90,7 @@ class EventOut(BaseModel):
     id_room: Optional[UUID]
     title: str
     datetime_start: datetime
+
+
+class PlaylistRequest(BaseModel):
+    url: str

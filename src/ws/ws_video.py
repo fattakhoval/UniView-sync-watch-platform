@@ -13,9 +13,7 @@ def get_id_from_chuck(chunk: str):
     if chunk.endswith('/'):
         chunk = chunk[:-1]
 
-    id_video = chunk.split(':')[-1].split('/')[-1]
-
-    return f'IFRAME:https://rutube.ru/play/embed/{id_video}'
+    return f'LINK:{chunk.split("/")[-1]}'
 
 @ws_video_route.websocket("/ws/video/{room_id}")
 async def ws_video(room_id: UUID, websocket: WebSocket):
@@ -28,8 +26,7 @@ async def ws_video(room_id: UUID, websocket: WebSocket):
             chunk = await websocket.receive_bytes()
 
             if chunk.startswith(b"LINK:"):
-                url = get_id_from_chuck(chunk.decode())
-                await video_manager.broadcast(room_id=room_id, message=url)
+                await video_manager.broadcast(room_id=room_id, message=chunk.decode())
                 continue
 
             if chunk.startswith(b"__FILENAME__"):
