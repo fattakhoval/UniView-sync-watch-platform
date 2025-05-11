@@ -53,9 +53,13 @@ async def join_room(room_data: RoomJoin, session: AsyncSession = Depends(get_db)
     # Получаем пароль из тела запроса
     password = room_data.password
 
-    # Если комната приватная и пароль не совпадает
-    if room.room_type == RoomType.Private and not verify_password(password, room.room_password):
-        return JSONResponse(status_code=401, content={'access': False, 'detail': 'Неверный пароль'})
+    if room.room_type == RoomType.Private:
+        if not password:
+            return JSONResponse(status_code=401,
+                                content={'access': False, 'detail': 'Пароль обязателен для приватной комнаты'})
+
+        if not verify_password(password, room.room_password):
+            return JSONResponse(status_code=401, content={'access': False, 'detail': 'Неверный пароль'})
 
     return JSONResponse(status_code=200, content={'access': True, 'room': {'id': str(room.id),
         'name': room.name,
