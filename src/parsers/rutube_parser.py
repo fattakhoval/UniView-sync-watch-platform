@@ -44,6 +44,12 @@ class Parser:
         self.logger.info(f'Init Parser with name: {self.name}')
 
     async def launch_browser(self, view_mode: ViewMode = ViewMode.headless):
+        import sys
+        import asyncio
+
+        if sys.platform == "win32":
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
         self.playwright = await async_playwright().start()
         await self._start_browser(view_mode=view_mode)
 

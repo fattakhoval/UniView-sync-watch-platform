@@ -32,7 +32,7 @@ class Tasker:
         self.scheduler.add_job(
             self.run_watch_invites,
             trigger='interval',
-            minutes=5,
+            minutes=1,
             id='periodic_watch_invites',
             replace_existing=True
         )

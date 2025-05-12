@@ -31,7 +31,7 @@ class UniViewBot:
     def is_about_movies(self, question: str) -> bool:
         movie_keywords = [
             "кино", "фильм", "кинематограф", "режиссер", "актер",
-            "сценарий", "премьера", "кинотеатр", "франшиза", "сериал"
+            "сценарий", "премьера", "кинотеатр", "франшиза", "сериал", "аниме"
         ]
         return any(keyword in question.lower() for keyword in movie_keywords)
 
