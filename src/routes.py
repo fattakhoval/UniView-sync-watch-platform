@@ -7,6 +7,7 @@ from src.ws.ws_video import ws_video_route
 from src.views.video_view import video_router
 from src.views.message_view import message_router
 from src.views.friend_view import friend_view
+from src.views.user_view import user_route
 
 
 routers = [
@@ -14,6 +15,7 @@ routers = [
     room_router,
     video_router,
     friend_view,
+    user_route,
     event_view,
     message_router,
     ws_chat_route,

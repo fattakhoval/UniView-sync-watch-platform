@@ -94,3 +94,20 @@ class EventOut(BaseModel):
 
 class PlaylistRequest(BaseModel):
     url: str
+
+
+class UpdateUser(BaseModel):
+    email: Optional[str] = None
+    old_password: Optional[str] = None
+    new_password: Optional[str] = None
+
+class UserSchema(BaseModel):
+    id: UUID
+    username: str
+    email: str
+    role: str
+    updated_at: datetime
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
