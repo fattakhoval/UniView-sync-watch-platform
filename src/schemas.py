@@ -2,7 +2,7 @@ from typing import Optional
 from uuid import UUID
 from datetime import datetime, date, time
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 from src.models import RoomType
 
@@ -97,9 +97,10 @@ class PlaylistRequest(BaseModel):
 
 
 class UpdateUser(BaseModel):
-    email: Optional[str] = None
+    email: Optional[EmailStr] = None
     old_password: Optional[str] = None
     new_password: Optional[str] = None
+
 
 class UserSchema(BaseModel):
     id: UUID
