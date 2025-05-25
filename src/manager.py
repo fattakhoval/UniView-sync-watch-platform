@@ -80,7 +80,7 @@ class BaseManager:
 class VideoManager(BaseManager):
     def __init__(self, room_registry: RoomRegistry):
         super().__init__(room_registry)
-        self.video_state: Dict[UUID, Dict[str, Any]] = {}  # Храним текущее состояние видео
+        self.video_state: Dict[UUID, Dict[str, Any]] = {}
 
     async def update_video_state(self, room_id: UUID, state: Dict[str, Any]):
         self.video_state[room_id] = state
@@ -92,6 +92,29 @@ class VideoManager(BaseManager):
                 await websocket.send_text(json.dumps({"action": f"seek:{seek_time}"}))
             except:
                 pass
+
+    async def connect(self, room_id: UUID, websocket: WebSocket):
+        await super().connect(room_id, websocket)
+
+        state = self.video_state.get(room_id)
+
+        if state and state.get("master") is None:
+            state["master"] = self.select_master(room_id)
+
+    def disconnect(self, room_id: UUID, websocket: WebSocket):
+        super().disconnect(room_id, websocket)
+
+        state = self.video_state.get(room_id)
+        if state and str(id(websocket)) == state.get("master"):
+            new_master = self.select_master(room_id)
+            state["master"] = new_master
+            self.video_state[room_id] = state
+
+    def select_master(self, room_id: UUID) -> Optional[str]:
+        connections = self.rooms.get(room_id, [])
+        if connections:
+            return str(id(connections[0]))
+        return None
 
 
 room_registry = RoomRegistry()

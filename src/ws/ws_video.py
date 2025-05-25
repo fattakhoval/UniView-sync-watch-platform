@@ -1,19 +1,13 @@
+import time
 from uuid import UUID
 
 from fastapi.routing import APIRouter
 from fastapi import WebSocket, WebSocketDisconnect
 
 from config import config
-from src.manager import video_manager
+from src.manager import video_manager, control_manager
 
 ws_video_route = APIRouter()
-
-def get_id_from_chuck(chunk: str):
-
-    if chunk.endswith('/'):
-        chunk = chunk[:-1]
-
-    return f'LINK:{chunk.split("/")[-1]}'
 
 @ws_video_route.websocket("/ws/video/{room_id}")
 async def ws_video(room_id: UUID, websocket: WebSocket):
@@ -26,7 +20,20 @@ async def ws_video(room_id: UUID, websocket: WebSocket):
             chunk = await websocket.receive_bytes()
 
             if chunk.startswith(b"LINK:"):
-                await video_manager.broadcast(room_id=room_id, message=chunk.decode())
+                link = chunk.decode()
+
+                state = control_manager.video_state.get(room_id)
+
+                if not state:
+                    control_manager.video_state[room_id] = {
+                        "timestamp": 0.0,
+                        "status": "paused",
+                        "link": link.split('LINK:')[1],
+                        "updated_at": time.time(),
+                        "master": str(id(websocket))
+                    }
+
+                await video_manager.broadcast(room_id=room_id, message=link)
                 continue
 
             if chunk.startswith(b"__FILENAME__"):
