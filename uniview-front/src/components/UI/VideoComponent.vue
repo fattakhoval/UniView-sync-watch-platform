@@ -5,8 +5,6 @@
         <video ref="videoElement" id="video" class="video-player" muted></video>
 
         <div class="controls">
-            <!-- <button @click="sendControlAction('play')">Play</button>
-            <button @click="sendControlAction('pause')">Pause</button> -->
             <div class="play-div">
 
                 <select id="quality" class="quality-select"></select>
@@ -60,10 +58,7 @@
 
         </div>
         
-
     </div>
-    
-    
 
 </template>
 
@@ -75,19 +70,25 @@ import Hls from 'hls.js';
 
 const route = useRoute();
 const roomId = route.params.id;
-const videoPath = ref('');
 const videoElement = ref(null);
 const isPlaying = ref(false); // отслеживает, играет ли видео
 const isSeeking = ref(false); // флаг ручной перемотки
-const iframeHtml = ref('');
-
-let ws_video;
-let ws_control;
-
 
 const currentTime = ref(0);
 const duration = ref(0);
 const isMuted = ref(true);
+let syncInterval = null
+
+let hls;
+let ws_video;
+let ws_control;
+
+
+onMounted(() => {
+    setupWebSocketVideo();
+    setupWebsocketController();
+    startSyncInterval();
+});
 
 function toggleMute() {
     if (videoElement.value) {
@@ -111,12 +112,6 @@ function formatTime(seconds) {
     const secs = Math.floor(seconds % 60);
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
-
-
-onMounted(() => {
-    setupWebSocketVideo()
-    setupWebsocketController()
-});
 
 
 function resetVideoElement() {
@@ -161,7 +156,6 @@ async function setupWebSocketVideo() {
 
     ws_video.onmessage = async (event) => {
         const message = event.data;
-        console.log(message);
 
         if (typeof message === 'string' && message.startsWith('LINK:')) {
             const masterUrl = message.slice(5);
@@ -180,6 +174,24 @@ async function setupWebSocketVideo() {
     }
 };
 
+function applyVideoState(state) {
+  const video = document.getElementById('video');
+
+  const apply = () => {
+    video.currentTime = state.timestamp;
+    if (state.status === 'play') {
+      video.play().catch(() => {});
+    } else {
+      video.pause();
+    }
+  };
+
+  if (video.readyState >= 1) {
+    apply();
+  } else {
+    video.addEventListener('loadedmetadata', apply, { once: true });
+  }
+}
 
 async function getPlaylistData(masterUrl) {
     const response = await fetch('http://127.0.0.1:8000/video/playlist', {
@@ -196,44 +208,41 @@ function initVideoElementLink(playlistUrl) {
     const qualitySelect = document.getElementById('quality');
 
     if (Hls.isSupported()) {
-        const hls = new Hls();
+        hls = new Hls();
+        hls.loadSource(playlistUrl);
+        hls.attachMedia(video);
 
-    // Загружаем мастер-плейлист с изменённым URL
-    hls.loadSource(playlistUrl);
-    hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
 
-    hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
-      // Заполняем список доступных качеств
-      qualitySelect.innerHTML = ''; // очищаем старые значения
-      data.levels.forEach((level, index) => {
-        const option = document.createElement('option');
-        option.value = index;
-        option.text = `${level.height}p (${Math.round(level.bitrate / 1000)} kbps)`;
-        qualitySelect.appendChild(option);
-      });
+            qualitySelect.innerHTML = '';
+            data.levels.forEach((level, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.text = `${level.height}p (${Math.round(level.bitrate / 1000)} kbps)`;
+                qualitySelect.appendChild(option);
+            });
 
       
-      videoElement.value.onloadedmetadata = () => {
-            duration.value = videoElement.value.duration;
-        };
+            videoElement.value.onloadedmetadata = () => {
+                    duration.value = videoElement.value.duration;
+                };
 
-      videoElement.value.ontimeupdate = () => {
-            if (!videoElement.value.seeking && !isSeeking.value) {
-                currentTime.value = videoElement.value.currentTime;
-            }
-        };
+            videoElement.value.ontimeupdate = () => {
+                    if (!videoElement.value.seeking && !isSeeking.value) {
+                        currentTime.value = videoElement.value.currentTime;
+                    }
+                };
 
-      // Устанавливаем обработчик изменения качества
-      qualitySelect.addEventListener('change', function () {
-        const selectedLevel = parseInt(this.value);
-        hls.currentLevel = selectedLevel;
-      });
+            qualitySelect.addEventListener('change', function () {
+                const selectedLevel = parseInt(this.value);
+                hls.currentLevel = selectedLevel;
+            });
 
       // Автовыбор качества (по умолчанию)
       hls.currentLevel = 2; // Автоматический выбор первого уровня
     });
 
-    hls.on(Hls.Events.ERROR, function (event, data) {
+        hls.on(Hls.Events.ERROR, function (event, data) {
       if (data.fatal) {
         switch (data.type) {
           case Hls.ErrorTypes.NETWORK_ERROR:
@@ -250,27 +259,31 @@ function initVideoElementLink(playlistUrl) {
             break;
         }
       }
-    });
+        });
+
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    // Для браузеров, поддерживающих natively .m3u8 (например, Safari)
-    video.src = playlistUrl;
-    video.addEventListener('loadedmetadata', () => video.play());
+        video.src = playlistUrl;
+        video.addEventListener('loadedmetadata', () => video.play());
   }
 }
 
 function setupWebsocketController() {
     ws_control = new WebSocket(`ws://localhost:8000/ws/control/${roomId}`)
 
-    ws_control.onmessage = (event) => {
+    ws_control.onmessage = async (event) => {
+        
+        console.log("RAW DATA:", event.data);
         const message = JSON.parse(event.data);
         const action = message.action
 
         console.log(action);
-        if (videoElement.value) { // Проверка, что videoElement существует
+        if (videoElement.value) { 
+            
+            console.log(message);
+
             if (action === "pause") {
                 videoElement.value.pause();
                 isPlaying.value = false;
-
             }
 
             if (action === "play") {
@@ -286,14 +299,40 @@ function setupWebsocketController() {
             if (action === "seek" && message.value !== undefined) {
                 videoElement.value.currentTime = message.value;
             }
+
+            if (action == 'sync_state') {
+                const playlistData = await getPlaylistData(message.state.link);
+                
+                initVideoElementLink(playlistData);
+
+                applyVideoState({
+                    timestamp: message.state.timestamp,
+                    status: message.state.status
+                });
+                message.state.status === 'pause'
+                ? (isPlaying.value = false, videoElement.value.pause())
+                : (isPlaying.value = true, videoElement.value.play().catch(() => {}));
+
+            }
+
         }
     }
+}
+
+function startSyncInterval() {
+  if (!syncInterval) {
+    syncInterval = setInterval(() => {
+      sendControlAction('sync')
+    }, 5000)
+  }
 }
 
 function sendControlAction(action) {
     if (ws_control && ws_control.readyState === WebSocket.OPEN) {
         if (action === 'seek') {
             // Отправляем действие "seek" с value
+            ws_control.send(JSON.stringify({ action, value: currentTime.value }));
+        } else if (action === 'sync') {
             ws_control.send(JSON.stringify({ action, value: currentTime.value }));
         } else {
             // Отправляем другие действия (play, pause, stop) без value
@@ -304,15 +343,11 @@ function sendControlAction(action) {
 
 
 function onSeekInput() {
-    // if (videoElement.value) {
-    //     currentTime.value = videoElement.value.currentTime;
-    // }
 
     isSeeking.value = true;
 }
 
 function onSeekChange() {
-    // sendControlAction('seek');
 
     if (videoElement.value) {
         videoElement.value.currentTime = currentTime.value;
