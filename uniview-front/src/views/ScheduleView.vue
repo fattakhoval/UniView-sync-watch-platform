@@ -27,8 +27,8 @@
                 </div>
 
                 <div class="calendar-wrapper">
-                    <Datepicker v-model="selectedDate" :enable-time-picker="false" auto-apply inline
-                        :teleport="false" :highlight="highlightedDates"/>
+                    <Datepicker v-model="selectedDate" :enable-time-picker="false" auto-apply inline :teleport="false"
+                        :highlight="highlightedDates" />
                 </div>
             </div>
 
@@ -50,7 +50,7 @@
 
 <script setup>
 import NavBar from '@/components/UI/NavBar.vue';
-import { ref, onMounted } from 'vue'; 
+import { ref, onMounted } from 'vue';
 import 'vue-cal/dist/vuecal.css'
 import VueCal from 'vue-cal'
 import Datepicker from '@vuepic/vue-datepicker';
@@ -66,10 +66,10 @@ const token = Cookies.get('access_token');
 let userId = null;
 
 if (token) {
-  const decoded = parseJwt(token);
-  if (decoded) {
-    userId = decoded.id_user;
-  }
+    const decoded = parseJwt(token);
+    if (decoded) {
+        userId = decoded.id_user;
+    }
 }
 
 const title = ref('');
@@ -101,8 +101,23 @@ const scheduleParty = async () => {
         return;
     }
 
+    // const eventDateTime = new Date(selectedDate.value);
+    const [hours, minutes] = time.value.split(':').map(Number);
+    const eventDateTime = new Date(selectedDate.value);
+    eventDateTime.setHours(hours);
+    eventDateTime.setMinutes(minutes);
+    eventDateTime.setSeconds(0);
+    eventDateTime.setMilliseconds(0);
+
+    const now = new Date();
+
+    if (eventDateTime < now) {
+        alert("Нельзя создать событие на прошедшую дату");
+        return;
+    }
     try {
         console.log(selectedDate.value);
+
         const response = await axios.post('http://localhost:8000/event/create', {
             title: title.value,
             date: selectedDate.value.toISOString().split('T')[0],
@@ -127,15 +142,15 @@ const scheduleParty = async () => {
 };
 
 const loadFriends = async () => {
-  if (!userId) return;
+    if (!userId) return;
 
-  try {
-    const response = await axios.get(`http://localhost:8000/friend/friends/${userId}`);
-    friends.value = response.data;
-    console.log(friends.value);
-  } catch (error) {
-    console.error('Ошибка при получении друзей:', error);
-  }
+    try {
+        const response = await axios.get(`http://localhost:8000/friend/friends/${userId}`);
+        friends.value = response.data;
+        console.log(friends.value);
+    } catch (error) {
+        console.error('Ошибка при получении друзей:', error);
+    }
 };
 
 const loadEvents = async () => {
@@ -178,9 +193,9 @@ const loadEvents = async () => {
 
 onMounted(() => {
     if (!userId) {
-    alert('Ошибка: пользователь не найден в cookies.');
-    return;
-  }
+        alert('Ошибка: пользователь не найден в cookies.');
+        return;
+    }
     loadFriends();
     loadEvents();
 });
@@ -252,7 +267,8 @@ onMounted(() => {
     font-weight: 600;
 }
 
-.form-section input, input::placeholder{
+.form-section input,
+input::placeholder {
 
     color: #e5e7eb;
 }
@@ -385,7 +401,7 @@ input[type="date"] {
     padding: 1.5rem;
     border-radius: 16px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-    
+
 }
 
 .upcoming-section ul {
@@ -394,7 +410,7 @@ input[type="date"] {
     font-weight: 500;
     font-size: 18px;
     color: var(--p2);
-   
+
 }
 
 .upcoming-section li {

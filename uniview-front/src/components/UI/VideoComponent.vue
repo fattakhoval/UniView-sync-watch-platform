@@ -9,7 +9,7 @@
             <button @click="sendControlAction('pause')">Pause</button> -->
             <div class="play-div">
 
-                <select id="quality"></select>
+                <select id="quality" class="quality-select"></select>
 
                 <button @click="togglePlayPause" class="control-btn">
                     <svg v-if="!isPlaying" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white"
@@ -230,7 +230,7 @@ function initVideoElementLink(playlistUrl) {
       });
 
       // Автовыбор качества (по умолчанию)
-      hls.currentLevel = -1; // Автоматический выбор первого уровня
+      hls.currentLevel = 2; // Автоматический выбор первого уровня
     });
 
     hls.on(Hls.Events.ERROR, function (event, data) {
@@ -346,7 +346,7 @@ function onSeekChange() {
 
 .video_box {
     width: 75%;
-    height: 90%;
+    height: 95%;
     background-color: #1f1f1f;
     display: flex;
     flex-direction: column;
@@ -425,8 +425,8 @@ function onSeekChange() {
     margin-top: 12px;
     display: flex;
     gap: 16px;
-    position: absolute;
-    bottom: 0;
+    /* position: absolute;
+    bottom: 0; */
     width: 100%;
     justify-content: start;
     align-items: center;
@@ -490,5 +490,19 @@ function onSeekChange() {
     border: none;
     border-radius: 50%;
     cursor: pointer;
+}
+
+.quality-select {
+  appearance: none; /* Убирает стандартные стили */
+  background-color: var(--input-bg, #1e1e2f);
+  color: var(--text-p, #ffffff);
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: "Montserrat Alternates", sans-serif;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  width: 14px;
 }
 </style>

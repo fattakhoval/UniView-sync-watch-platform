@@ -4,8 +4,99 @@ import PeopleIcon from '@/components/icons/PeopleIcon.vue';
 import PersonIcon from '@/components/icons/PersonIcon.vue';
 import MyButton from '@/components/UI/MyButton.vue';
 import NavBar from '@/components/UI/NavBar.vue';
+import Cookies from 'js-cookie';
+import parseJwt from '@/utils';
+import axios from 'axios';
+import { ref, onMounted } from 'vue';
 
-import { ref } from 'vue';
+let count_friends = ref('');
+let userId = null;
+let userInfo = ref('');
+
+let email = ref('');
+let oldPassword = ref('');
+let newPassword = ref('');
+
+
+const token = Cookies.get('access_token');
+if (token) {
+  const decoded = parseJwt(token);
+  if (decoded) {
+    userId = decoded.id_user;
+  }
+}
+
+onMounted(() => {
+    get_count_friends();
+    get_user_info();
+});
+
+
+async function get_count_friends(){
+
+     try {
+        const response = await axios.get(`http://localhost:8000/friend/friends/${userId}`);
+
+        if (response) {
+            count_friends.value = response.data.length;
+        }
+    } catch (error) {
+        console.error(error);
+        console.log(`Ошибка при get friends: ${error}`);
+    }
+};
+
+
+async function get_user_info(){
+
+     try {
+        
+        const response = await axios.get(`http://localhost:8000/user/info/${userId}`);
+
+        if (response) {
+            userInfo.value = response.data;
+            email.value = userInfo.value.email;
+        }
+
+    } catch (error) {
+        console.error(error);
+        console.log(`Ошибка при получение данных о пользователе: ${error}`);
+    }
+};
+
+async function update_user(){
+
+     try {
+        const response = await axios.put(`http://localhost:8000/user/update_profile/${userId}`, {
+            email: email.value,
+            old_password: oldPassword.value,
+            new_password: newPassword.value,
+        });
+
+        if (response.status == 201){
+            alert('Данные успешно обновлены');
+        }
+
+        email.value = response.data.email;
+        oldPassword.value = '';
+        newPassword.value = '';
+    } catch (error) {
+        console.error(error);
+        let message = ''
+
+        if (error.response?.status == 422){
+            message = 'Некорректный почтовый адрес';
+        } else {
+            message = error.response?.data?.detail || 'Произошла ошибка при обновлении данных';
+        }
+
+        
+       
+        alert(message);
+    }
+};
+
+
 
 </script>
 
@@ -19,13 +110,13 @@ import { ref } from 'vue';
 
                 <div class="st-block">
 
-                    <h1 class="h1">Имя пользователя</h1>
+                    <h1 class="h1">{{ userInfo.username }}</h1>
 
                     <div class="fr-count">
                         <p>
                             <PeopleIcon class="u-icon" /> Друзья
                         </p>
-                        <div class="p">12</div>
+                        <div class="p">{{ count_friends }}</div>
                     </div>
 
 
@@ -39,17 +130,23 @@ import { ref } from 'vue';
 
                     <div class="u-email">
                         <label for="email"><MailIcon class="u-icon"/> Почта</label>
-                        <input type="email" value="your@mail.ru">
+                        <input type="email" v-model="email">
 
                     </div>
 
                     <div class="u-email">
-                        <label for="password"> <PersonIcon class="u-icon" />Пароль</label>
-                        <input type="password" value="your.ru">
+                        <label for="password"> <PersonIcon class="u-icon" />Старый Пароль</label>
+                        <input type="password" value="" v-model="oldPassword">
 
                     </div>
 
-                    <button>Изменить</button>
+                    <div class="u-email">
+                        <label for="password"> <PersonIcon class="u-icon" />Новый Пароль</label>
+                        <input type="password" value="" v-model="newPassword">
+
+                    </div>
+
+                    <button @click="update_user()">Изменить</button>
 
 
                 </div>
