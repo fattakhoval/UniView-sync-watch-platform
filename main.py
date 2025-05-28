@@ -15,13 +15,13 @@ from src.sheduler import tasker
 async def lifespan(app: FastAPI):
     tasker.start()
     async with engine.begin() as conn:
-       # await conn.run_sync(Base.metadata.drop_all)
+        # await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
         async for session in get_db():
             await room_registry.load_rooms_from_db(session)
             await tasker.watch_invites(session)
-            #await User.create_bot(session)
+            await User.create_bot(session)
     yield
 
     tasker.shutdown()

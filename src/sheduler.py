@@ -113,9 +113,6 @@ class Tasker:
                 return
 
             for room in expired_rooms:
-                await session.execute(
-                    delete(Event).where(Event.id_room == room.id)
-                )
                 await session.delete(room)
 
             await session.commit()

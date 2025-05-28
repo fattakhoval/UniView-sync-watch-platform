@@ -41,8 +41,16 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.datetime.now, onupdate=datetime.datetime.now, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.datetime.now, nullable=False)
 
-    messages: Mapped[List['Message']] = relationship()
-    rooms: Mapped[List['Room']] = relationship()
+    messages: Mapped[List['Message']] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+    rooms: Mapped[List['Room']] = relationship(
+        back_populates="host",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
 
     def __str__(self):
         return f'<User({self.username=}, {self.role=})>'
@@ -80,7 +88,7 @@ class Room(Base):
     __tablename__ = 'rooms'
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    id_host: Mapped[UUID] = mapped_column(ForeignKey('users.id'), index=True)
+    id_host: Mapped[UUID] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), index=True)
     name: Mapped[str] = mapped_column(String(256), nullable=False, unique=True)
     room_type: Mapped[PyEnum] = mapped_column(Enum(RoomType), nullable=False, default=RoomType.Public)
     room_password: Mapped[str] = mapped_column(String(256), nullable=True)
@@ -90,7 +98,13 @@ class Room(Base):
         default=default_live_time
     )
 
-    messages: Mapped[List['Message']] = relationship(back_populates="room", cascade='all, delete-orphan')
+    messages: Mapped[List['Message']] = relationship(
+        back_populates="room",
+        cascade='all, delete-orphan',
+        passive_deletes=True
+    )
+
+    host: Mapped['User'] = relationship(back_populates='rooms')
 
     def __str__(self):
         return f'<Room({self.id=}, {self.name=}, {self.room_type=})>'
@@ -110,34 +124,34 @@ class Message(Base):
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     id_room: Mapped[UUID] = mapped_column(ForeignKey('rooms.id', ondelete='CASCADE'), index=True)
-    id_user: Mapped[UUID] = mapped_column(ForeignKey('users.id'))
+    id_user: Mapped[UUID] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
     message: Mapped[str] = mapped_column(Text, nullable=True)
     is_voice: Mapped[bool] = mapped_column(Boolean, default=False)
     voice_path: Mapped[str] = mapped_column(String(256), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.datetime.now, nullable=False, index=True)
 
-    room: Mapped['Room'] = relationship(back_populates='messages')
-    user: Mapped['User'] = relationship(back_populates='messages')
+    room: Mapped['Room'] = relationship(back_populates='messages', passive_deletes=True)
+    user: Mapped['User'] = relationship(back_populates='messages', passive_deletes=True)
 
 
 class Friendship(Base):
     __tablename__ = 'friendships'
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    id_requester: Mapped[UUID] = mapped_column(ForeignKey('users.id'), index=True)
-    id_addressee: Mapped[UUID] = mapped_column(ForeignKey('users.id'), index=True)
+    id_requester: Mapped[UUID] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), index=True)
+    id_addressee: Mapped[UUID] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), index=True)
     status: Mapped[PyEnum] = mapped_column(Enum(FriendshipStatus), nullable=False, default=FriendshipStatus.Pending)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.datetime.now, nullable=False)
 
-    requester = relationship('User', foreign_keys=[id_requester])
-    addressee = relationship('User', foreign_keys=[id_addressee])
+    requester = relationship('User', foreign_keys=[id_requester], passive_deletes=True)
+    addressee = relationship('User', foreign_keys=[id_addressee], passive_deletes=True)
 
 
 class Event(Base):
     __tablename__ = 'events'
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    id_creator: Mapped[UUID] = mapped_column(ForeignKey('users.id'))
+    id_creator: Mapped[UUID] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
     id_room: Mapped[Optional[UUID]] = mapped_column(ForeignKey('rooms.id', ondelete='CASCADE'), nullable=True)
     title: Mapped[str] = mapped_column(String(128))
     datetime_start: Mapped[datetime] = mapped_column(DateTime)
@@ -156,7 +170,7 @@ class Invite(Base):
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     id_event: Mapped[UUID] = mapped_column(ForeignKey('events.id', ondelete='CASCADE'))
-    id_inviter: Mapped[UUID] = mapped_column(ForeignKey('users.id'))
-    id_invited: Mapped[UUID] = mapped_column(ForeignKey('users.id'))
+    id_inviter: Mapped[UUID] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
+    id_invited: Mapped[UUID] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
 
     event = relationship('Event', back_populates='invites', passive_deletes=True)
