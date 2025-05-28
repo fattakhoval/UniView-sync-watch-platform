@@ -30,7 +30,7 @@ async def ws_video(room_id: UUID, websocket: WebSocket):
                         "status": "paused",
                         "link": link.split('LINK:')[1],
                         "updated_at": time.time(),
-                        "master": str(id(websocket))
+                        "master": control_manager.select_master(room_id)
                     }
 
                 await video_manager.broadcast(room_id=room_id, message=link)

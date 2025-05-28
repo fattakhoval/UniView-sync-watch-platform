@@ -12,14 +12,15 @@ from src.manager import control_manager
 ws_action_route= APIRouter()
 
 
-@ws_action_route.websocket('/ws/control/{room_id}')
-async def ws_control(room_id: UUID, websocket: WebSocket):
+@ws_action_route.websocket('/ws/control/{room_id}/{user_id}')
+async def ws_control(room_id: UUID, user_id: UUID, websocket: WebSocket):
+    websocket.user_id = str(user_id)
     await control_manager.connect(room_id, websocket)
 
     state = control_manager.video_state.get(room_id)
 
     if state and not state.get("master"):
-        control_manager.video_state[room_id]["master"] = str(id(websocket))
+        control_manager.video_state[room_id]["master"] = websocket.user_id
 
     try:
 
@@ -36,16 +37,17 @@ async def ws_control(room_id: UUID, websocket: WebSocket):
             action = message.get('action')
 
             state = control_manager.video_state.get(room_id)
+            master = control_manager.select_master(room_id)
             if state:
                 if action in ("play", "pause"):
                     state["status"] = action
                     state["updated_at"] = time.time()
 
-                if action == "seek" and "value" in message:
+                if action == "seek" and "value" in message and master == websocket.user_id:
                     state["timestamp"] = message["value"]
                     state["updated_at"] = time.time()
-                print(control_manager.select_master(room_id))
-                if action == 'sync':
+
+                if action == 'sync' and master == websocket.user_id:
                     state["timestamp"] = message["value"]
                     state["updated_at"] = time.time()
 
@@ -62,10 +64,10 @@ async def ws_control(room_id: UUID, websocket: WebSocket):
     except WebSocketDisconnect:
         control_manager.disconnect(room_id, websocket)
 
-        if control_manager.video_state.get(room_id, {}).get("master") == str(id(websocket)):
-            connections = control_manager.rooms.get(room_id, [])
-            if connections:
-                new_master = str(id(connections[0]))
-                control_manager.video_state[room_id]["master"] = new_master
-            else:
-                control_manager.video_state[room_id]["master"] = None
+        # if control_manager.video_state.get(room_id, {}).get("master") == websocket.user_id:
+        #     connections = control_manager.rooms.get(room_id, [])
+        #     if connections:
+        #         new_master = connections[0].user_id
+        #         control_manager.video_state[room_id]["master"] = new_master
+        #     else:
+        #         control_manager.video_state[room_id]["master"] = None

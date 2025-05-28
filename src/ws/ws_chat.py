@@ -50,11 +50,10 @@ async def save_message(room_id, username, message):
 async def ws_chat(room_id: UUID, user_id: UUID, websocket: WebSocket):
     websocket.user_id = user_id
     await chat_manager.connect(room_id, websocket)
-    name = None
+
     try:
         while True:
             data = json.loads(await websocket.receive_text())
-            name = data.get('sender')
 
             if data.get("type") == "voice":
                 await save_voice(room_id, data["sender"], data['filename'], data["data"])

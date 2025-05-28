@@ -105,7 +105,7 @@ class VideoManager(BaseManager):
         super().disconnect(room_id, websocket)
 
         state = self.video_state.get(room_id)
-        if state and str(id(websocket)) == state.get("master"):
+        if state and websocket.user_id == state.get("master"):
             new_master = self.select_master(room_id)
             state["master"] = new_master
             self.video_state[room_id] = state
@@ -113,7 +113,7 @@ class VideoManager(BaseManager):
     def select_master(self, room_id: UUID) -> Optional[str]:
         connections = self.rooms.get(room_id, [])
         if connections:
-            return str(id(connections[0]))
+            return connections[0].user_id
         return None
 
 
