@@ -64,9 +64,11 @@
 
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, onMounted, nextTick, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import Hls from 'hls.js';
+import Cookies from 'js-cookie';
+import parseJwt from '@/utils';
 
 const route = useRoute();
 const roomId = route.params.id;
@@ -84,11 +86,40 @@ let ws_video;
 let ws_control;
 
 
+const token = Cookies.get('access_token');
+let userId = null;
+
+if (token) {
+  const decoded = parseJwt(token);
+  if (decoded) {
+    userId = decoded.id_user;
+  }
+}
+
+
 onMounted(() => {
     setupWebSocketVideo();
     setupWebsocketController();
     startSyncInterval();
 });
+
+onUnmounted(() => {
+    stopSyncInterval();
+    closeWS();
+});
+
+
+function closeWS() {
+    if (ws_video && ws_video.readyState === WebSocket.OPEN) {
+        ws_video.close()
+        console.log('WebSocket закрыт при unmount')
+    }
+
+    if (ws_control && ws_control.readyState === WebSocket.OPEN) {
+        ws_control.close()
+        console.log('WebSocket закрыт при unmount')
+    }
+};
 
 function toggleMute() {
     if (videoElement.value) {
@@ -268,7 +299,7 @@ function initVideoElementLink(playlistUrl) {
 }
 
 function setupWebsocketController() {
-    ws_control = new WebSocket(`ws://localhost:8000/ws/control/${roomId}`)
+    ws_control = new WebSocket(`ws://localhost:8000/ws/control/${roomId}/${userId}`)
 
     ws_control.onmessage = async (event) => {
         
@@ -323,7 +354,14 @@ function startSyncInterval() {
   if (!syncInterval) {
     syncInterval = setInterval(() => {
       sendControlAction('sync')
-    }, 5000)
+    }, 2000)
+  }
+}
+
+function stopSyncInterval() {
+  if (syncInterval) {
+    clearInterval(syncInterval)
+    syncInterval = null
   }
 }
 
