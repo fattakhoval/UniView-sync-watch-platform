@@ -138,16 +138,25 @@ class Event(Base):
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     id_creator: Mapped[UUID] = mapped_column(ForeignKey('users.id'))
-    id_room: Mapped[Optional[UUID]] = mapped_column(ForeignKey('rooms.id'), nullable=True)
+    id_room: Mapped[Optional[UUID]] = mapped_column(ForeignKey('rooms.id', ondelete='CASCADE'), nullable=True)
     title: Mapped[str] = mapped_column(String(128))
     datetime_start: Mapped[datetime] = mapped_column(DateTime)
     is_second_msg_send: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    invites: Mapped[List['Invite']] = relationship(
+        'Invite',
+        back_populates='event',
+        cascade='all, delete-orphan',
+        passive_deletes=True
+    )
 
 
 class Invite(Base):
     __tablename__ = 'invites'
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    id_event: Mapped[UUID] = mapped_column(ForeignKey('events.id'))
+    id_event: Mapped[UUID] = mapped_column(ForeignKey('events.id', ondelete='CASCADE'))
     id_inviter: Mapped[UUID] = mapped_column(ForeignKey('users.id'))
     id_invited: Mapped[UUID] = mapped_column(ForeignKey('users.id'))
+
+    event = relationship('Event', back_populates='invites', passive_deletes=True)
