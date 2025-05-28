@@ -2,14 +2,14 @@ from datetime import datetime, timedelta
 from typing import Callable, Optional
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from apscheduler.triggers.date import DateTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.jobstores.memory import MemoryJobStore
 
 from src.db import get_db
-from src.models import Invite, Event
+from src.models import Invite, Event, Room
 from src.smtp_module import send_announce
 
 
@@ -34,6 +34,14 @@ class Tasker:
             trigger='interval',
             minutes=1,
             id='periodic_watch_invites',
+            replace_existing=True
+        )
+
+        self.scheduler.add_job(
+            self.remove_invalid_rooms,
+            trigger='interval',
+            minutes=1,
+            id='periodic_delete_room',
             replace_existing=True
         )
 
@@ -94,5 +102,22 @@ class Tasker:
         async for session in get_db():
             await send_announce(UUID(invite_id), UUID(event_id), session)
 
+    async def remove_invalid_rooms(self):
+        async for session in get_db():
+            stmt = select(Room).where(Room.live_time_room < datetime.now())
+
+            result = await session.execute(stmt)
+            expired_rooms = result.scalars().all()
+
+            if not expired_rooms:
+                return
+
+            for room in expired_rooms:
+                await session.execute(
+                    delete(Event).where(Event.id_room == room.id)
+                )
+                await session.delete(room)
+
+            await session.commit()
 
 tasker = Tasker()

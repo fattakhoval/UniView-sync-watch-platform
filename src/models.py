@@ -90,7 +90,7 @@ class Room(Base):
         default=default_live_time
     )
 
-    messages: Mapped[List['Message']] = relationship(back_populates="room")
+    messages: Mapped[List['Message']] = relationship(back_populates="room", cascade='all, delete-orphan')
 
     def __str__(self):
         return f'<Room({self.id=}, {self.name=}, {self.room_type=})>'
@@ -109,7 +109,7 @@ class Message(Base):
     __tablename__ = 'messages'
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    id_room: Mapped[UUID] = mapped_column(ForeignKey('rooms.id'), index=True)
+    id_room: Mapped[UUID] = mapped_column(ForeignKey('rooms.id', ondelete='CASCADE'), index=True)
     id_user: Mapped[UUID] = mapped_column(ForeignKey('users.id'))
     message: Mapped[str] = mapped_column(Text, nullable=True)
     is_voice: Mapped[bool] = mapped_column(Boolean, default=False)
