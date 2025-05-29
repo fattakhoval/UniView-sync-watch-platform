@@ -7,6 +7,8 @@ import UserProfile from '@/views/UserProfile.vue'
 import AllRooms from '@/views/AllRooms.vue'
 import FriendsView from '@/views/FriendsView.vue'
 import ScheduleView from '@/views/ScheduleView.vue'
+import ForgetPassword from '@/views/ForgetPassword.vue'
+import ResetPassword from '@/views/ResetPassword.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,6 +53,18 @@ const router = createRouter({
       path: '/schedule',
       name: 'schedule',
       component: ScheduleView,
+    },
+
+     {
+      path: '/forgetpassword',
+      name: 'forgetpassword',
+      component: ForgetPassword,
+    },
+
+    {
+      path: '/resetpassword',
+      name: 'resetpassword',
+      component: ResetPassword,
     },
     // {
     //   path: '/about',

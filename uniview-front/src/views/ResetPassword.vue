@@ -1,66 +1,71 @@
 <script setup>
-import { ref } from 'vue';
-import { useUserStore } from '@/stores/userStore';
-import NavBar from '@/components/UI/NavBar.vue';
-import router from '@/router';
-import parseJwt from '@/utils';
-import Cookies from 'js-cookie';  // Можно использовать js-cookie для работы с куками
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import FloatingInput from '@/components/UI/FloatingInput.vue';
+import NavBar from '@/components/UI/NavBar.vue';
 
+const route = useRoute();
+const router = useRouter();
 
-const username = ref('');
-const password = ref('');
+const token = ref('');
+const newPassword = ref('');
+const confirmPassword = ref('');
+
+const passwordError = ref('');
+const confirmError = ref('');
 const errorMessage = ref('');
 const successMessage = ref('');
 const isLoading = ref(false);
 
-const usernameError = ref('');
-const passwordError = ref('');
+onMounted(() => {
+    token.value = route.query.token || '';
+    if (!token.value) {
+        errorMessage.value = 'Недействительная или отсутствующая ссылка восстановления.';
+    }
+});
 
-const userStore = useUserStore();
-
-
-
-const loginUser = async () => {
-
-    usernameError.value = '';
+const resetPassword = async () => {
     passwordError.value = '';
+    confirmError.value = '';
     errorMessage.value = '';
     successMessage.value = '';
 
-    const trimmedUsername = username.value.trim();
-    const trimmedPassword = password.value.trim();
-
-    let hasError = false;
-
-    if (!trimmedUsername) {
-        usernameError.value = 'Введите имя пользователя.';
-        hasError = true;
+    if (newPassword.value.length < 6) {
+        passwordError.value = 'Пароль должен быть не менее 6 символов.';
+        return;
     }
 
-    if (!trimmedPassword) {
-        passwordError.value = 'Введите пароль.';
-        hasError = true;
+    if (newPassword.value !== confirmPassword.value) {
+        confirmError.value = 'Пароли не совпадают.';
+        return;
     }
-
-    if (hasError) return;
 
     try {
         isLoading.value = true;
-        await userStore.login(username.value, password.value);
-        const token = Cookies.get('access_token');
-        const decoded = parseJwt(token);
-        console.log(decoded);
-        router.push('/');
 
+        const response = await fetch('/api/user/reset_password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                token: token.value,
+                new_password: newPassword.value
+            }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Ошибка при сбросе пароля');
+        }
+
+        successMessage.value = 'Пароль успешно обновлён. Сейчас вы будете перенаправлены...';
+        setTimeout(() => router.push('/login'), 3000);
     } catch (error) {
-        errorMessage.value = error.message;
+        errorMessage.value = error.message || 'Произошла ошибка';
     } finally {
         isLoading.value = false;
     }
 };
 </script>
-
 
 <template>
     <div class="container">
@@ -68,7 +73,7 @@ const loginUser = async () => {
 
         <div class="auth-form">
             <div class="auth-container">
-                <h2>Вход</h2>
+                <h2>Новый пароль</h2>
 
                 <div v-if="errorMessage" class="error-message animated-error">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" width="18" height="18">
@@ -80,19 +85,7 @@ const loginUser = async () => {
 
                 <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
 
-                <!-- <input v-model="username" type="text" placeholder="Имя" class="input" /> -->
-                <FloatingInput v-model="username" type="text" id="username" label="Имя" required />
-
-                <div v-if="usernameError" class="error-message animated-error">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" width="18" height="18">
-                        <path fill="currentColor"
-                            d="M12 2a10 10 0 1 0 10 10A10.01 10.01 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z" />
-                    </svg>
-                    <span>{{ usernameError }}</span>
-                </div>
-
-                <!-- <input v-model="password" type="password" placeholder="Пароль" class="input" /> -->
-                <FloatingInput v-model="password" id="password" label="Пароль" type="password" required />
+                <FloatingInput v-model="newPassword" type="password" id="new-password" label="Новый пароль" required />
                 <div v-if="passwordError" class="error-message animated-error">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" width="18" height="18">
                         <path fill="currentColor"
@@ -101,23 +94,24 @@ const loginUser = async () => {
                     <span>{{ passwordError }}</span>
                 </div>
 
-                <button @click="loginUser" :disabled="isLoading" class="auth-btn">
-                    {{ isLoading ? 'Вход...' : 'Войти' }}
+                <FloatingInput v-model="confirmPassword" type="password" id="confirm-password"
+                    label="Подтвердите пароль" required />
+                <div v-if="confirmError" class="error-message animated-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" width="18" height="18">
+                        <path fill="currentColor"
+                            d="M12 2a10 10 0 1 0 10 10A10.01 10.01 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z" />
+                    </svg>
+                    <span>{{ confirmError }}</span>
+                </div>
+
+                <button @click="resetPassword" :disabled="isLoading" class="auth-btn">
+                    {{ isLoading ? '...' : 'Сбросить пароль' }}
                 </button>
-
-                <p>Нет аккаунта?
-                    <router-link to="/register" class="p" v-if="!username">Зарегитрируйтесь</router-link>
-                </p>
-
-                <p>
-                    <router-link to="/forgetpassword" class="p">Забыли пароль?</router-link>
-                </p>
             </div>
         </div>
     </div>
+    <div class="page-container"></div>
 
-    <div class="page-container">
-    </div>
 </template>
 
 <style scoped>
@@ -159,14 +153,12 @@ p {
     color: #1c2011;
     font-size: 14px;
     text-align: center;
-     margin: 0 auto;
 }
 
 .p {
     font-family: "Montserrat Alternates", sans-serif;
     color: var(--accent-color);
     font-size: 14px;
-   
 }
 
 .input {

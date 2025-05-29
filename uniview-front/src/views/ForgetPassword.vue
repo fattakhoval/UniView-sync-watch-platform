@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useUserStore } from '@/stores/userStore';
 import NavBar from '@/components/UI/NavBar.vue';
 import router from '@/router';
@@ -7,58 +7,57 @@ import parseJwt from '@/utils';
 import Cookies from 'js-cookie';  // Можно использовать js-cookie для работы с куками
 import FloatingInput from '@/components/UI/FloatingInput.vue';
 
+const email = ref('');
 
-const username = ref('');
-const password = ref('');
 const errorMessage = ref('');
 const successMessage = ref('');
 const isLoading = ref(false);
 
-const usernameError = ref('');
-const passwordError = ref('');
+const emailError = ref('');
+
 
 const userStore = useUserStore();
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 
+watch(email, (newValue) => {
+    email.value = newValue.trim().toLowerCase();
+});
 
-const loginUser = async () => {
-
-    usernameError.value = '';
-    passwordError.value = '';
+const sendResetLink = async () => {
+    emailError.value = '';
     errorMessage.value = '';
     successMessage.value = '';
 
-    const trimmedUsername = username.value.trim();
-    const trimmedPassword = password.value.trim();
+    const trimmedEmail = email.value.trim();
 
-    let hasError = false;
-
-    if (!trimmedUsername) {
-        usernameError.value = 'Введите имя пользователя.';
-        hasError = true;
+    if (!emailRegex.test(trimmedEmail)) {
+        emailError.value = 'Введите корректный email.';
+        return;
     }
-
-    if (!trimmedPassword) {
-        passwordError.value = 'Введите пароль.';
-        hasError = true;
-    }
-
-    if (hasError) return;
 
     try {
         isLoading.value = true;
-        await userStore.login(username.value, password.value);
-        const token = Cookies.get('access_token');
-        const decoded = parseJwt(token);
-        console.log(decoded);
-        router.push('/');
 
+        const response = await fetch('/api/user/forgot_password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: trimmedEmail }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Ошибка отправки письма');
+        }
+
+        successMessage.value = 'Письмо отправлено! Проверьте почту.';
     } catch (error) {
-        errorMessage.value = error.message;
+        errorMessage.value = error.message || 'Что-то пошло не так';
     } finally {
         isLoading.value = false;
     }
 };
+
 </script>
 
 
@@ -68,7 +67,7 @@ const loginUser = async () => {
 
         <div class="auth-form">
             <div class="auth-container">
-                <h2>Вход</h2>
+                <h2>Восстановление пароля</h2>
 
                 <div v-if="errorMessage" class="error-message animated-error">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" width="18" height="18">
@@ -81,37 +80,24 @@ const loginUser = async () => {
                 <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
 
                 <!-- <input v-model="username" type="text" placeholder="Имя" class="input" /> -->
-                <FloatingInput v-model="username" type="text" id="username" label="Имя" required />
+                <FloatingInput v-model="email" type="email" id="email" label="Почта" required />
 
-                <div v-if="usernameError" class="error-message animated-error">
+                <div v-if="emailError" class="error-message animated-error">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" width="18" height="18">
                         <path fill="currentColor"
                             d="M12 2a10 10 0 1 0 10 10A10.01 10.01 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z" />
                     </svg>
-                    <span>{{ usernameError }}</span>
+                    <span>{{ emailError }}</span>
                 </div>
 
                 <!-- <input v-model="password" type="password" placeholder="Пароль" class="input" /> -->
-                <FloatingInput v-model="password" id="password" label="Пароль" type="password" required />
-                <div v-if="passwordError" class="error-message animated-error">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" width="18" height="18">
-                        <path fill="currentColor"
-                            d="M12 2a10 10 0 1 0 10 10A10.01 10.01 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z" />
-                    </svg>
-                    <span>{{ passwordError }}</span>
-                </div>
 
-                <button @click="loginUser" :disabled="isLoading" class="auth-btn">
-                    {{ isLoading ? 'Вход...' : 'Войти' }}
+
+                <button @click="sendResetLink" :disabled="isLoading" class="auth-btn">
+                    {{ isLoading ? '...' : 'Отправить ссылку' }}
                 </button>
 
-                <p>Нет аккаунта?
-                    <router-link to="/register" class="p" v-if="!username">Зарегитрируйтесь</router-link>
-                </p>
 
-                <p>
-                    <router-link to="/forgetpassword" class="p">Забыли пароль?</router-link>
-                </p>
             </div>
         </div>
     </div>
@@ -159,14 +145,12 @@ p {
     color: #1c2011;
     font-size: 14px;
     text-align: center;
-     margin: 0 auto;
 }
 
 .p {
     font-family: "Montserrat Alternates", sans-serif;
     color: var(--accent-color);
     font-size: 14px;
-   
 }
 
 .input {
