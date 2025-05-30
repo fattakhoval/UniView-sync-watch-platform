@@ -8,6 +8,7 @@ const route = useRoute();
 const router = useRouter();
 
 const token = ref('');
+const email = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 
@@ -19,7 +20,8 @@ const isLoading = ref(false);
 
 onMounted(() => {
     token.value = route.query.token || '';
-    if (!token.value) {
+    email.value = route.query.email || '';
+    if (!token.value || !email.value) {
         errorMessage.value = 'Недействительная или отсутствующая ссылка восстановления.';
     }
 });
@@ -43,11 +45,12 @@ const resetPassword = async () => {
     try {
         isLoading.value = true;
 
-        const response = await fetch('/api/user/reset_password', {
+        const response = await fetch('http://localhost:8000/user/set_new_password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 token: token.value,
+                email: email.value,
                 new_password: newPassword.value
             }),
         });

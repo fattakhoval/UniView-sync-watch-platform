@@ -39,7 +39,7 @@ const sendResetLink = async () => {
     try {
         isLoading.value = true;
 
-        const response = await fetch('/api/user/forgot_password', {
+        const response = await fetch('http://localhost:8000/user/forgot_password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: trimmedEmail }),
