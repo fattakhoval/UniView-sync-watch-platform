@@ -1,8 +1,9 @@
 import datetime
+from datetime import timedelta
 from uuid import UUID, uuid4
 from typing import List, Optional
 
-from sqlalchemy import String, DateTime, Enum, Text, ForeignKey, Boolean, select
+from sqlalchemy import String, DateTime, Enum, Text, ForeignKey, Boolean, select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -12,6 +13,9 @@ from src.db import Base
 
 from enum import Enum as PyEnum
 
+
+def _ttl_token():
+    return datetime.datetime.now() + timedelta(minutes=15)
 
 class RoomType(PyEnum):
     Public = 'public'
@@ -38,8 +42,8 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(256), nullable=False, unique=True)
     password: Mapped[str] = mapped_column(String(256), nullable=True)
     role: Mapped[PyEnum] = mapped_column(Enum(UserRole), nullable=False, default=UserRole.User)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.datetime.now, onupdate=datetime.datetime.now, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.datetime.now, nullable=False)
+    updated_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), default=datetime.datetime.now, onupdate=datetime.datetime.now, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), default=datetime.datetime.now, nullable=False)
 
     messages: Mapped[List['Message']] = relationship(
         back_populates="user",
@@ -52,12 +56,24 @@ class User(Base):
         passive_deletes=True
     )
 
+    tokens: Mapped[List['ResetPasswordToken']] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+
     def __str__(self):
         return f'<User({self.username=}, {self.role=})>'
 
     @classmethod
     async def get_by_name(cls, session: AsyncSession, name: str):
         stmt = select(cls).where(cls.username == name)
+        result = await session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    @classmethod
+    async def get_by_email(cls, session: AsyncSession, email: str):
+        stmt = select(cls).where(cls.email == email)
         result = await session.execute(stmt)
         return result.scalar_one_or_none()
 
@@ -92,7 +108,7 @@ class Room(Base):
     name: Mapped[str] = mapped_column(String(256), nullable=False, unique=True)
     room_type: Mapped[PyEnum] = mapped_column(Enum(RoomType), nullable=False, default=RoomType.Public)
     room_password: Mapped[str] = mapped_column(String(256), nullable=True)
-    live_time_room: Mapped[datetime] = mapped_column(
+    live_time_room: Mapped[datetime.datetime] = mapped_column(
         DateTime,
         nullable=False,
         default=default_live_time
@@ -116,7 +132,7 @@ class Video(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     title: Mapped[str] = mapped_column(String(256), nullable=False)
     url: Mapped[str] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.datetime.now, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.now, nullable=False)
 
 
 class Message(Base):
@@ -128,7 +144,7 @@ class Message(Base):
     message: Mapped[str] = mapped_column(Text, nullable=True)
     is_voice: Mapped[bool] = mapped_column(Boolean, default=False)
     voice_path: Mapped[str] = mapped_column(String(256), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.datetime.now, nullable=False, index=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.now, nullable=False, index=True)
 
     room: Mapped['Room'] = relationship(back_populates='messages', passive_deletes=True)
     user: Mapped['User'] = relationship(back_populates='messages', passive_deletes=True)
@@ -141,7 +157,7 @@ class Friendship(Base):
     id_requester: Mapped[UUID] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), index=True)
     id_addressee: Mapped[UUID] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), index=True)
     status: Mapped[PyEnum] = mapped_column(Enum(FriendshipStatus), nullable=False, default=FriendshipStatus.Pending)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.datetime.now, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.now, nullable=False)
 
     requester = relationship('User', foreign_keys=[id_requester], passive_deletes=True)
     addressee = relationship('User', foreign_keys=[id_addressee], passive_deletes=True)
@@ -154,7 +170,7 @@ class Event(Base):
     id_creator: Mapped[UUID] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
     id_room: Mapped[Optional[UUID]] = mapped_column(ForeignKey('rooms.id', ondelete='CASCADE'), nullable=True)
     title: Mapped[str] = mapped_column(String(128))
-    datetime_start: Mapped[datetime] = mapped_column(DateTime)
+    datetime_start: Mapped[datetime.datetime] = mapped_column(DateTime)
     is_second_msg_send: Mapped[bool] = mapped_column(Boolean, default=False)
 
     invites: Mapped[List['Invite']] = relationship(
@@ -174,3 +190,38 @@ class Invite(Base):
     id_invited: Mapped[UUID] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
 
     event = relationship('Event', back_populates='invites', passive_deletes=True)
+
+class ResetPasswordToken(Base):
+    __tablename__ = 'reset_password_token'
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    id_user: Mapped[UUID] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
+    token: Mapped[str] = mapped_column(String(64))
+    email: Mapped[str] = mapped_column(String(256), nullable=False)
+    ttl: Mapped[datetime.datetime] = mapped_column(DateTime, default=_ttl_token)
+
+    user: Mapped['User'] = relationship(back_populates='tokens')
+
+    @classmethod
+    async def is_valid_token(cls, session: AsyncSession, email: str, token: str):
+        stmt = select(cls).where(
+            cls.email == email,
+            cls.token == token,
+            cls.ttl > datetime.datetime.now()
+        )
+        result = await session.execute(stmt)
+        return result.scalar_one_or_none() is not None
+
+    @classmethod
+    async def delete_expired_tokens(cls, session: AsyncSession):
+        stmt = delete(cls).where(cls.ttl < datetime.datetime.now())
+        await session.execute(stmt)
+        await session.commit()
+
+    @classmethod
+    async def delete_token(cls, session: AsyncSession, token):
+        stmt = delete(cls).where(cls.token == token)
+        await session.execute(stmt)
+        await session.commit()
+
+

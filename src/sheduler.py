@@ -2,14 +2,14 @@ from datetime import datetime, timedelta
 from typing import Callable, Optional
 from uuid import UUID
 
-from sqlalchemy import select, delete
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from apscheduler.triggers.date import DateTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.jobstores.memory import MemoryJobStore
 
 from src.db import get_db
-from src.models import Invite, Event, Room
+from src.models import Invite, Event, Room, ResetPasswordToken
 from src.smtp_module import send_announce
 
 
@@ -42,6 +42,14 @@ class Tasker:
             trigger='interval',
             minutes=1,
             id='periodic_delete_room',
+            replace_existing=True
+        )
+
+        self.scheduler.add_job(
+            self.delete_old_reset_tokens,
+            trigger='interval',
+            minutes=1,
+            id='periodic_delete_reset_token',
             replace_existing=True
         )
 
@@ -116,5 +124,9 @@ class Tasker:
                 await session.delete(room)
 
             await session.commit()
+
+    async def delete_old_reset_tokens(self):
+        async for session in get_db():
+            await ResetPasswordToken.delete_expired_tokens(session=session)
 
 tasker = Tasker()

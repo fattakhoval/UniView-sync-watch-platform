@@ -52,6 +52,21 @@ class EmailSender:
         )
 
 
+async def send_recover_password(user_data: User, token: str):
+
+    with open('src/template_emails/reset_password_email.html', 'r', encoding="utf-8") as file:
+        html_content = file.read()
+
+    html_content = html_content.format(
+        reset_link=f'http://localhost:8000/user/reset_password?email={user_data.email}&token={token}'
+    )
+
+    await mailer.send_html_email(
+        to_email=user_data.email,
+        subject='Восстановление пароля',
+        html_content=html_content,
+    )
+
 async def send_first_email(username, event_title, event_datetime, email):
 
     with open('src/template_emails/invite_email.html', 'r', encoding="utf-8") as file:
@@ -138,7 +153,6 @@ async def send_emails(users_id: list[UUID], event: Event, session: AsyncSession)
             event_datetime=event.datetime_start,
             email=user.email
         )
-
 
 mailer = EmailSender(
         smtp_host="smtp.yandex.ru",

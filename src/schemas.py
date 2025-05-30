@@ -95,6 +95,15 @@ class EventOut(BaseModel):
 class PlaylistRequest(BaseModel):
     url: str
 
+class RequirePassword(BaseModel):
+    email: str
+
+
+class NewPassword(BaseModel):
+    email: str
+    token: str
+    new_password: str
+
 
 class UpdateUser(BaseModel):
     email: Optional[EmailStr] = None
