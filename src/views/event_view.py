@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import get_db
-from src.models import Event, Invite
+from src.models import Event, Invite, User
 from src.schemas import EventCreate, EventOut
 from src.smtp_module import send_emails
 
@@ -18,7 +18,6 @@ event_view = APIRouter(prefix='/event')
 async def create_event(data: EventCreate, session: AsyncSession = Depends(get_db)):
     data_dict = data.model_dump()
     datetime_str = f"{data_dict.pop('date')}T{data_dict.pop('time')}"
-    print(datetime_str)
     data_dict['datetime_start'] = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S')
     invited_list = data_dict.pop('invited_list')
     new_event = Event(**data_dict)
@@ -36,7 +35,9 @@ async def create_event(data: EventCreate, session: AsyncSession = Depends(get_db
 
     session.add_all(invites)
 
-    await send_emails(invited_list, new_event, session)
+    creator = await session.get(User, data.id_creator)
+
+    await send_emails(invited_list, new_event, session, str(creator.username))
 
     await session.commit()
 

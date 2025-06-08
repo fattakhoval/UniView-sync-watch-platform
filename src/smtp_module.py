@@ -139,7 +139,7 @@ async def send_announce(invite_id: UUID, invite_id_event: UUID, session: AsyncSe
     print(f"[send_announce] Email sent to {user.email} for event {event.id}")
 
 
-async def send_emails(users_id: list[UUID], event: Event, session: AsyncSession):
+async def send_emails(users_id: list[UUID], event: Event, session: AsyncSession, sender_name: str):
 
     stmt = select(User).where(User.id.in_(users_id))
 
@@ -148,9 +148,9 @@ async def send_emails(users_id: list[UUID], event: Event, session: AsyncSession)
 
     for user in users:
         await send_first_email(
-            username=user.username,
+            username=sender_name,
             event_title=event.title,
-            event_datetime=event.datetime_start,
+            event_datetime=event.datetime_start.strftime('%d.%m.%Y %H:%M'),
             email=user.email
         )
 
