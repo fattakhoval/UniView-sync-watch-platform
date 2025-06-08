@@ -156,5 +156,17 @@
   .fade-enter-from, .fade-leave-to {
     opacity: 0;
   }
+
+  @media (max-width: 700px) {
+    .input-wrapper {
+      top: 40px;
+      right: 0;
+    }
+
+    .input-field {
+      width: 200px;
+    }
+    
+  }
   </style>
   

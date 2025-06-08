@@ -6,12 +6,9 @@ import BlocksIcon from '@/components/UI/BlocksIcon.vue';
 import BlockHr from '@/components/UI/BlockHr.vue';
 import MyModal from '@/components/UI/MyModal.vue';
 
-
 import { ref, onMounted } from 'vue';
 import { useCookies } from "vue3-cookies";
-
 import { useRoomStore } from '@/stores/roomStore';
-
 import { useRouter } from 'vue-router';
 
 import CameraIcon from '@/components/icons/CameraIcon.vue';
@@ -25,12 +22,9 @@ const router = useRouter();
 const roomLink = ref('');
 const isModalOpen = ref(false);
 
-
-
 const roomStore = useRoomStore();
 const roomName = ref('');
 const roomType = ref('public');
-
 const roomPassword = ref(''); // Поле для пароля
 
 const errorMessage = ref("");
@@ -53,7 +47,7 @@ const validateForm = () => {
   return true;
 };
 
-
+// Функция создания комнаты
 const createRoom = async () => {
   // Проверяем, что форма прошла валидацию
   if (!validateForm()) {
@@ -78,8 +72,7 @@ const createRoom = async () => {
 
     if (room && room.id) {
       resetModal(); // Сброс модального окна
-      // location.href='/room/'+room.id;
-      // router.push(`/room/${room.id}`); // Перенаправление на созданную комнату
+ 
     }
   } catch (error) {
     console.error('Ошибка при создании комнаты:', error);
@@ -105,6 +98,7 @@ const joinRoom = () => {
     alert('Неверная ссылка на комнату');
   }
 };
+
 // Функция сброса состояния
 const resetModal = () => {
   roomName.value = '';
@@ -116,10 +110,7 @@ const resetModal = () => {
 
 onMounted(() => {
   document.title = `UniView`;
-
-
 });
-
 
 </script>
 

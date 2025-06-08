@@ -103,47 +103,6 @@ function copyToClipboard(text) {
 }
 
 
-// const roomId = route.params.room_id;
-// const roomPassword = ref(cookies.get("room_password") || "");
-// const roomType = ref(cookies.get("room_type") || "public");
-// const error = ref(null);
-// const loading = ref(true);
-// const showPasswordInput = ref(false);
-
-// const joinRoom = async () => {
-//     try {
-//         const response = await axios.post(
-//             "http://127.0.0.1:8000/rooms/join_room",
-//             { room_id: roomId, password: roomPassword.value },
-//             { headers: { "Content-Type": "application/json" } } // <-- Явно указываем JSON
-//         );
-
-//         if (!response.data.access) {
-//             throw new Error("Доступ запрещен");
-//         }
-
-//         // Сохраняем пароль в cookies, если он был введён вручную
-//         if (roomPassword.value) {
-//             cookies.set("room_password", roomPassword.value, "1h");
-//         }
-
-//         error.value = null;
-//     } catch (err) {
-//         error.value = err.response?.data?.detail || "Ошибка входа";
-//         showPasswordInput.value = true;
-//     } finally {
-//         loading.value = false;
-//     }
-// };
-
-// onMounted(() => {
-//     if (roomType.value === "private" && !roomPassword.value) {
-//         showPasswordInput.value = true;
-//     } else {
-//         joinRoom();
-//     }
-// });
-
 
 </script>
 
@@ -285,5 +244,55 @@ function copyToClipboard(text) {
 .input:focus {
     border-color: #634D7A;
     background-color: rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 768px) {
+    .room-info {
+        padding: 10px;
+    }
+
+    .room-info h3 {
+        font-size: 20px;
+    }
+
+    .share-btn {
+        width: 100%;
+        max-width: 120px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .cine-container {
+        padding: 0;
+    }
+
+    .cine-box {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        justify-content:unset;
+        height: auto;
+        
+    }
+
+    .video-player {
+        width: 100%;
+        height: auto;
+    }
+
+    .video_box {
+        width: 100%;
+
+    }
+
+    .chat-box {
+        width: 90%;
+       
+    }
+
+    .input {
+        font-size: 16px;
+        /* width: 100%; */
+    }
 }
 </style>

@@ -108,7 +108,7 @@ onUnmounted(() => {
     closeWS();
 });
 
-
+//Закрытие веб-сокета
 function closeWS() {
     if (ws_video && ws_video.readyState === WebSocket.OPEN) {
         ws_video.close()
@@ -155,6 +155,7 @@ function resetVideoElement() {
     }
 }
 
+//Инициализация мастер плейлиста
 function initVideoElement(videoPathUrl) {
 
     nextTick(() => {
@@ -182,6 +183,7 @@ function initVideoElement(videoPathUrl) {
     });
 }
 
+//Подключение видео к веб-сокету
 async function setupWebSocketVideo() {
     ws_video = new WebSocket(`ws://localhost:8000/ws/video/${roomId}`)
 
@@ -205,6 +207,7 @@ async function setupWebSocketVideo() {
     }
 };
 
+//Применение состаяния видео для вошедшего пользователя
 function applyVideoState(state) {
   const video = document.getElementById('video');
 
@@ -224,6 +227,7 @@ function applyVideoState(state) {
   }
 }
 
+//Получение ссылкот на качество видео
 async function getPlaylistData(masterUrl) {
     const response = await fetch('http://127.0.0.1:8000/video/playlist', {
         method: 'POST',
@@ -234,6 +238,7 @@ async function getPlaylistData(masterUrl) {
     return URL.createObjectURL(new Blob([data], { type: 'application/vnd.apple.mpegurl' }));
 }
 
+//Инициализация видео-плеера по ссылке
 function initVideoElementLink(playlistUrl) {
     const video = document.getElementById('video');
     const qualitySelect = document.getElementById('quality');
@@ -350,6 +355,7 @@ function setupWebsocketController() {
     }
 }
 
+//Интервальная отправка состояния видео
 function startSyncInterval() {
   if (!syncInterval) {
     syncInterval = setInterval(() => {
@@ -379,7 +385,7 @@ function sendControlAction(action) {
     }
 }
 
-
+//Перемотка
 function onSeekInput() {
 
     isSeeking.value = true;
@@ -577,5 +583,28 @@ function onSeekChange() {
   cursor: pointer;
   transition: border-color 0.2s ease, background-color 0.2s ease;
   width: 14px;
+}
+
+@media (max-width: 600px) {
+    .video_box {
+        width: 90%;
+        height: auto;
+    }
+
+    .controls {
+        gap: 0;
+    }
+
+    .time-display {
+        font-size: 10px;
+        padding: 0;
+        min-width: 60px;
+    }
+
+    .controls button{
+        padding: 0;
+        font-size: 14px;
+    }
+    
 }
 </style>
