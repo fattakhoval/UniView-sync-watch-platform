@@ -70,13 +70,13 @@ async def playlist(data: PlaylistRequest):
                     query_params['ori_domain'] = ori_domain
 
                     if data.type == 'vk':
-                        new_path = '/video/vk/segments_url' + parsed.path
+                        new_path = '/api/video/vk/segments_url' + parsed.path
                     else:
-                        new_path = '/video' + parsed.path
+                        new_path = '/api/video' + parsed.path
 
                     modified = parsed._replace(
-                        scheme='http',
-                        netloc='127.0.0.1:8000',
+                        scheme='https',
+                        netloc='uniview.space',
                         path=new_path,
                         query=urlencode(query_params)
                     )
@@ -92,7 +92,7 @@ async def get_segments_vk(path: str, request: Request):
     query_dict = dict(request.query_params)
     domain = query_dict.pop('ori_domain')
 
-    replaced_url = f'http://127.0.0.1:8000/video/vk/video-segment'
+    replaced_url = f'https://uniview.space/api/video/vk/video-segment'
     url = f'https://{domain}/{path}'
 
     async with aiohttp.ClientSession(headers={
@@ -123,7 +123,7 @@ async def proxy_video(path: str, request: Request):
     url = f'https://{domain}/hls-vod/{path}?{query_dict.get("i")}'
 
     path_segment = '/'.join(path.split('/')[:-1])
-    url_segment = f'http://127.0.0.1:8000/video/video-segment/hls-vod/{path_segment}/'
+    url_segment = f'https://uniview.space/api/video/video-segment/hls-vod/{path_segment}/'
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status != 200:
