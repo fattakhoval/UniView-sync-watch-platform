@@ -58,7 +58,7 @@ async def send_recover_password(user_data: User, token: str):
         html_content = file.read()
 
     html_content = html_content.format(
-        reset_link=f'https://uniview.space/user/reset_password?email={user_data.email}&token={token}'
+        reset_link=f'https://uniview.space/api/user/reset_password?email={user_data.email}&token={token}'
     )
 
     await mailer.send_html_email(
