@@ -19,8 +19,7 @@
         <div class="message-text">
           <template v-if="msg.type === 'voice' && msg.voice_path">
             <div class="voice-message">
-              <CustomAudioPlayer :src="`http://localhost:8000/messages/voices/${msg.voice_path}`" />
-              <!-- <audio controls :src="`http://localhost:8000/messages/voices/${msg.voice_path}`"></audio> -->
+              <CustomAudioPlayer :src="`/api/messages/voices/${msg.voice_path}`" />
 
             </div>
           </template>
@@ -110,7 +109,7 @@ function sendMessage() {
 
 onMounted(async () => {
   try {
-    const response = await axios.get(`http://localhost:8000/messages/room_messages/${roomId}`);
+    const response = await axios.get(`/api/messages/room_messages/${roomId}`);
     messages.value = response.data.map(msg => ({
       sender: msg.sender || msg.username || 'Unknown',
       text: msg.text || msg.message,
@@ -124,7 +123,8 @@ onMounted(async () => {
     console.error('Ошибка при загрузке сообщений:', err);
   }
 
-  chatSocket.value = new WebSocket(`ws://localhost:8000/ws/chat/${roomId}/${userId}`);
+  chatSocket.value = new WebSocket(`/api/ws/chat/${roomId}/${userId}`);
+
 
   chatSocket.value.onmessage = (event) => {
     const msg = JSON.parse(event.data);

@@ -72,7 +72,7 @@ const registerUser = async () => {
 
     try {
         isLoading.value = true;
-        const response = await axios.post('http://127.0.0.1:8000/auth/register', {
+        const response = await axios.post('/api/auth/register', {
             email: trimmedEmail,
             password: trimmedPassword,
             username: trimmedUsername

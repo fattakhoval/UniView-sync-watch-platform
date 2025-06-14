@@ -35,7 +35,7 @@ onMounted(() => {
 async function get_count_friends(){
 
      try {
-        const response = await axios.get(`http://localhost:8000/friend/friends/${userId}`);
+        const response = await axios.get(`/api/friend/friends/${userId}`);
 
         if (response) {
             count_friends.value = response.data.length;
@@ -51,7 +51,7 @@ async function get_user_info(){
 
      try {
         
-        const response = await axios.get(`http://localhost:8000/user/info/${userId}`);
+        const response = await axios.get(`/api/user/info/${userId}`);
 
         if (response) {
             userInfo.value = response.data;
@@ -67,7 +67,7 @@ async function get_user_info(){
 async function update_user(){
 
      try {
-        const response = await axios.put(`http://localhost:8000/user/update_profile/${userId}`, {
+        const response = await axios.put(`/api/user/update_profile/${userId}`, {
             email: email.value,
             old_password: oldPassword.value,
             new_password: newPassword.value,

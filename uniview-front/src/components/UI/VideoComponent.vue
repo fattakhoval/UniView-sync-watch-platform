@@ -185,22 +185,33 @@ function initVideoElement(videoPathUrl) {
 
 //Подключение видео к веб-сокету
 async function setupWebSocketVideo() {
-    ws_video = new WebSocket(`ws://localhost:8000/ws/video/${roomId}`)
+    ws_video = new WebSocket(`/api/ws/video/${roomId}`)
 
     ws_video.onmessage = async (event) => {
         const message = event.data;
 
-        if (typeof message === 'string' && message.startsWith('LINK:')) {
-            const masterUrl = message.slice(5);
+        console.log(message);
 
-            const playlistData = await getPlaylistData(masterUrl);
+        if (typeof message === 'string' && message.startsWith('LINK:')) {
+            const rawData = message.slice(5);
+            const params = new URLSearchParams(rawData);
+
+            const link = decodeURIComponent(params.get('link') || '');
+            const type = params.get('type_src_video');
+
+            if (!link || !type) {
+                console.error('Некорректные данные:', rawData);
+                return;
+            }
+
+            const playlistData = await getPlaylistData(link, type);
 
             initVideoElementLink(playlistData);
 
             return;
         }
 
-        const path = "http://localhost:8000/video/" + message;
+        const path = "/api/video/" + message;
         console.log(path);
         initVideoElement(path);
 
@@ -228,11 +239,11 @@ function applyVideoState(state) {
 }
 
 //Получение ссылкот на качество видео
-async function getPlaylistData(masterUrl) {
-    const response = await fetch('http://127.0.0.1:8000/video/playlist', {
+async function getPlaylistData(masterUrl, type_src_video) {
+    const response = await fetch('/api/video/playlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: masterUrl }),
+        body: JSON.stringify({ url: masterUrl , type: type_src_video}),
     });
     const data = await response.text();
     return URL.createObjectURL(new Blob([data], { type: 'application/vnd.apple.mpegurl' }));
@@ -240,11 +251,24 @@ async function getPlaylistData(masterUrl) {
 
 //Инициализация видео-плеера по ссылке
 function initVideoElementLink(playlistUrl) {
-    const video = document.getElementById('video');
+    const video = videoElement.value;
     const qualitySelect = document.getElementById('quality');
 
+    if (hls) {
+        hls.destroy();
+    }
+    if (video) {
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+    }
+
     if (Hls.isSupported()) {
-        hls = new Hls();
+        hls = new Hls({
+            autoStartLoad: true,
+            startLevel: -1,
+        });
+
         hls.loadSource(playlistUrl);
         hls.attachMedia(video);
 
@@ -260,38 +284,38 @@ function initVideoElementLink(playlistUrl) {
 
 
             videoElement.value.onloadedmetadata = () => {
-                duration.value = videoElement.value.duration;
+                duration.value = video.duration;
             };
 
             videoElement.value.ontimeupdate = () => {
                 if (!videoElement.value.seeking && !isSeeking.value) {
-                    currentTime.value = videoElement.value.currentTime;
+                    currentTime.value = video.currentTime;
                 }
             };
 
-            qualitySelect.addEventListener('change', function () {
-                const selectedLevel = parseInt(this.value);
-                hls.currentLevel = selectedLevel;
+            qualitySelect.addEventListener('change', () => {
+                const selectedLevel = parseInt(qualitySelect.value);
+                hls.currentLevel = selectedLevel; // -1 означает "авто"
             });
-
-            // Автовыбор качества (по умолчанию)
-            hls.currentLevel = 2; // Автоматический выбор первого уровня
-        });
+    });
 
         hls.on(Hls.Events.ERROR, function (event, data) {
             if (data.fatal) {
                 switch (data.type) {
                     case Hls.ErrorTypes.NETWORK_ERROR:
-                        console.error("Network error: ", data);
+                        console.error("Сетевая ошибка, пробуем восстановить…", data);
+            hls.startLoad();
                         break;
                     case Hls.ErrorTypes.MEDIA_ERROR:
-                        console.error("Media error: ", data);
+                        console.error("Медиа ошибка, пытаемся восстановить поток…", data);
+            hls.recoverMediaError();
                         break;
                     case Hls.ErrorTypes.OTHER_ERROR:
                         console.error("Other error: ", data);
                         break;
                     default:
-                        console.error("Fatal error: ", data);
+                        console.error("Фатальная ошибка, уничтожаем HLS:", data);
+            hls.destroy();
                         break;
                 }
             }
@@ -304,18 +328,14 @@ function initVideoElementLink(playlistUrl) {
 }
 
 function setupWebsocketController() {
-    ws_control = new WebSocket(`ws://localhost:8000/ws/control/${roomId}/${userId}`)
+    ws_control = new WebSocket(`/api/ws/control/${roomId}/${userId}`)
 
     ws_control.onmessage = async (event) => {
 
-        console.log("RAW DATA:", event.data);
         const message = JSON.parse(event.data);
         const action = message.action
 
-        console.log(action);
-        if (videoElement.value) {
-
-            console.log(message);
+        if (videoElement.value) { 
 
             if (action === "pause") {
                 videoElement.value.pause();
@@ -337,8 +357,8 @@ function setupWebsocketController() {
             }
 
             if (action == 'sync_state') {
-                const playlistData = await getPlaylistData(message.state.link);
-
+                const playlistData = await getPlaylistData(message.state.link, message.state.type_src_video);
+                
                 initVideoElementLink(playlistData);
 
                 applyVideoState({

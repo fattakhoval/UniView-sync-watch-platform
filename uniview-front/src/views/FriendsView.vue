@@ -26,7 +26,7 @@ const fetchFriends = async () => {
   if (!userId) return;
 
   try {
-    const response = await axios.get(`http://localhost:8000/friend/friends/${userId}`);
+    const response = await axios.get(`/api/friend/friends/${userId}`);
     friends.value = response.data;
     console.log(friends.value);
   } catch (error) {
@@ -38,7 +38,7 @@ const sendFriendRequest = async () => {
   if (!searchQuery.value) return;
 
   try {
-    const response = await axios.post('http://localhost:8000/friend/request', {
+    const response = await axios.post('/api/friend/request', {
       name_or_email: searchQuery.value,
       current_user: userId,
     });
@@ -56,7 +56,7 @@ const fetchRequests = async () => {
   if (!userId) return;
 
   try {
-    const response = await axios.get(`http://localhost:8000/friend/pending/${userId}`);
+    const response = await axios.get(`/api/friend/pending/${userId}`);
     requests.value = response.data;
   } catch (error) {
     console.error('Ошибка при получении заявок:', error);
@@ -65,7 +65,7 @@ const fetchRequests = async () => {
 
 const acceptRequest = async (id_requester) => {
   try {
-    await axios.post('http://localhost:8000/friend/accept', {
+    await axios.post('/api/friend/accept', {
       id_requester,
       current_user: userId,
     });
@@ -78,7 +78,7 @@ const acceptRequest = async (id_requester) => {
 
 const declineRequest = async (id_requester) => {
   try {
-    await axios.post('http://localhost:8000/friend/remove', {
+    await axios.post('/api/friend/remove', {
       target_user_id: id_requester,
       current_user: userId,
     });
@@ -90,7 +90,7 @@ const declineRequest = async (id_requester) => {
 
 const removeFriend = async (targetUserId) => {
   try {
-    await axios.post('http://localhost:8000/friend/remove', {
+    await axios.post('/api/friend/remove', {
       target_user_id: targetUserId,
       current_user: userId,
     });

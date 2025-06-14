@@ -11,7 +11,7 @@
             placeholder="Введите ссылку на видео" 
             class="input-field"
           />
-          <button @click="sendVideoLink" class="send-button">Отправить</button>
+          <button @click="processVideoUrl" class="send-button">Отправить</button>
         </div>
       </transition>
   
@@ -36,6 +36,49 @@
   const videoUrl = ref('');
   const videoSocket = ref(null);
   
+
+
+  const processVideoUrl = async () => {
+    if (!videoUrl.value) return;
+
+  if (videoUrl.value.includes('vkvideo.ru')) {
+    handleVk()
+  } else if (videoUrl.value.includes('rutube.ru')) {
+    handleRutube()
+  }
+}
+
+const handleVk = async () => {
+  try {
+
+    const params = {
+      link: videoUrl.value
+    };
+    const queryString = new URLSearchParams(params).toString();
+
+    const response = await fetch(`/api/video/find_master_playlist/vk?${queryString}`);
+    if (!response.ok) {
+      throw new Error(`Ошибка запроса: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    const dataPlaylist = new URLSearchParams(data).toString();
+
+    console.log('Данные плейлиста:', dataPlaylist);
+    
+    const linkMessage = `LINK:${dataPlaylist}`;
+    const encoded = new TextEncoder().encode(linkMessage);
+    videoSocket.value.send(encoded);
+
+  } catch (error) {
+    console.error('Ошибка при получении плейлиста:', error);
+  }
+
+  videoUrl.value = '';
+}
+
+
   function getIdFromUrl(chunk) {
     if (chunk.endsWith('/')) {
       chunk = chunk.slice(0, -1);
@@ -45,21 +88,24 @@
     return id;
   }
 
-  const sendVideoLink = async () => {
+  const handleRutube = async () => {
     if (!videoUrl.value) return;
 
   const videoId = getIdFromUrl(videoUrl.value);
 
   try {
-    const response = await fetch(`http://127.0.0.1:8000/video/find_master_playlist/${videoId}`);
+    const response = await fetch(`/api/video/find_master_playlist/rutube/${videoId}`);
     if (!response.ok) {
       throw new Error(`Ошибка запроса: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('Данные плейлиста:', data);
+
+    const dataPlaylist = new URLSearchParams(data).toString();
+
+    console.log('Данные плейлиста:', dataPlaylist);
     
-    const linkMessage = `LINK:${data}`;
+    const linkMessage = `LINK:${dataPlaylist}`;
     const encoded = new TextEncoder().encode(linkMessage);
     videoSocket.value.send(encoded);
 
@@ -81,7 +127,7 @@
   };
 
   onMounted(() => {
-  videoSocket.value = new WebSocket(`ws://localhost:8000/ws/video/${roomId}`);
+  videoSocket.value = new WebSocket(`/api/ws/video/${roomId}`);
 });
   
   const handleFileUpload = async (FileOrEvent) => {
