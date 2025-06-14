@@ -21,4 +21,4 @@ COPY back/ /app
 EXPOSE 8080
 
 # Запуск
-CMD ["poetry", "run", "hypercorn", "main:app", "--reload", "--worker-class", "asyncio"]
+CMD ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
