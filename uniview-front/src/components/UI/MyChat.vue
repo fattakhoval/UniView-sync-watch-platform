@@ -124,7 +124,7 @@ onMounted(async () => {
   }
 
   //chatSocket.value = new WebSocket(`/ws/chat/${roomId}/${userId}`);
-  chatSocket.value = new WebSocket(`ws://uniview.space/ws/chat/${roomId}/${userId}`);
+  chatSocket.value = new WebSocket(`/api/ws/chat/${roomId}/${userId}`);
 
 
   chatSocket.value.onmessage = (event) => {
