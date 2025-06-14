@@ -328,7 +328,7 @@ function initVideoElementLink(playlistUrl) {
 }
 
 function setupWebsocketController() {
-    ws_control = new WebSocket(`/api//ws/control/${roomId}/${userId}`)
+    ws_control = new WebSocket(`/api/ws/control/${roomId}/${userId}`)
 
     ws_control.onmessage = async (event) => {
         
