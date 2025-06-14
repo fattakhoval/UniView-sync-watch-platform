@@ -123,7 +123,6 @@ onMounted(async () => {
     console.error('Ошибка при загрузке сообщений:', err);
   }
 
-  //chatSocket.value = new WebSocket(`/ws/chat/${roomId}/${userId}`);
   chatSocket.value = new WebSocket(`/api/ws/chat/${roomId}/${userId}`);
 
 

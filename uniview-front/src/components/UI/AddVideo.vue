@@ -127,7 +127,7 @@ const handleVk = async () => {
   };
 
   onMounted(() => {
-  videoSocket.value = new WebSocket(`/ws/video/${roomId}`);
+  videoSocket.value = new WebSocket(`/api/ws/video/${roomId}`);
 });
   
   const handleFileUpload = async (FileOrEvent) => {

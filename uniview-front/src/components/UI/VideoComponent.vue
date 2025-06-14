@@ -185,7 +185,7 @@ function initVideoElement(videoPathUrl) {
 
 //Подключение видео к веб-сокету
 async function setupWebSocketVideo() {
-    ws_video = new WebSocket(`/ws/video/${roomId}`)
+    ws_video = new WebSocket(`/api/ws/video/${roomId}`)
 
     ws_video.onmessage = async (event) => {
         const message = event.data;
@@ -328,7 +328,7 @@ function initVideoElementLink(playlistUrl) {
 }
 
 function setupWebsocketController() {
-    ws_control = new WebSocket(`/ws/control/${roomId}/${userId}`)
+    ws_control = new WebSocket(`/api//ws/control/${roomId}/${userId}`)
 
     ws_control.onmessage = async (event) => {
         
