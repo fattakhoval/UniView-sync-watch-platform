@@ -332,14 +332,10 @@ function setupWebsocketController() {
 
     ws_control.onmessage = async (event) => {
         
-        console.log("RAW DATA:", event.data);
         const message = JSON.parse(event.data);
         const action = message.action
 
-        console.log(action);
         if (videoElement.value) { 
-            
-            console.log(message);
 
             if (action === "pause") {
                 videoElement.value.pause();
