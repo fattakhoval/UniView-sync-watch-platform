@@ -347,4 +347,40 @@ onMounted(async () => {
 .btn-accept:hover {
     background-color: var(--base-button-color-hover);
 }
+
+.my-fr,
+.fr-apps {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+@media screen and (max-width: 768px) {
+  .fr-block {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .my-fr,
+  .fr-apps {
+    width: 90%;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  /* .send-request {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .send-request input {
+    width: 100%;
+  }
+
+  .send-fr {
+    width: 100%;
+  } */
+}
+
 </style>

@@ -298,4 +298,77 @@ async function update_user(){
 .u-info button:hover {
     background-color: var(--base-button-color-hover);
 }
+
+@media (max-width: 1024px) {
+    .user_container {
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+        padding: 20px;
+        width: 80%;
+    }
+
+    .st-block {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .st-block .h1 {
+        font-size: 32px;
+    }
+
+    .fr-count p,
+    .fr-count .p {
+        font-size: 20px;
+    }
+
+    .fr-count .p {
+        width: auto;
+        padding: 5px 10px;
+    }
+
+    .u-info {
+        width: 100%;
+        padding: 0 20px 20px 20px;
+    }
+
+    .u-info input {
+        font-size: 16px;
+        padding: 10px 15px;
+    }
+
+    .u-email label {
+        font-size: 16px;
+    }
+
+    .u-info button {
+        width: 100%;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 600px) {
+    .st-block .h1 {
+        font-size: 24px;
+    }
+
+    .fr-count p,
+    .fr-count .p {
+        font-size: 18px;
+    }
+
+    .u-icon {
+        width: 24px;
+    }
+
+    .u-info input {
+        font-size: 14px;
+    }
+
+    .u-info button {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+
 </style>

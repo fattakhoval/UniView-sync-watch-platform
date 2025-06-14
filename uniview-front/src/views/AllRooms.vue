@@ -578,6 +578,18 @@ onMounted(() => {
         flex-direction: column;
         align-items: flex-start;
     }
+
+    .room_search {
+    display: block;
+    flex: 1;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.room-card {
+    width: 85%;
+}
 }
 
 .error-message {

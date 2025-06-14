@@ -190,8 +190,17 @@ function stopRecording() {
   border-radius: 20px;
   border: 1px solid rgba(179, 176, 185, 0.858);
   height: 100%;
+  overflow-y: auto;
 
 
+}
+
+
+@media screen and (max-width: 768px) {
+  .chat {
+    max-height: 60vh; /* можно регулировать */
+    height: auto;
+  }
 }
 
 .chat p {
@@ -291,6 +300,9 @@ button:focus {
   color: rgb(208, 208, 208);
   margin: 0;
   gap: 10px;
+
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 svg.recording {
