@@ -19,7 +19,7 @@
         <div class="message-text">
           <template v-if="msg.type === 'voice' && msg.voice_path">
             <div class="voice-message">
-              <CustomAudioPlayer :src="`api/messages/voices/${msg.voice_path}`" />
+              <CustomAudioPlayer :src="`/api/messages/voices/${msg.voice_path}`" />
 
             </div>
           </template>
