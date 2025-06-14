@@ -11,7 +11,7 @@ export const useUserStore = defineStore('user', {
   actions: {
     async fetchUser() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/auth/me', {
+        const response = await axios.get('/api/auth/me', {
           withCredentials: true,  // Передаём куки для авторизации
         });
         this.user = response.data;
@@ -22,7 +22,7 @@ export const useUserStore = defineStore('user', {
 
     async login(username, password) {
       try {
-        const response = await axios.post('http://127.0.0.1:8000/auth/login', {
+        const response = await axios.post('/api/auth/login', {
           username,
           password,
         });

@@ -49,7 +49,7 @@ async function checkRoomAccess(roomId) {
     try {
         // Пробуем без пароля
         const response = await axios.post(
-            'http://127.0.0.1:8000/rooms/join_room',
+            '/api/rooms/join_room',
             { room_id: roomId },
             { headers: { 'Content-Type': 'application/json' } }
         );
@@ -68,7 +68,7 @@ async function checkRoomAccess(roomId) {
 
             try {
                 const retryResponse = await axios.post(
-                    'http://127.0.0.1:8000/rooms/join_room',
+                    '/api/rooms/join_room',
                     {
                         room_id: roomId,
                         password: inputPassword

@@ -45,7 +45,7 @@ const resetPassword = async () => {
     try {
         isLoading.value = true;
 
-        const response = await fetch('http://localhost:8000/user/set_new_password', {
+        const response = await fetch('/api/user/set_new_password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

@@ -56,7 +56,7 @@ const handleVk = async () => {
     };
     const queryString = new URLSearchParams(params).toString();
 
-    const response = await fetch(`http://127.0.0.1:8000/video/find_master_playlist/vk?${queryString}`);
+    const response = await fetch(`/api/video/find_master_playlist/vk?${queryString}`);
     if (!response.ok) {
       throw new Error(`Ошибка запроса: ${response.status}`);
     }
@@ -94,7 +94,7 @@ const handleVk = async () => {
   const videoId = getIdFromUrl(videoUrl.value);
 
   try {
-    const response = await fetch(`http://127.0.0.1:8000/video/find_master_playlist/rutube/${videoId}`);
+    const response = await fetch(`/api/video/find_master_playlist/rutube/${videoId}`);
     if (!response.ok) {
       throw new Error(`Ошибка запроса: ${response.status}`);
     }
@@ -127,7 +127,7 @@ const handleVk = async () => {
   };
 
   onMounted(() => {
-  videoSocket.value = new WebSocket(`ws://localhost:8000/ws/video/${roomId}`);
+  videoSocket.value = new WebSocket(`/ws/video/${roomId}`);
 });
   
   const handleFileUpload = async (FileOrEvent) => {

@@ -72,7 +72,7 @@ const registerUser = async () => {
 
     try {
         isLoading.value = true;
-        const response = await axios.post('api/auth/register', {
+        const response = await axios.post('/api/auth/register', {
             email: trimmedEmail,
             password: trimmedPassword,
             username: trimmedUsername

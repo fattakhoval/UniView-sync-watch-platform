@@ -185,7 +185,7 @@ function initVideoElement(videoPathUrl) {
 
 //Подключение видео к веб-сокету
 async function setupWebSocketVideo() {
-    ws_video = new WebSocket(`ws://localhost:8000/ws/video/${roomId}`)
+    ws_video = new WebSocket(`/ws/video/${roomId}`)
 
     ws_video.onmessage = async (event) => {
         const message = event.data;
@@ -211,7 +211,7 @@ async function setupWebSocketVideo() {
             return;
         }
 
-        const path = "http://localhost:8000/video/" + message;
+        const path = "/api/video/" + message;
         console.log(path);
         initVideoElement(path);
 
@@ -240,7 +240,7 @@ function applyVideoState(state) {
 
 //Получение ссылкот на качество видео
 async function getPlaylistData(masterUrl, type_src_video) {
-    const response = await fetch('http://127.0.0.1:8000/video/playlist', {
+    const response = await fetch('/api/video/playlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: masterUrl , type: type_src_video}),
@@ -328,7 +328,7 @@ function initVideoElementLink(playlistUrl) {
 }
 
 function setupWebsocketController() {
-    ws_control = new WebSocket(`ws://localhost:8000/ws/control/${roomId}/${userId}`)
+    ws_control = new WebSocket(`/ws/control/${roomId}/${userId}`)
 
     ws_control.onmessage = async (event) => {
         

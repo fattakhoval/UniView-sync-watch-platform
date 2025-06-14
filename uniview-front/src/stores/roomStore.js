@@ -8,37 +8,6 @@ export const useRoomStore = defineStore('room', {
         rooms: [],
     }),
     actions: {
-        // async fetchRooms() {
-        //   try {
-        //     const response = await axios.get('http://localhost:8000/rooms');
-        //     this.rooms = response.data;
-        //   } catch (error) {
-        //     console.error('Ошибка при загрузке комнат:', error);
-        //   }
-        // },
-        // async createRoom(name, type, password = null) {
-        //   try {
-        //     const roomData = { name, type };
-
-        //     // Если комната приватная, добавляем пароль
-        //     if (type === 'private' && password) {
-        //       roomData.password = password;
-        //     }
-        //     roomData.id_user = '172d1a6b50b84ef28e7cc813f41cf842';
-
-        //     const response = await axios.post(
-        //         'http://127.0.0.1:8000/rooms/create_room', roomData,
-        //         {headers: {
-        //             'Content-Type': 'application/json'
-        //           },
-        //           withCredentials: false,}
-        //     );
-        //     console.log(response);
-        //     this.rooms.push(response.data.room); // Добавляем в локальный список
-        //   } catch (error) {
-        //     console.error('Ошибка при создании комнаты:', error);
-        //   }
-        // },
 
         async createRoom(name, type, password = null) {
             try {
@@ -61,7 +30,7 @@ export const useRoomStore = defineStore('room', {
                 console.log('Отправляем данные:', roomData);
 
                 const response = await axios.post(
-                    'http://127.0.0.1:8000/rooms/create_room',
+                    '/api/rooms/create_room',
                     roomData,
                     { headers: { 'Content-Type': 'application/json' } }
                 );
@@ -72,9 +41,6 @@ export const useRoomStore = defineStore('room', {
 
                 Cookies.set(`room_info${room.id}`, JSON.stringify(room), {expires: 1});
 
-                // if(room.type === 'private' && password) {
-                //     Cookies.set(`room_password${room.id}`, password, {expires: 1});
-                // };
 
                 router.push(`/room/${room.id}`);
 

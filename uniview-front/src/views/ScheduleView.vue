@@ -118,7 +118,7 @@ const scheduleParty = async () => {
     try {
         console.log(selectedDate.value);
 
-        const response = await axios.post('http://localhost:8000/event/create', {
+        const response = await axios.post('/api/event/create', {
             title: title.value,
             date: selectedDate.value.toISOString().split('T')[0],
             time: time.value,
@@ -145,7 +145,7 @@ const loadFriends = async () => {
     if (!userId) return;
 
     try {
-        const response = await axios.get(`http://localhost:8000/friend/friends/${userId}`);
+        const response = await axios.get(`/api/friend/friends/${userId}`);
         friends.value = response.data;
         console.log(friends.value);
     } catch (error) {
@@ -155,7 +155,7 @@ const loadFriends = async () => {
 
 const loadEvents = async () => {
     try {
-        const response = await axios.get(`http://localhost:8000/event/user_event/${userId}`);
+        const response = await axios.get(`/api/event/user_event/${userId}`);
         scheduled.value = response.data.map(event => {
             const dateObj = new Date(event.datetime_start);
 
@@ -181,15 +181,6 @@ const loadEvents = async () => {
     }
 };
 
-// const loadEvents = async () => {
-//     try {
-//         const response = await axios.get(`http://localhost:8000/event/user_event/${userId}`);
-//         scheduled.value = response.data;
-//         console.log(scheduled.value);
-//     } catch (error) {
-//         console.error('Ошибка загрузки событий:', error);
-//     }
-// };
 
 onMounted(() => {
     if (!userId) {
@@ -200,21 +191,6 @@ onMounted(() => {
     loadEvents();
 });
 
-// const scheduleParty = () => {
-//     if (title.value && date.value && time.value) {
-//         scheduled.value.push({
-//             id: Date.now(),
-//             title: title.value,
-//             date: date.value,
-//             time: time.value
-//         });
-//         title.value = '';
-//         date.value = '';
-//         time.value = '';
-//     } else {
-//         alert('Заполните все поля');
-//     }
-// };
 </script>
 
 <style scoped>
