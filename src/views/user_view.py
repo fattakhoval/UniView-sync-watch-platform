@@ -82,7 +82,7 @@ async def validation_reset_token(email: str, token: str, asession: AsyncSession 
         raise HTTPException(status_code=404, detail="НО НО НО мистер фиш, у вас не правильный токен")
 
 
-    return RedirectResponse(url=f'http://localhost:5173/resetpassword?email={email}&token={token}', status_code=303)
+    return RedirectResponse(url=f'https://uniview.space/resetpassword?email={email}&token={token}', status_code=303)
 
 
 @user_route.post('/set_new_password')

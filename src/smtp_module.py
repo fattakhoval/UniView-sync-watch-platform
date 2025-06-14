@@ -122,7 +122,7 @@ async def send_announce(invite_id: UUID, invite_id_event: UUID, session: AsyncSe
         event_title=event.title,
         event_datetime=event.datetime_start,
         room_name=event.title,
-        invite_link=f'http://localhost:5173/room/{room_for_event.id}',
+        invite_link=f'https://uniview.space/room/{room_for_event.id}',
     )
 
     await mailer.send_html_email(
