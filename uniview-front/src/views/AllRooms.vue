@@ -92,69 +92,16 @@ const resetModal = () => {
 };
 
 const enterRoom = async (room) => {
-    // if (room.room_type === 'private') {
-    //     const enteredPassword = prompt("Введите пароль для приватной комнаты:");
-    //     if (!enteredPassword) return;
-
-    //     try {
-    //         const res = await fetch(`http://localhost:8000/rooms/verify_password`, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify({ room_id: room.id, password: enteredPassword }),
-    //         });
-
-    //         if (!res.ok) {
-    //             alert("Неверный пароль.");
-    //             return;
-    //         }
-
-    //         cookies.set("room_password", enteredPassword);
-    //         router.push(`/room/${room.id}`);
-    //     } catch (error) {
-    //         console.error("Ошибка при проверке пароля:", error);
-    //     }
-    // } else {
         router.push(`/room/${room.id}`);
     
 };
-
-
-// const enterRoom = async (room) => {
-//   if (room.room_type === 'private') {
-//     const savedPassword = cookies.get(`room_${room.id}_password`);
-//     if (!savedPassword) {
-//       const inputPassword = prompt('Введите пароль для приватной комнаты:');
-//       if (!inputPassword) return;
-//       try {
-//         const res = await roomStore.joinRoom(room.id, inputPassword);
-//         cookies.set(`room_${room.id}_password`, inputPassword); // Сохраняем для автоперехода в будущем
-//         router.push(`/room/${room.id}`);
-//       } catch (err) {
-//         alert('Неверный пароль или ошибка при входе');
-//       }
-//     } else {
-//       try {
-//         const res = await roomStore.joinRoom(room.id, savedPassword);
-//         router.push(`/room/${room.id}`);
-//       } catch (err) {
-//         cookies.remove(`room_${room.id}_password`);
-//         alert('Сохранённый пароль неверен. Попробуйте снова.');
-//       }
-//     }
-//   } else {
-//     // Публичная комната — просто переходим
-//     router.push(`/room/${room.id}`);
-//   }
-// };
 
 
 
 
 const fetchRooms = async () => {
     try {
-        const res = await fetch('http://localhost:8000/rooms/get_rooms');
+        const res = await fetch('/api/rooms/get_rooms');
         const data = await res.json();
         rooms.value = data;
     } catch (err) {

@@ -18,6 +18,9 @@ const inviteLink = ref('');
 const roomName = ref('');
 const roomTitle = ref('');
 
+const error = ref(null);
+
+
 // Получаем название комнаты из куки
 onMounted(() => {
   checkRoomAccess(roomId);
@@ -109,7 +112,6 @@ function copyToClipboard(text) {
 <template>
     <div class="container">
 
-        <div v-if="loading">Загрузка...</div>
         <NavBar />
 
         <div v-if="error">
