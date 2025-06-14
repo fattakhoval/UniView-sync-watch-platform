@@ -94,6 +94,7 @@ class EventOut(BaseModel):
 
 class PlaylistRequest(BaseModel):
     url: str
+    type: str
 
 class RequirePassword(BaseModel):
     email: str

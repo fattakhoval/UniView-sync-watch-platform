@@ -720,6 +720,18 @@ files = [
 all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2)"]
 
 [[package]]
+name = "m3u8"
+version = "6.0.0"
+description = "Python m3u8 parser"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "m3u8-6.0.0-py3-none-any.whl", hash = "sha256:566d0748739c552dad10f8c87150078de6a0ec25071fa48e6968e96fc6dcba5d"},
+    {file = "m3u8-6.0.0.tar.gz", hash = "sha256:7ade990a1667d7a653bcaf9413b16c3eb5cd618982ff46aaff57fe6d9fa9c0fd"},
+]
+
+[[package]]
 name = "multidict"
 version = "6.4.3"
 description = "multidict implementation"
@@ -1657,4 +1669,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "2d2eea4adaedf81fd5236287cd0b8298b2b88b265ba8bddcedc7c803bb358dae"
+content-hash = "13039ec697f936bebe17a2df98b74f829c71b965f10aca69d0d375fe54b52f48"

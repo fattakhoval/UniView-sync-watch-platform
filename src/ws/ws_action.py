@@ -63,11 +63,3 @@ async def ws_control(room_id: UUID, user_id: UUID, websocket: WebSocket):
 
     except WebSocketDisconnect:
         control_manager.disconnect(room_id, websocket)
-
-        # if control_manager.video_state.get(room_id, {}).get("master") == websocket.user_id:
-        #     connections = control_manager.rooms.get(room_id, [])
-        #     if connections:
-        #         new_master = connections[0].user_id
-        #         control_manager.video_state[room_id]["master"] = new_master
-        #     else:
-        #         control_manager.video_state[room_id]["master"] = None

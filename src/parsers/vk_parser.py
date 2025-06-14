@@ -1,13 +1,14 @@
 import asyncio
 import logging.config
 from enum import Enum
+from pprint import pprint
 from urllib.parse import urlparse
 
 from src.logger.logging_congig import logger_config
 
 from undetected_playwright.tarnished import Malenia
 from playwright.async_api import async_playwright, Route
-
+from aiohttp import ClientSession
 
 logging.config.dictConfig(logger_config)
 
@@ -18,27 +19,26 @@ class ViewMode(str, Enum):
     headful = "headful"
 
 
-class ParserRutube:
+class ParserVK:
 
     class NotFoundVideo(Exception):
         pass
 
-    def __init__(self, search_id, name='ParserRutube', proxy=None):
+    def __init__(self, link, name='ParserVK'):
         self.playwright = None
         self.browser = None
         self.page = None
         self.context = None
-        self.proxy = proxy
         self.start_url = 'about:blank'
         self.timeout = 30000
         self.name = name
         self.logger = logging.getLogger(name=self.name)
 
-        self.search_id = search_id
-        self.base_rutube_url = 'https://rutube.ru/video'
+        self.link = link
         self.master_playlist_url = ''
+        self.cookies = ''
 
-        self.logger.info(f'Init Parser with name: {self.name}')
+        self.logger.info(f'Init Parser {self.name}')
 
     async def launch_browser(self, view_mode: ViewMode = ViewMode.headless):
         import sys
@@ -50,20 +50,40 @@ class ParserRutube:
         self.playwright = await async_playwright().start()
         await self._start_browser(view_mode=view_mode)
 
+    async def extract_cookies(self):
+        cookies_list = await self.context.cookies()
+        self.cookies = "; ".join(f"{c['name']}={c['value']}" for c in cookies_list)
+
     async def _hijacker(self, route: Route):
         resource_type = route.request.resource_type
         url = route.request.url
-
-        if resource_type in [ 'images', 'font', 'image']:
+        if resource_type in [ 'images', 'font', 'image', 'stylesheet']:
             await route.abort()
             return
 
-        if resource_type == 'xhr':
+        if resource_type == 'fetch':
             self.logger.info(f"{route.request.method} - {resource_type} - {url}")
             url_parse = urlparse(url)
-            if len(url_parse.query.split('&')) == 5 and self.search_id in url_parse.path:
-                self.master_playlist_url = url
-                return
+
+            if url_parse.path == '/method/video.getVideoDiscover':
+                headers = dict(route.request.headers)
+                print(headers)
+                method = route.request.method
+                post_data = route.request.post_data
+                async with ClientSession(headers=headers) as session:
+                    async with session.request(
+                            method=method,
+                            url=url,
+                            data=post_data
+                    ) as response:
+
+                        json_data = await response.json()
+                        files = json_data.get('response').get('current_video').get('files')
+                        print("Ответ от video.getVideoDiscover:")
+                        self.master_playlist_url = files.get('hls')
+                        print(self.master_playlist_url)
+                        await route.abort()
+                        return
 
         await route.continue_()
 
@@ -82,9 +102,6 @@ class ParserRutube:
                     'headless': False
                 }
 
-        if self.proxy:
-            launch_args['proxy'] = {**self.proxy}
-
         self.browser = await self.playwright.firefox.launch(**launch_args)
 
 
@@ -94,11 +111,10 @@ class ParserRutube:
         if self.playwright:
             await self.playwright.stop()
 
-
     async def worker(self):
         self.logger.info(f"Worker starting")
 
-        await self.page.goto(f"{self.base_rutube_url}/{self.search_id}", timeout=self.timeout)
+        await self.page.goto(self.link, timeout=self.timeout)
 
         for _ in range(25):
             if self.master_playlist_url:
@@ -117,6 +133,7 @@ class ParserRutube:
         self.page = await self.context.new_page()
         try:
             res = await self.worker()
+
         except self.NotFoundVideo:
             return ''
         else:

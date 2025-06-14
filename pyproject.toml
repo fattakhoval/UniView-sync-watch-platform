@@ -26,6 +26,7 @@ dependencies = [
     "undetected-playwright (>=0.3.0,<0.4.0)",
     "hypercorn (>=0.17.3,<0.18.0)",
     "pydantic[email] (>=2.11.4,<3.0.0)",
+    "m3u8 (>=6.0.0,<7.0.0)",
 ]
 
 
