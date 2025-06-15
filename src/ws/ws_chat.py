@@ -20,7 +20,7 @@ async def save_voice(room_id, username, filename, base64_data):
         user = await User.get_by_name(session=session, name=username)
 
         filepath = config.VOICE_DIR / f'{filename}'
-
+        print(f'Try to save voice msg: {filepath}')
         with open(filepath, "wb") as f:
             f.write(base64.b64decode(base64_data))
 
