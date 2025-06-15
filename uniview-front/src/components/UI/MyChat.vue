@@ -72,6 +72,7 @@ import Cookies from 'js-cookie';
 import parseJwt from '@/utils';
 import CustomAudioPlayer from './CustomAudioPlayer.vue';
 import InfoIcon from '../icons/InfoIcon.vue';
+import Recorder from 'recorder-js'
 
 const audioContext = new (window.AudioContext || window.webkitAudioContext)()
 const recorder = ref(null)
@@ -164,7 +165,7 @@ async function startRecording() {
   if (isRecording.value) return;
 
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  recorder.value = new window.Recorder(audioContext)
+  recorder.value = new Recorder(audioContext)
   await recorder.value.init(stream)
 
   await recorder.value.start()
