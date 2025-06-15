@@ -155,7 +155,7 @@ async function startRecording() {
   mediaRecorder.onstop = async () => {
     isRecording.value = false;
 
-    const blob = new Blob(chunks, { type: 'audio/webm' });
+    const blob = new Blob(chunks, { type: 'audio/mp4' });
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64Audio = reader.result.split(',')[1];
