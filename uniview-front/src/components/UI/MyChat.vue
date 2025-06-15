@@ -184,7 +184,7 @@ async function stopRecording() {
   reader.onloadend = () => {
     const base64Audio = reader.result.split(',')[1]
     const voiceMessage = {
-      sender: username.value,
+      sender: username,
       type: 'voice',
       filename: uuidv4() + '.wav',
       data: base64Audio,
