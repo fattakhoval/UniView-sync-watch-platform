@@ -164,7 +164,7 @@ async function startRecording() {
   if (isRecording.value) return;
 
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  recorder.value = new Recorder(audioContext)
+  recorder.value = new window.Recorder(audioContext)
   await recorder.value.init(stream)
 
   await recorder.value.start()
