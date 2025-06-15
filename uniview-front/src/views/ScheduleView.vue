@@ -393,6 +393,10 @@ input[type="date"] {
     width: 100%;
     height: 60px;
 
+    max-height: 300px; /* ограничение по высоте */
+    overflow-y: auto;  /* вертикальная прокрутка */
+    scrollbar-width: thin; /* Firefox */
+
 }
 
 .upcoming-section h2 {
@@ -456,4 +460,72 @@ input[type="date"] {
 :deep(.dp__inner_nav svg:hover) {
     color: #ffffff;
 }
+
+@media (max-width: 1024px) {
+    .top-section {
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+
+    .form-section,
+    .calendar-wrapper {
+        width: 90%;
+    }
+
+    .dp__main {
+        width: 100%;
+    }
+
+    .friend-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .invite-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    input[type="text"],
+    input[type="time"],
+    input[type="date"] {
+        width: 90%;
+    }
+}
+
+@media (max-width: 640px) {
+    .schedule-container {
+        padding: 1rem;
+        width: 90%;
+    }
+
+    .top-section {
+        padding: 1rem;
+    }
+
+    .form-section {
+        padding: 1rem;
+    }
+
+    .calendar-wrapper {
+        padding: 1rem;
+    }
+
+    .submit-btn {
+        font-size: 14px;
+        padding: 0.6rem 1rem;
+    }
+
+    .upcoming-section {
+        padding: 1rem;
+    }
+
+    .upcoming-section li {
+        font-size: 14px;
+        height: auto;
+    }
+}
+
 </style>

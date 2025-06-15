@@ -57,7 +57,7 @@
             </div>
 
         </div>
-        
+
     </div>
 
 </template>
@@ -90,10 +90,10 @@ const token = Cookies.get('access_token');
 let userId = null;
 
 if (token) {
-  const decoded = parseJwt(token);
-  if (decoded) {
-    userId = decoded.id_user;
-  }
+    const decoded = parseJwt(token);
+    if (decoded) {
+        userId = decoded.id_user;
+    }
 }
 
 
@@ -220,22 +220,22 @@ async function setupWebSocketVideo() {
 
 //Применение состаяния видео для вошедшего пользователя
 function applyVideoState(state) {
-  const video = document.getElementById('video');
+    const video = document.getElementById('video');
 
-  const apply = () => {
-    video.currentTime = state.timestamp;
-    if (state.status === 'play') {
-      video.play().catch(() => {});
+    const apply = () => {
+        video.currentTime = state.timestamp;
+        if (state.status === 'play') {
+            video.play().catch(() => { });
+        } else {
+            video.pause();
+        }
+    };
+
+    if (video.readyState >= 1) {
+        apply();
     } else {
-      video.pause();
+        video.addEventListener('loadedmetadata', apply, { once: true });
     }
-  };
-
-  if (video.readyState >= 1) {
-    apply();
-  } else {
-    video.addEventListener('loadedmetadata', apply, { once: true });
-  }
 }
 
 //Получение ссылкот на качество видео
@@ -282,7 +282,7 @@ function initVideoElementLink(playlistUrl) {
                 qualitySelect.appendChild(option);
             });
 
-      
+
             videoElement.value.onloadedmetadata = () => {
                 duration.value = video.duration;
             };
@@ -300,38 +300,38 @@ function initVideoElementLink(playlistUrl) {
     });
 
         hls.on(Hls.Events.ERROR, function (event, data) {
-      if (data.fatal) {
-        switch (data.type) {
-          case Hls.ErrorTypes.NETWORK_ERROR:
-            console.error("Сетевая ошибка, пробуем восстановить…", data);
+            if (data.fatal) {
+                switch (data.type) {
+                    case Hls.ErrorTypes.NETWORK_ERROR:
+                        console.error("Сетевая ошибка, пробуем восстановить…", data);
             hls.startLoad();
-            break;
-          case Hls.ErrorTypes.MEDIA_ERROR:
-            console.error("Медиа ошибка, пытаемся восстановить поток…", data);
+                        break;
+                    case Hls.ErrorTypes.MEDIA_ERROR:
+                        console.error("Медиа ошибка, пытаемся восстановить поток…", data);
             hls.recoverMediaError();
-            break;
-          case Hls.ErrorTypes.OTHER_ERROR:
-            console.error("Other error: ", data);
-            break;
-          default:
-            console.error("Фатальная ошибка, уничтожаем HLS:", data);
+                        break;
+                    case Hls.ErrorTypes.OTHER_ERROR:
+                        console.error("Other error: ", data);
+                        break;
+                    default:
+                        console.error("Фатальная ошибка, уничтожаем HLS:", data);
             hls.destroy();
-            break;
-        }
-      }
+                        break;
+                }
+            }
         });
 
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = playlistUrl;
         video.addEventListener('loadedmetadata', () => video.play());
-  }
+    }
 }
 
 function setupWebsocketController() {
     ws_control = new WebSocket(`/api/ws/control/${roomId}/${userId}`)
 
     ws_control.onmessage = async (event) => {
-        
+
         const message = JSON.parse(event.data);
         const action = message.action
 
@@ -366,8 +366,8 @@ function setupWebsocketController() {
                     status: message.state.status
                 });
                 message.state.status === 'pause'
-                ? (isPlaying.value = false, videoElement.value.pause())
-                : (isPlaying.value = true, videoElement.value.play().catch(() => {}));
+                    ? (isPlaying.value = false, videoElement.value.pause())
+                    : (isPlaying.value = true, videoElement.value.play().catch(() => { }));
 
             }
 
@@ -377,18 +377,18 @@ function setupWebsocketController() {
 
 //Интервальная отправка состояния видео
 function startSyncInterval() {
-  if (!syncInterval) {
-    syncInterval = setInterval(() => {
-      sendControlAction('sync')
-    }, 2000)
-  }
+    if (!syncInterval) {
+        syncInterval = setInterval(() => {
+            sendControlAction('sync')
+        }, 2000)
+    }
 }
 
 function stopSyncInterval() {
-  if (syncInterval) {
-    clearInterval(syncInterval)
-    syncInterval = null
-  }
+    if (syncInterval) {
+        clearInterval(syncInterval)
+        syncInterval = null
+    }
 }
 
 function sendControlAction(action) {
@@ -592,17 +592,18 @@ function onSeekChange() {
 }
 
 .quality-select {
-  appearance: none; /* Убирает стандартные стили */
-  background-color: var(--input-bg, #1e1e2f);
-  color: var(--text-p, #ffffff);
-  border: 1px solid #444;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 14px;
-  font-family: "Montserrat Alternates", sans-serif;
-  cursor: pointer;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
-  width: 14px;
+    appearance: none;
+    /* Убирает стандартные стили */
+    background-color: var(--input-bg, #1e1e2f);
+    color: var(--text-p, #ffffff);
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-family: "Montserrat Alternates", sans-serif;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    width: 14px;
 }
 
 @media (max-width: 600px) {
@@ -621,10 +622,10 @@ function onSeekChange() {
         min-width: 60px;
     }
 
-    .controls button{
+    .controls button {
         padding: 0;
         font-size: 14px;
     }
-    
+
 }
 </style>
