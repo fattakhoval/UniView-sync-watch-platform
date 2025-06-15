@@ -194,7 +194,7 @@ function copyToClipboard(text) {
 
 .cine-box {
     width: 100%;
-    height: 600px;
+    height: 700px;
     display: flex;
     justify-content: space-between;
 
