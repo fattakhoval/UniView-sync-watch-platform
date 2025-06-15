@@ -162,8 +162,9 @@ onBeforeUnmount(() => {
 });
 
 async function startRecording() {
-  if (isRecording.value) return;
+  if (isRecording.value) return
 
+  console.log("start recording")
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   recorder.value = new Recorder(audioContext)
   await recorder.value.init(stream)
@@ -175,6 +176,7 @@ async function startRecording() {
 async function stopRecording() {
   if (!recorder.value || !isRecording.value) return
 
+  console.log("stop recording")
   const { blob } = await recorder.value.stop()
   isRecording.value = false
 
@@ -188,6 +190,7 @@ async function stopRecording() {
       data: base64Audio,
       time: new Date().toISOString(),
     }
+    console.log("send record")
     chatSocket.value.send(JSON.stringify(voiceMessage))
   }
   reader.readAsDataURL(blob)
