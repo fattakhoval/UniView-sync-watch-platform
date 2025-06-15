@@ -55,6 +55,7 @@ async def ws_chat(room_id: UUID, user_id: UUID, websocket: WebSocket):
         while True:
             data = json.loads(await websocket.receive_text())
 
+            print(data)
             if data.get("type") == "voice":
                 await save_voice(room_id, data["sender"], data['filename'], data["data"])
             else:
