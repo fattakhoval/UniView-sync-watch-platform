@@ -19,7 +19,7 @@ async def save_voice(room_id, username, filename, base64_data):
     async for session in get_db():
         user = await User.get_by_name(session=session, name=username)
 
-        filepath = config.VOICE_DIR / f'{filename}.webm'
+        filepath = config.VOICE_DIR / f'{filename}'
 
         with open(filepath, "wb") as f:
             f.write(base64.b64decode(base64_data))
