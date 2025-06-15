@@ -40,7 +40,7 @@ async def get_messages(room_id: UUID, session: AsyncSession = Depends(get_db)):
 @message_router.get('/voices/{voice_id}')
 async def get_voice(voice_id: str):
 
-    file_path = config.VOICE_DIR / Path(f'{voice_id}.webm')
+    file_path = config.VOICE_DIR / Path(f'{voice_id}')
     if file_path.exists() and file_path.is_file():
         return FileResponse(file_path)
     else:
