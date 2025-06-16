@@ -100,6 +100,7 @@ if (token) {
 onMounted(() => {
     setupWebSocketVideo();
     setupWebsocketController();
+    startSyncInterval();
 });
 
 onUnmounted(() => {
@@ -206,7 +207,6 @@ async function setupWebSocketVideo() {
             const playlistData = await getPlaylistData(link, type);
             
             initVideoElementLink(playlistData);
-            startSyncInterval();
             return;
         }
 
@@ -251,6 +251,9 @@ async function getPlaylistData(masterUrl, type_src_video) {
 
 //Инициализация видео-плеера по ссылке
 function initVideoElementLink(playlistUrl) {
+
+    startSyncInterval()
+
     const video = videoElement.value;
     const qualitySelect = document.getElementById('quality');
 
