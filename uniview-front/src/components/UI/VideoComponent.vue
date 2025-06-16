@@ -213,6 +213,7 @@ async function setupWebSocketVideo() {
         const path = "/api/video/" + message;
         console.log(path);
         stopSyncInterval();
+        resetVideoElement();
         initVideoElement(path);
 
     }
@@ -252,7 +253,7 @@ async function getPlaylistData(masterUrl, type_src_video) {
 //Инициализация видео-плеера по ссылке
 function initVideoElementLink(playlistUrl) {
 
-    startSyncInterval()
+    startSyncInterval();
 
     const video = videoElement.value;
     const qualitySelect = document.getElementById('quality');
