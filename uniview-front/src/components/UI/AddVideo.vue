@@ -11,7 +11,14 @@
             placeholder="Введите ссылку на видео" 
             class="input-field"
           />
-          <button @click="processVideoUrl" class="send-button">Отправить</button>
+          <button
+            @click="processVideoUrl"
+            class="send-button"
+            :disabled="isLoading"
+          >
+            <span v-if="isLoading">Отправить</span>
+            <span v-else>Загрузка...</span>
+        </button>
         </div>
       </transition>
   
@@ -35,18 +42,25 @@
   const showFileInput = ref(false);
   const videoUrl = ref('');
   const videoSocket = ref(null);
+  const isLoading = ref(false);
   
 
 
   const processVideoUrl = async () => {
     if (!videoUrl.value) return;
 
-  if (videoUrl.value.includes('vkvideo.ru')) {
-    handleVk()
-  } else if (videoUrl.value.includes('rutube.ru')) {
-    handleRutube()
-  }
-}
+    isLoading.value = true;
+
+    try {
+      if (videoUrl.value.includes('vkvideo.ru')) {
+        handleVk()
+      } else if (videoUrl.value.includes('rutube.ru')) {
+        handleRutube()
+      }
+    } finally {
+      isLoading.value = false;
+    }
+  };
 
 const handleVk = async () => {
   try {
@@ -201,6 +215,11 @@ const handleVk = async () => {
   }
   .fade-enter-from, .fade-leave-to {
     opacity: 0;
+  }
+
+  .send-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   @media (max-width: 700px) {
