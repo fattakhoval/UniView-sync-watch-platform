@@ -16,8 +16,8 @@
             class="send-button"
             :disabled="isLoading"
           >
-            <span v-if="isLoading">Отправить</span>
-            <span v-else>Загрузка...</span>
+            <span v-if="isLoading">Загрузка...</span>
+            <span v-else>Отправить</span>
         </button>
         </div>
       </transition>
