@@ -213,7 +213,14 @@ async function setupWebSocketVideo() {
         const path = "/api/video/" + message;
         console.log(path);
         stopSyncInterval();
-        resetVideoElement();
+        if (hls) {
+            hls.destroy();
+            }
+        if (video) {
+            video.pause();
+            video.removeAttribute('src');
+            video.load();
+        }
         initVideoElement(path);
 
     }
