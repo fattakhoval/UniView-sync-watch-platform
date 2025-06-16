@@ -100,7 +100,6 @@ if (token) {
 onMounted(() => {
     setupWebSocketVideo();
     setupWebsocketController();
-    startSyncInterval();
 });
 
 onUnmounted(() => {
@@ -205,14 +204,15 @@ async function setupWebSocketVideo() {
             }
 
             const playlistData = await getPlaylistData(link, type);
-
+            
             initVideoElementLink(playlistData);
-
+            startSyncInterval();
             return;
         }
 
         const path = "/api/video/" + message;
         console.log(path);
+        stopSyncInterval();
         initVideoElement(path);
 
     }
