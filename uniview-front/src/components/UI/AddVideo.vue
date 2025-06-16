@@ -47,15 +47,15 @@
 
 
   const processVideoUrl = async () => {
-    if (!videoUrl.value) return;
+    if (!videoUrl.value || isLoading.value) return;
 
     isLoading.value = true;
 
     try {
       if (videoUrl.value.includes('vkvideo.ru')) {
-        handleVk()
+        await handleVk()
       } else if (videoUrl.value.includes('rutube.ru')) {
-        handleRutube()
+        await handleRutube()
       }
     } finally {
       isLoading.value = false;
